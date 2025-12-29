@@ -87,7 +87,8 @@
     <!-- Hero -->
     <div class="container text-center py-5">
         <h1 class="mb-3">Buy Mobile Data Bundles</h1>
-        <p class="text-muted">Instant delivery • 3-30 minutes • 100% Guaranteed</p>
+        <!-- FIXED: Changed from 3-30 to 3-15 minutes -->
+        <p class="text-muted">Instant delivery • 3-15 minutes • 100% Guaranteed</p>
         
         <!-- Network Filter -->
         <div class="mb-4">
@@ -167,24 +168,24 @@
     <script>
         // COMPLETE BUNDLE DATA - From your main website
         const allBundles = [
-            // MTN Bundles (90 days, 3-30min)
-            { id: 'mtn-1', network: 'mtn', size: '1GB', price: 7.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-2', network: 'mtn', size: '2GB', price: 13.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-3', network: 'mtn', size: '3GB', price: 18.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-4', network: 'mtn', size: '4GB', price: 24.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-5', network: 'mtn', size: '5GB', price: 29.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-6', network: 'mtn', size: '6GB', price: 34.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-7', network: 'mtn', size: '7GB', price: 40.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-8', network: 'mtn', size: '8GB', price: 45.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-10', network: 'mtn', size: '10GB', price: 53.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-12', network: 'mtn', size: '12GB', price: 65.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-15', network: 'mtn', size: '15GB', price: 78.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-20', network: 'mtn', size: '20GB', price: 100.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-25', network: 'mtn', size: '25GB', price: 125.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-30', network: 'mtn', size: '30GB', price: 148.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-40', network: 'mtn', size: '40GB', price: 195.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-50', network: 'mtn', size: '50GB', price: 225.00, validity: '90 days', delivery: '3-30min' },
-            { id: 'mtn-100', network: 'mtn', size: '100GB', price: 430.00, validity: '90 days', delivery: '3-30min' },
+            // MTN Bundles (90 days, 3-15min) - UPDATED TIME
+            { id: 'mtn-1', network: 'mtn', size: '1GB', price: 7.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-2', network: 'mtn', size: '2GB', price: 13.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-3', network: 'mtn', size: '3GB', price: 18.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-4', network: 'mtn', size: '4GB', price: 24.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-5', network: 'mtn', size: '5GB', price: 29.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-6', network: 'mtn', size: '6GB', price: 34.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-7', network: 'mtn', size: '7GB', price: 40.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-8', network: 'mtn', size: '8GB', price: 45.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-10', network: 'mtn', size: '10GB', price: 53.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-12', network: 'mtn', size: '12GB', price: 65.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-15', network: 'mtn', size: '15GB', price: 78.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-20', network: 'mtn', size: '20GB', price: 100.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-25', network: 'mtn', size: '25GB', price: 125.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-30', network: 'mtn', size: '30GB', price: 148.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-40', network: 'mtn', size: '40GB', price: 195.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-50', network: 'mtn', size: '50GB', price: 225.00, validity: '90 days', delivery: '3-15min' },
+            { id: 'mtn-100', network: 'mtn', size: '100GB', price: 430.00, validity: '90 days', delivery: '3-15min' },
             
             // AirtelTigo iShare Bundles (60 days, INSTANT)
             { id: 'airtel-1', network: 'airteltigo', size: '1GB', price: 6.00, validity: '60 days', delivery: 'INSTANT', instant: true },
@@ -203,25 +204,25 @@
             { id: 'airtel-25', network: 'airteltigo', size: '25GB', price: 115.00, validity: '60 days', delivery: 'INSTANT', instant: true },
             { id: 'airtel-30', network: 'airteltigo', size: '30GB', price: 135.00, validity: '60 days', delivery: 'INSTANT', instant: true },
             
-            // AirtelTigo BigTime (No expiry)
-            { id: 'airtel-bt-40', network: 'airteltigo', size: '40GB', price: 100.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
-            { id: 'airtel-bt-50', network: 'airteltigo', size: '50GB', price: 110.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
-            { id: 'airtel-bt-60', network: 'airteltigo', size: '60GB', price: 127.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
-            { id: 'airtel-bt-70', network: 'airteltigo', size: '70GB', price: 155.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
-            { id: 'airtel-bt-80', network: 'airteltigo', size: '80GB', price: 182.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
-            { id: 'airtel-bt-90', network: 'airteltigo', size: '90GB', price: 198.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
-            { id: 'airtel-bt-100', network: 'airteltigo', size: '100GB', price: 218.00, validity: 'No expiry', delivery: '3-30min', bigTime: true },
+            // AirtelTigo BigTime (No expiry) - UPDATED TIME
+            { id: 'airtel-bt-40', network: 'airteltigo', size: '40GB', price: 100.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
+            { id: 'airtel-bt-50', network: 'airteltigo', size: '50GB', price: 110.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
+            { id: 'airtel-bt-60', network: 'airteltigo', size: '60GB', price: 127.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
+            { id: 'airtel-bt-70', network: 'airteltigo', size: '70GB', price: 155.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
+            { id: 'airtel-bt-80', network: 'airteltigo', size: '80GB', price: 182.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
+            { id: 'airtel-bt-90', network: 'airteltigo', size: '90GB', price: 198.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
+            { id: 'airtel-bt-100', network: 'airteltigo', size: '100GB', price: 218.00, validity: 'No expiry', delivery: '3-15min', bigTime: true },
             
-            // Telecel Bundles (60 days, 3-30min)
-            { id: 'telecel-5', network: 'telecel', size: '5GB', price: 25.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-10', network: 'telecel', size: '10GB', price: 48.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-15', network: 'telecel', size: '15GB', price: 68.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-20', network: 'telecel', size: '20GB', price: 88.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-25', network: 'telecel', size: '25GB', price: 110.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-30', network: 'telecel', size: '30GB', price: 130.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-40', network: 'telecel', size: '40GB', price: 172.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-50', network: 'telecel', size: '50GB', price: 210.00, validity: '60 days', delivery: '3-30min' },
-            { id: 'telecel-100', network: 'telecel', size: '100GB', price: 420.00, validity: '60 days', delivery: '3-30min' }
+            // Telecel Bundles (60 days, 3-15min) - UPDATED TIME
+            { id: 'telecel-5', network: 'telecel', size: '5GB', price: 25.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-10', network: 'telecel', size: '10GB', price: 48.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-15', network: 'telecel', size: '15GB', price: 68.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-20', network: 'telecel', size: '20GB', price: 88.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-25', network: 'telecel', size: '25GB', price: 110.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-30', network: 'telecel', size: '30GB', price: 130.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-40', network: 'telecel', size: '40GB', price: 172.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-50', network: 'telecel', size: '50GB', price: 210.00, validity: '60 days', delivery: '3-15min' },
+            { id: 'telecel-100', network: 'telecel', size: '100GB', price: 420.00, validity: '60 days', delivery: '3-15min' }
         ];
 
         let selectedBundle = null;
@@ -287,7 +288,8 @@
             
             document.getElementById('bundleInfo').innerHTML = `
                 <h5>${selectedBundle.network.toUpperCase()} - ${selectedBundle.size}</h5>
-                <p class="text-muted">${selectedBundle.validity} • ${selectedBundle.instant ? '⚡ INSTANT' : selectedBundle.delivery}</p>
+                <!-- FIXED: Changed from 3-30min to 3-15min -->
+                <p class="text-muted">${selectedBundle.validity} • ${selectedBundle.instant ? '⚡ INSTANT' : '3-15min'}</p>
                 <h4 class="text-success">₵${selectedBundle.price.toFixed(2)}</h4>
                 ${selectedBundle.bigTime ? '<p class="text-warning">🔥 BigTime (No expiry)</p>' : ''}
             `;
@@ -300,13 +302,20 @@
             modal.show();
         }
 
-        // ==== UPDATED PROCESS PAYMENT FUNCTION WITH PAYSTACK ====
+        // ==== FIXED PROCESS PAYMENT FUNCTION ====
         async function processPayment() {
             const phone = document.getElementById('phoneInput').value.trim();
             const email = document.getElementById('emailInput').value.trim() || 'customer@example.com';
 
             if (!phone || !selectedBundle) {
                 alert('Please enter a phone number.');
+                return;
+            }
+
+            // FIXED: Better Ghana phone number validation (accepts 024, 054, etc.)
+            const phoneRegex = /^(0[2-9][0-9]{8}|233[2-9][0-9]{8})$/;
+            if (!phoneRegex.test(phone)) {
+                alert('Please enter a valid Ghana phone number (e.g., 0241234567, 0550123456)');
                 return;
             }
 
@@ -319,16 +328,26 @@
             `;
 
             try {
-                const createOrderResp = await fetch('https://mysterydatahub-bwqf.onrender.com/api/orders/create', {
+                // CORRECT: Using right backend URL
+                const createOrderResp = await fetch('https://mysterydatahub-api.onrender.com/api/orders/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        bundleId: selectedBundle.id,
+                        bundleId: selectedBundle.id, // CRITICAL FIX: Must match backend expectation
                         recipientPhone: phone,
                         customerEmail: email,
-                        amount: selectedBundle.price // Your selling price
+                        amount: selectedBundle.price,
+                        network: selectedBundle.network,
+                        bundleSize: selectedBundle.size,
+                        validity: selectedBundle.validity,
+                        deliveryType: selectedBundle.instant ? 'instant' : 'express'
                     })
                 });
+
+                // Check if response is OK
+                if (!createOrderResp.ok) {
+                    throw new Error(`HTTP error! status: ${createOrderResp.status}`);
+                }
 
                 const orderData = await createOrderResp.json();
 
@@ -346,27 +365,32 @@
 
                 // Use the order details from YOUR backend to initialize PayStack
                 const handler = PaystackPop.setup({
-                    key: orderData.publicKey, // Your public key from backend
-                    email: orderData.email,
-                    amount: orderData.amount, // Amount in pesewas
-                    ref: orderData.orderId,   // Use your order ID as reference
+                    key: orderData.publicKey || 'pk_live_f786738518503826805eb02c3c2ad945b62e5e8f',
+                    email: email,
+                    amount: orderData.amount, // Already in pesewas from backend
+                    ref: orderData.reference || orderData.orderId,
                     metadata: {
-                        orderId: orderData.orderId // Crucial for webhook to identify the order
+                        orderId: orderData.orderId,
+                        phone: phone,
+                        bundle: selectedBundle.size
                     },
                     callback: function(response) {
-                        // This callback is for browser redirects. The REAL verification is via webhook.
+                        // This callback is for browser redirects
                         console.log('Payment callback reference:', response.reference);
+                        
                         // Show a waiting message
                         document.getElementById('paymentStatus').innerHTML = `
                             <div class="alert alert-warning">
                                 <h6>⏳ Payment Submitted</h6>
-                                <p>Your payment (Ref: ${response.reference}) is being verified. Please wait...</p>
-                                <p>Your data bundle will be delivered shortly upon confirmation.</p>
-                                <a href="track-order.html?ref=${orderData.orderId}" class="btn btn-primary btn-sm mt-2">
+                                <p>Your payment (Ref: ${response.reference}) is being verified...</p>
+                                <p>Your ${selectedBundle.size} ${selectedBundle.network.toUpperCase()} bundle will be delivered to ${phone}</p>
+                                <p>This usually takes 1-3 minutes.</p>
+                                <a href="track-order.html?orderId=${orderData.orderId}" class="btn btn-primary btn-sm mt-2">
                                     Track Order Status
                                 </a>
                             </div>
                         `;
+                        
                         // Start checking order status
                         startCheckingOrderStatus(orderData.orderId);
                     },
@@ -374,9 +398,12 @@
                         document.getElementById('paymentStatus').innerHTML = `
                             <div class="alert alert-secondary">
                                 <h6>Payment Incomplete</h6>
-                                <p>You closed the payment window. The order was created but not paid.</p>
+                                <p>You closed the payment window.</p>
                                 <p>If you completed the payment, your order will still be processed.</p>
-                                <button class="btn btn-sm btn-warning" onclick="processPayment()">Try Again</button>
+                                <p>Order ID: ${orderData.orderId}</p>
+                                <a href="track-order.html?orderId=${orderData.orderId}" class="btn btn-sm btn-warning mt-1">
+                                    Check Order Status
+                                </a>
                             </div>
                         `;
                     }
@@ -390,64 +417,87 @@
                     <div class="alert alert-danger">
                         <h6>❌ Setup Failed</h6>
                         <p>${error.message}</p>
+                        <p>Please try again or contact support if the problem persists.</p>
+                        <button class="btn btn-sm btn-warning mt-1" onclick="processPayment()">Try Again</button>
                     </div>
                 `;
             }
         }
 
-        // Helper function to poll for order status updates
+        // Helper function to poll for order status updates - FIXED
         function startCheckingOrderStatus(orderId) {
             let checks = 0;
-            const maxChecks = 20; // Check for about 100 seconds
+            const maxChecks = 30;
             const interval = setInterval(async () => {
                 checks++;
                 if (checks > maxChecks) {
                     clearInterval(interval);
                     document.getElementById('paymentStatus').innerHTML += `
                         <div class="alert alert-info mt-2">
-                            <small>Still waiting for confirmation? <a href="track-order.html?ref=${orderId}">Track your order here</a></small>
+                            <small>Still waiting? <a href="track-order.html?orderId=${orderId}" class="text-warning">Track your order here</a></small>
                         </div>
                     `;
                     return;
                 }
+                
                 try {
-                    const response = await fetch(`/api/orders/${orderId}`);
+                    const response = await fetch(`https://mysterydatahub-api.onrender.com/api/orders/${orderId}`);
+                    
+                    if (!response.ok) {
+                        console.log('Failed to fetch order status');
+                        return;
+                    }
+                    
                     const result = await response.json();
-                    if (result.success) {
-                        // Update UI based on new status
+                    
+                    if (result.success && result.order) {
+                        const status = result.order.status;
                         const statusEl = document.querySelector('#paymentStatus .alert');
+                        
                         if (statusEl) {
-                            if (result.order.status === 'delivered') {
+                            if (status === 'delivered' || status === 'completed') {
                                 statusEl.className = 'alert alert-success';
                                 statusEl.innerHTML = `
                                     <h6>✅ Bundle Delivered!</h6>
-                                    <p>Check your phone <strong>${result.order.recipientPhone}</strong>.</p>
-                                    <p>Your ${result.order.bundle} has been sent.</p>
-                                    <a href="track-order.html?ref=${orderId}" class="btn btn-success btn-sm mt-1">
+                                    <p>Check your phone <strong>${result.order.recipientPhone || phone}</strong>.</p>
+                                    <p>Your ${result.order.bundleSize || selectedBundle.size} ${result.order.network || selectedBundle.network} bundle has been sent.</p>
+                                    <p>Delivery time: ${new Date().toLocaleTimeString()}</p>
+                                    <a href="track-order.html?orderId=${orderId}" class="btn btn-success btn-sm mt-1">
                                         View Receipt
                                     </a>
                                 `;
                                 clearInterval(interval);
-                            } else if (result.order.status === 'processing_api') {
+                                
+                            } else if (status === 'processing' || status === 'processing_api') {
                                 statusEl.innerHTML = `
                                     <h6>⚙️ Delivering Your Bundle...</h6>
-                                    <p>Payment confirmed. Sending data to <strong>${result.order.recipientPhone}</strong>...</p>
+                                    <p>Payment confirmed. Sending data to <strong>${result.order.recipientPhone || phone}</strong>...</p>
                                     <div class="progress mt-2" style="height: 10px;">
                                         <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 70%"></div>
                                     </div>
+                                    <small>${checks * 5} seconds elapsed</small>
                                 `;
-                            } else if (result.order.status === 'paid') {
+                                
+                            } else if (status === 'paid') {
                                 statusEl.innerHTML = `
                                     <h6>✅ Payment Verified!</h6>
-                                    <p>Starting bundle delivery to <strong>${result.order.recipientPhone}</strong>...</p>
+                                    <p>Starting bundle delivery to <strong>${result.order.recipientPhone || phone}</strong>...</p>
                                     <p>This usually takes 1-3 minutes.</p>
+                                    <div class="progress mt-2" style="height: 10px;">
+                                        <div class="progress-bar progress-bar-striped" style="width: 40%"></div>
+                                    </div>
                                 `;
-                            } else if (result.order.status === 'failed') {
+                                
+                            } else if (status === 'failed' || status === 'error') {
                                 statusEl.className = 'alert alert-danger';
                                 statusEl.innerHTML = `
                                     <h6>❌ Delivery Failed</h6>
-                                    <p>${result.order.error || 'Please contact support'}</p>
+                                    <p>${result.order.error || 'Please contact support for assistance.'}</p>
+                                    <p>Your payment has been received. We'll process a refund if delivery fails.</p>
                                     <button class="btn btn-sm btn-warning" onclick="processPayment()">Try Again</button>
+                                    <a href="track-order.html?orderId=${orderId}" class="btn btn-sm btn-secondary ms-1">
+                                        View Details
+                                    </a>
                                 `;
                                 clearInterval(interval);
                             }
@@ -456,7 +506,7 @@
                 } catch (e) { 
                     console.log('Polling error, continuing...');
                 }
-            }, 5000); // Check every 5 seconds
+            }, 5000);
         }
 
         // Filter function
