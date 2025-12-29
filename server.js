@@ -9,7 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('.'));
 
 // Load Config from .env
 const {
@@ -19,50 +18,61 @@ const {
   SUCCESSBIZHUB_BASE_URL,
   PAYSTACK_SECRET_KEY,
   PAYSTACK_PUBLIC_KEY,
-  YOUR_DOMAIN
+  YOUR_DOMAIN,
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD
 } = process.env;
 
 // Validate critical config
-if (!PAYSTACK_SECRET_KEY || !YOUR_DOMAIN || YOUR_DOMAIN.includes('your-actual-domain')) {
-  console.error('❌ FATAL ERROR: Missing or invalid configuration in .env file.');
-  console.error('   Please set YOUR_DOMAIN and verify your PayStack keys.');
+if (!PAYSTACK_SECRET_KEY || !YOUR_DOMAIN) {
+  console.error('❌ FATAL ERROR: Missing critical configuration.');
+  console.error('   Please set YOUR_DOMAIN and verify your PayStack keys in Render Environment Variables.');
   process.exit(1);
 }
 
-// Database Connection
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => {
-    console.log('❌ MongoDB error:', err.message);
+// Database Connection with timeout
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI, { 
+      useNewUrlParser: true, 
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000, // 10 second timeout
+      socketTimeoutMS: 45000 // 45 second timeout
+    });
+    console.log('✅ MongoDB connected successfully');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    console.error('   Check your MONGODB_URI in Render Environment Variables');
     process.exit(1);
-  });
+  }
+};
+
+connectDB();
 
 // Order Schema
 const orderSchema = new mongoose.Schema({
-  orderId: { type: String, unique: true, required: true }, // e.g., MYST-123456
-  paystackReference: { type: String, unique: true, sparse: true }, // e.g., tx_abc123
+  orderId: { type: String, unique: true, required: true },
+  paystackReference: { type: String, unique: true, sparse: true },
   customerEmail: String,
   recipientPhone: String,
   network: String,
   bundleSlug: String,
   bundleSize: String,
-  amount: Number, // Price charged to customer
-  costPrice: Number, // Price deducted from your Success Biz Hub wallet
+  amount: Number,
+  costPrice: Number,
   status: { 
     type: String, 
     default: 'created',
     enum: ['created', 'pending_payment', 'paid', 'processing_api', 'delivered', 'failed', 'cancelled']
   },
-  apiReference: String, // From Success Biz Hub
-  apiOrderId: String, // From Success Biz Hub
+  apiReference: String,
+  apiOrderId: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 const Order = mongoose.model('Order', orderSchema);
 
 // ========== BUNDLE CATALOG & MAPPING ==========
-// This maps your frontend bundle IDs to the correct API parameters and cost price.
-// YOU MUST SET THE CORRECT COST PRICES FROM YOUR SUCCESS BIZ HUB DASHBOARD.
 const BUNDLE_MAP = {
   // MTN EXPRESS BUNDLES (Slug: mtn_express_bundle)
   'mtn-1':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 1,  costPrice: 6.00 },
@@ -92,7 +102,7 @@ const BUNDLE_MAP = {
   // AirtelTigo BigTime (Slug: bigtime_data_bundle)
   'airtel-bt-40': { network: 'at', offerSlug: 'bigtime_data_bundle', volume: 40, costPrice: 85.00 },
 
-  // Telecel Bundles (Example - GET ACTUAL COSTS!)
+  // Telecel Bundles
   'telecel-5':  { network: 'telecel', offerSlug: 'telecel_express', volume: 5,  costPrice: 21.00 },
   'telecel-10': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 10, costPrice: 40.00 },
 };
@@ -104,7 +114,6 @@ async function fulfillOrderWithProvider(orderDoc) {
     throw new Error(`Bundle configuration not found for ID: ${orderDoc.bundleId}`);
   }
 
-  // Format phone for API (233...)
   const formattedPhone = '233' + orderDoc.recipientPhone.substring(1);
 
   const payload = {
@@ -112,7 +121,7 @@ async function fulfillOrderWithProvider(orderDoc) {
     volume: apiConfig.volume,
     phone: formattedPhone,
     offerSlug: apiConfig.offerSlug,
-    webhookUrl: `${YOUR_DOMAIN}/api/successbizhub-webhook` // They notify us of delivery
+    webhookUrl: `${YOUR_DOMAIN}/api/successbizhub-webhook`
   };
 
   console.log('📤 Calling Success Biz Hub API for order:', orderDoc.orderId);
@@ -124,10 +133,9 @@ async function fulfillOrderWithProvider(orderDoc) {
       { headers: { 'Content-Type': 'application/json', 'x-api-key': SUCCESSBIZHUB_API_KEY } }
     );
     
-    // Save API's reference to our order
     orderDoc.apiReference = response.data.reference;
     orderDoc.apiOrderId = response.data.orderId;
-    orderDoc.status = 'processing_api'; // Awaiting delivery confirmation via their webhook
+    orderDoc.status = 'processing_api';
     await orderDoc.save();
 
     console.log(`✅ Order ${orderDoc.orderId} sent to provider. Ref: ${response.data.reference}`);
@@ -135,7 +143,6 @@ async function fulfillOrderWithProvider(orderDoc) {
 
   } catch (error) {
     console.error('❌ Success Biz Hub API Error:', error.response?.data || error.message);
-    // Mark order as failed
     orderDoc.status = 'failed';
     await orderDoc.save();
     return { 
@@ -147,20 +154,26 @@ async function fulfillOrderWithProvider(orderDoc) {
 
 // ========== API ROUTES ==========
 
+// Health Check Endpoint (Critical for Render)
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'online', 
+    timestamp: new Date(), 
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' 
+  });
+});
+
 // 1. Endpoint to INITIATE an order (called from your frontend)
 app.post('/api/orders/create', async (req, res) => {
   try {
     const { bundleId, recipientPhone, customerEmail, amount } = req.body;
 
-    // Validate bundle
     if (!BUNDLE_MAP[bundleId]) {
       return res.status(400).json({ success: false, error: 'Invalid bundle selected.' });
     }
 
-    // Generate a unique order ID
     const orderId = 'MYST-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-    // Save order as 'created' initially
     const order = new Order({
       orderId,
       customerEmail,
@@ -175,11 +188,10 @@ app.post('/api/orders/create', async (req, res) => {
     });
     await order.save();
 
-    // Respond with order details for PayStack initialization on frontend
     res.json({
       success: true,
       orderId: order.orderId,
-      amount: order.amount * 100, // Convert to pesewas for PayStack
+      amount: order.amount * 100,
       email: order.customerEmail,
       publicKey: PAYSTACK_PUBLIC_KEY
     });
@@ -190,23 +202,15 @@ app.post('/api/orders/create', async (req, res) => {
   }
 });
 
-// 2. Endpoint to VERIFY PAYSTACK PAYMENT & FULFILL ORDER (CRITICAL)
-// This is called by PayStack's webhook AFTER a successful payment.
+// 2. Endpoint to VERIFY PAYSTACK PAYMENT & FULFILL ORDER
 app.post('/api/paystack-webhook', async (req, res) => {
   const event = req.body;
   console.log('🪝 PayStack Webhook Received:', event.event);
 
-  // PayStack requires an immediate 200 response.
-  // Do NOT do lengthy processing here. Use a queue or set a timeout.
   res.status(200).send('Webhook received');
 
-  // Verify this is a successful charge event
   if (event.event === 'charge.success') {
     const paymentData = event.data;
-    const paystackReference = paymentData.reference;
-
-    // Find the order by PayStack reference (you must store this when initializing payment)
-    // We'll find it by orderId stored in metadata for simplicity.
     const metadata = paymentData.metadata;
     const orderId = metadata?.orderId;
 
@@ -222,22 +226,18 @@ app.post('/api/paystack-webhook', async (req, res) => {
         return;
       }
 
-      // Prevent duplicate processing
       if (order.status !== 'created' && order.status !== 'pending_payment') {
         console.log(`ℹ️ Order ${orderId} already processed. Status: ${order.status}`);
         return;
       }
 
-      // Update order with PayStack reference and mark as paid
-      order.paystackReference = paystackReference;
+      order.paystackReference = paymentData.reference;
       order.status = 'paid';
       order.updatedAt = new Date();
       await order.save();
 
       console.log(`✅ Payment verified for order ${orderId}. Now fulfilling with API...`);
 
-      // NOW call the Success Biz Hub API to deliver the bundle
-      // Add a small delay to ensure webhook response was sent
       setTimeout(async () => {
         await fulfillOrderWithProvider(order);
       }, 1000);
@@ -253,7 +253,6 @@ app.post('/api/successbizhub-webhook', async (req, res) => {
   console.log('📩 Success Biz Hub Webhook:', req.body);
   const { event, orderId, reference, status } = req.body;
 
-  // Respond quickly
   res.status(200).send('OK');
 
   try {
@@ -262,7 +261,7 @@ app.post('/api/successbizhub-webhook', async (req, res) => {
     });
 
     if (order) {
-      order.status = status; // e.g., 'delivered', 'failed'
+      order.status = status;
       order.updatedAt = new Date();
       await order.save();
       console.log(`✅ Order ${order.orderId} status updated to: ${status}`);
@@ -279,7 +278,6 @@ app.get('/api/orders/:orderId', async (req, res) => {
     if (!order) {
       return res.json({ success: false, error: 'Order not found.' });
     }
-    // Don't send sensitive data like costPrice to frontend
     res.json({ 
       success: true, 
       order: {
@@ -298,10 +296,93 @@ app.get('/api/orders/:orderId', async (req, res) => {
   }
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Production Server Live on port ${PORT}`);
+// 5. Admin API Routes (CRITICAL for admin-login.html)
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Simple validation
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Email and password are required' 
+      });
+    }
+    
+    // Check against environment variables
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      // Generate a simple token (in production, use JWT)
+      const token = 'admin-' + Date.now() + '-' + Math.random().toString(36).substr(2);
+      
+      return res.json({
+        success: true,
+        token: token,
+        email: email,
+        message: 'Login successful'
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password'
+      });
+    }
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error' 
+    });
+  }
+});
+
+// 6. Admin orders list (for admin.html)
+app.get('/api/admin/orders', async (req, res) => {
+  try {
+    // Simple authentication check (in production, use proper auth middleware)
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('admin-')) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Unauthorized' 
+      });
+    }
+    
+    const orders = await Order.find().sort({ createdAt: -1 }).limit(100);
+    res.json({
+      success: true,
+      orders: orders.map(order => ({
+        orderId: order.orderId,
+        customerEmail: order.customerEmail,
+        recipientPhone: order.recipientPhone,
+        network: order.network,
+        bundleSize: order.bundleSize,
+        amount: order.amount,
+        status: order.status,
+        createdAt: order.createdAt,
+        paystackReference: order.paystackReference,
+        apiReference: order.apiReference
+      }))
+    });
+  } catch (error) {
+    console.error('Admin orders error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch orders' 
+    });
+  }
+});
+
+// ========== START SERVER (CRITICAL FIX) ==========
+// Use Render's PORT or default to 3000, bind to 0.0.0.0 for external access
+const serverPort = process.env.PORT || 3000;
+
+app.listen(serverPort, '0.0.0.0', () => {
+  console.log(`🚀 Production Server Live on port ${serverPort}`);
+  console.log(`🌐 Server bound to: 0.0.0.0 (accessible externally)`);
+  console.log(`🔗 Frontend URL: https://mysterydatahub-bwqf.onrender.com`);
+  console.log(`🔗 Backend URL: ${YOUR_DOMAIN}`);
   console.log(`🔗 PayStack Webhook: ${YOUR_DOMAIN}/api/paystack-webhook`);
   console.log(`🔗 Success Biz Hub Webhook: ${YOUR_DOMAIN}/api/successbizhub-webhook`);
-  console.log(`⚠️  REMEMBER: Fund your Success Biz Hub wallet and configure webhooks in their dashboard!`);
+  console.log(`📊 Health Check: ${YOUR_DOMAIN}/api/health`);
+  console.log(`⚠️  REMEMBER: Configure webhooks in PayStack and Success Biz Hub dashboards!`);
 });
