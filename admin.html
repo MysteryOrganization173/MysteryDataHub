@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Mystery Bundle Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+        }
+        .sidebar {
+            background: #1e293b;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .stat-card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            border-left: 4px solid #00ff88;
+        }
+        .bundle-item {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+        .mtn-item { border-left-color: #ffcc00; }
+        .airtel-item { border-left-color: #e4002b; }
+        .telecel-item { border-left-color: #00a1e0; }
+        input, select, textarea {
+            background: #0f172a !important;
+            color: white !important;
+            border: 1px solid #334155 !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Check login -->
+    <script>
+        if (!localStorage.getItem('adminLoggedIn')) {
+            window.location.href = 'admin-login.html';
+        }
+    </script>
+
+    <!-- Sidebar -->
+    <div class="sidebar p-4">
+        <h4 class="mb-4">⚡ Mystery Bundle Hub</h4>
+        <div class="mb-4">
+            <small class="text-muted">Logged in as:</small>
+            <div class="text-white" id="adminEmail"></div>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white active" href="#" onclick="showSection('dashboard')">
+                    <i class="ri-dashboard-line"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="#" onclick="showSection('bundles')">
+                    <i class="ri-shopping-bag-line"></i> Manage Bundles
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="#" onclick="showSection('orders')">
+                    <i class="ri-list-check"></i> Orders
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="index.html" target="_blank">
+                    <i class="ri-store-line"></i> View Store
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="ri-logout-box-line"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboardSection">
+            <h2 class="mb-4">Admin Dashboard</h2>
+            
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h5>Total Orders</h5>
+                        <h2 id="totalOrders">0</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h5>Today's Sales</h5>
+                        <h2 id="todaySales">₵0</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h5>Total Bundles</h5>
+                        <h2 id="totalBundles">0</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <h5>Success Rate</h5>
+                        <h2 id="successRate">100%</h2>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="bg-dark p-4 rounded">
+                        <h5>Quick Actions</h5>
+                        <button class="btn btn-success w-100 mb-2" onclick="showSection('bundles')">
+                            Add New Bundle
+                        </button>
+                        <button class="btn btn-primary w-100 mb-2" onclick="showSection('orders')">
+                            View All Orders
+                        </button>
+                        <button class="btn btn-warning w-100" onclick="exportData()">
+                            Export Data
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="bg-dark p-4 rounded">
+                        <h5>Recent Orders</h5>
+                        <div id="recentOrdersList" class="mt-2">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Bundles Section -->
+        <div id="bundlesSection" style="display: none;">
+            <h2 class="mb-4">Manage Bundles</h2>
+            
+            <!-- Add New Bundle Form -->
+            <div class="card bg-dark mb-4">
+                <div class="card-body">
+                    <h5>Add New Bundle</h5>
+                    <form id="addBundleForm" class="row g-3 mt-3">
+                        <div class="col-md-3">
+                            <label>Network</label>
+                            <select id="bundleNetwork" class="form-control" required>
+                                <option value="">Select Network</option>
+                                <option value="mtn">MTN</option>
+                                <option value="airteltigo">AirtelTigo</option>
+                                <option value="telecel">Telecel</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Size (e.g., 1GB)</label>
+                            <input type="text" id="bundleSize" class="form-control" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Price (₵)</label>
+                            <input type="number" id="bundlePrice" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Validity</label>
+                            <input type="text" id="bundleValidity" class="form-control" 
+                                   value="30 days" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label>Delivery</label>
+                            <select id="bundleDelivery" class="form-control">
+                                <option value="3-30min">3-30 minutes</option>
+                                <option value="INSTANT">INSTANT</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Bundle Code</label>
+                            <input type="text" id="bundleCode" class="form-control" 
+                                   placeholder="e.g., MTN_1GB_30D" required>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                <input type="checkbox" id="bundleInstant" class="form-check-input">
+                                <label class="form-check-label">Instant Delivery</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="bundleBigTime" class="form-check-input">
+                                <label class="form-check-label">BigTime (No expiry)</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-success" onclick="addBundle()">
+                                Add Bundle
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                Clear Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Current Bundles -->
+            <h5>Current Bundles</h5>
+            <div id="bundlesList" class="row">
+                <!-- Bundles will be listed here -->
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="ordersSection" style="display: none;">
+            <h2 class="mb-4">All Orders</h2>
+            
+            <div class="table-responsive">
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Phone</th>
+                            <th>Bundle</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable">
+                        <!-- Orders will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show current admin email
+        document.getElementById('adminEmail').textContent = 
+            localStorage.getItem('adminEmail') || 'Admin';
+        
+        let adminBundles = [];
+        let adminOrders = [];
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBundles();
+            loadOrders();
+            showSection('dashboard');
+        });
+        
+        // Show sections
+        function showSection(section) {
+            // Hide all sections
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('bundlesSection').style.display = 'none';
+            document.getElementById('ordersSection').style.display = 'none';
+            
+            // Show selected section
+            document.getElementById(section + 'Section').style.display = 'block';
+            
+            // Load data if needed
+            if (section === 'bundles') {
+                loadBundlesList();
+            } else if (section === 'orders') {
+                loadOrdersTable();
+            } else if (section === 'dashboard') {
+                updateDashboardStats();
+            }
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('adminLoggedIn');
+            localStorage.removeItem('adminEmail');
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin-login.html';
+        }
+        
+        // Load bundles from localStorage
+        function loadBundles() {
+            const savedBundles = localStorage.getItem('adminBundles');
+            if (savedBundles) {
+                adminBundles = JSON.parse(savedBundles);
+            } else {
+                // Load default bundles from the main website data
+                adminBundles = getDefaultBundles();
+                localStorage.setItem('adminBundles', JSON.stringify(adminBundles));
+            }
+        }
+        
+        // Get default bundles (from your main website)
+        function getDefaultBundles() {
+            const defaultBundles = [];
+            let id = 1;
+            
+            // MTN Bundles
+            const mtnBundles = [
+                { size: '1GB', validity: '90 days', price: 7.00, delivery: '3-30min' },
+                { size: '2GB', validity: '90 days', price: 13.00, delivery: '3-30min' },
+                { size: '5GB', validity: '90 days', price: 29.00, delivery: '3-30min' },
+                { size: '10GB', validity: '90 days', price: 53.00, delivery: '3-30min' }
+            ];
+            
+            mtnBundles.forEach(bundle => {
+                defaultBundles.push({
+                    id: id++,
+                    network: 'mtn',
+                    size: bundle.size,
+                    price: bundle.price,
+                    validity: bundle.validity,
+                    delivery: bundle.delivery,
+                    instant: false,
+                    bigTime: false,
+                    code: `MTN_${bundle.size}_90D`
+                });
+            });
+            
+            // AirtelTigo Bundles
+            const airtelBundles = [
+                { size: '1GB', validity: '60 days', price: 6.00, instant: true, delivery: 'INSTANT' },
+                { size: '5GB', validity: '60 days', price: 24.00, instant: true, delivery: 'INSTANT' },
+                { size: '10GB', validity: '60 days', price: 47.00, instant: true, delivery: 'INSTANT' }
+            ];
+            
+            airtelBundles.forEach(bundle => {
+                defaultBundles.push({
+                    id: id++,
+                    network: 'airteltigo',
+                    size: bundle.size,
+                    price: bundle.price,
+                    validity: bundle.validity,
+                    delivery: bundle.delivery,
+                    instant: bundle.instant || false,
+                    bigTime: false,
+                    code: `AT_${bundle.size}_60D`
+                });
+            });
+            
+            // Telecel Bundles
+            const telecelBundles = [
+                { size: '5GB', validity: '60 days', price: 25.00, delivery: '3-30min' },
+                { size: '10GB', validity: '60 days', price: 48.00, delivery: '3-30min' }
+            ];
+            
+            telecelBundles.forEach(bundle => {
+                defaultBundles.push({
+                    id: id++,
+                    network: 'telecel',
+                    size: bundle.size,
+                    price: bundle.price,
+                    validity: bundle.validity,
+                    delivery: bundle.delivery,
+                    instant: false,
+                    bigTime: false,
+                    code: `TEL_${bundle.size}_60D`
+                });
+            });
+            
+            return defaultBundles;
+        }
+        
+        // Add new bundle
+        function addBundle() {
+            const network = document.getElementById('bundleNetwork').value;
+            const size = document.getElementById('bundleSize').value;
+            const price = parseFloat(document.getElementById('bundlePrice').value);
+            const validity = document.getElementById('bundleValidity').value;
+            const delivery = document.getElementById('bundleDelivery').value;
+            const code = document.getElementById('bundleCode').value;
+            const instant = document.getElementById('bundleInstant').checked;
+            const bigTime = document.getElementById('bundleBigTime').checked;
+            
+            if (!network || !size || !price || !validity || !code) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            const newBundle = {
+                id: Date.now(),
+                network: network,
+                size: size,
+                price: price,
+                validity: validity,
+                delivery: delivery,
+                instant: instant,
+                bigTime: bigTime,
+                code: code
+            };
+            
+            adminBundles.push(newBundle);
+            localStorage.setItem('adminBundles', JSON.stringify(adminBundles));
+            
+            alert('✅ Bundle added successfully!');
+            resetForm();
+            loadBundlesList();
+        }
+        
+        // Edit bundle
+        function editBundle(id) {
+            const bundle = adminBundles.find(b => b.id == id);
+            if (!bundle) return;
+            
+            const newSize = prompt('New size (e.g., 1GB):', bundle.size);
+            if (!newSize) return;
+            
+            const newPrice = prompt('New price (₵):', bundle.price);
+            if (!newPrice) return;
+            
+            const newValidity = prompt('New validity:', bundle.validity);
+            if (!newValidity) return;
+            
+            bundle.size = newSize;
+            bundle.price = parseFloat(newPrice);
+            bundle.validity = newValidity;
+            
+            localStorage.setItem('adminBundles', JSON.stringify(adminBundles));
+            loadBundlesList();
+            alert('✅ Bundle updated!');
+        }
+        
+        // Delete bundle
+        function deleteBundle(id) {
+            if (confirm('Are you sure you want to delete this bundle?')) {
+                adminBundles = adminBundles.filter(b => b.id != id);
+                localStorage.setItem('adminBundles', JSON.stringify(adminBundles));
+                loadBundlesList();
+                alert('✅ Bundle deleted!');
+            }
+        }
+        
+        // Load bundles list
+        function loadBundlesList() {
+            const bundlesList = document.getElementById('bundlesList');
+            bundlesList.innerHTML = '';
+            
+            if (adminBundles.length === 0) {
+                bundlesList.innerHTML = '<p class="text-muted">No bundles yet. Add one above.</p>';
+                return;
+            }
+            
+            adminBundles.forEach(bundle => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 col-sm-6 mb-3';
+                
+                const networkClass = bundle.network === 'mtn' ? 'mtn-item' : 
+                                   bundle.network === 'airteltigo' ? 'airtel-item' : 'telecel-item';
+                
+                col.innerHTML = `
+                    <div class="bundle-item ${networkClass}">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-1">${bundle.network.toUpperCase()} ${bundle.size}</h6>
+                            <span class="text-success">₵${bundle.price.toFixed(2)}</span>
+                        </div>
+                        <p class="text-muted mb-1">${bundle.validity}</p>
+                        <p class="mb-1">
+                            <small>Delivery: ${bundle.instant ? '⚡ INSTANT' : bundle.delivery}</small>
+                            ${bundle.bigTime ? '<br><small class="text-warning">🔥 BigTime (No expiry)</small>' : ''}
+                        </p>
+                        <p class="mb-2"><small>Code: ${bundle.code}</small></p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-warning flex-fill" onclick="editBundle(${bundle.id})">
+                                Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger flex-fill" onclick="deleteBundle(${bundle.id})">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+                bundlesList.appendChild(col);
+            });
+            
+            // Update total bundles count
+            document.getElementById('totalBundles').textContent = adminBundles.length;
+        }
+        
+        // Load orders
+        function loadOrders() {
+            const savedOrders = localStorage.getItem('orders');
+            adminOrders = savedOrders ? JSON.parse(savedOrders) : [];
+        }
+        
+        // Load orders table
+        function loadOrdersTable() {
+            loadOrders();
+            const table = document.getElementById('ordersTable');
+            table.innerHTML = '';
+            
+            if (adminOrders.length === 0) {
+                table.innerHTML = '<tr><td colspan="7" class="text-center">No orders yet</td></tr>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            adminOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            adminOrders.forEach(order => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.phone}</td>
+                    <td>${order.network.toUpperCase()} ${order.bundle}</td>
+                    <td>₵${order.amount.toFixed(2)}</td>
+                    <td><span class="badge bg-success">${order.status}</span></td>
+                    <td>${new Date(order.date).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="viewOrder('${order.id}')">
+                            View
+                        </button>
+                    </td>
+                `;
+            });
+        }
+        
+        // Update dashboard stats
+        function updateDashboardStats() {
+            loadOrders();
+            
+            // Total orders
+            document.getElementById('totalOrders').textContent = adminOrders.length;
+            
+            // Today's sales
+            const today = new Date().toDateString();
+            const todayOrders = adminOrders.filter(order => 
+                new Date(order.date).toDateString() === today
+            );
+            const todaySales = todayOrders.reduce((sum, order) => sum + order.amount, 0);
+            document.getElementById('todaySales').textContent = `₵${todaySales.toFixed(2)}`;
+            
+            // Total bundles
+            document.getElementById('totalBundles').textContent = adminBundles.length;
+            
+            // Recent orders list
+            const recentOrdersList = document.getElementById('recentOrdersList');
+            recentOrdersList.innerHTML = '';
+            
+            const recentOrders = adminOrders.slice(0, 5);
+            if (recentOrders.length === 0) {
+                recentOrdersList.innerHTML = '<p class="text-muted">No recent orders</p>';
+            } else {
+                recentOrders.forEach(order => {
+                    const div = document.createElement('div');
+                    div.className = 'd-flex justify-content-between border-bottom pb-2 mb-2';
+                    div.innerHTML = `
+                        <div>
+                            <small>${order.network} ${order.bundle}</small>
+                            <br>
+                            <small class="text-muted">${order.phone}</small>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-success">₵${order.amount.toFixed(2)}</small>
+                            <br>
+                            <small class="text-muted">${new Date(order.date).toLocaleDateString()}</small>
+                        </div>
+                    `;
+                    recentOrdersList.appendChild(div);
+                });
+            }
+        }
+        
+        // View order details
+        function viewOrder(orderId) {
+            const order = adminOrders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            alert(`Order Details:\n
+ID: ${order.id}\n
+Phone: ${order.phone}\n
+Email: ${order.email || 'N/A'}\n
+Bundle: ${order.network} ${order.bundle}\n
+Amount: ₵${order.amount.toFixed(2)}\n
+Status: ${order.status}\n
+Date: ${new Date(order.date).toLocaleString()}\n
+Delivery: ${order.delivery || '3-30min'}`);
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById('addBundleForm').reset();
+        }
+        
+        // Export data
+        function exportData() {
+            const data = {
+                bundles: adminBundles,
+                orders: adminOrders,
+                exportedAt: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `mystery-bundle-data-${Date.now()}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            alert('Data exported successfully!');
+        }
+    </script>
+</body>
+</html>

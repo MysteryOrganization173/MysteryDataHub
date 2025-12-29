@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Mystery Bundle Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-box {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: auto;
+            border: 1px solid #334155;
+        }
+        input {
+            background: #0f172a !important;
+            color: white !important;
+            border: 1px solid #334155 !important;
+        }
+        input:focus {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h2 class="text-center text-white mb-4">Admin Login</h2>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label text-white">Email</label>
+                    <input type="email" class="form-control" 
+                           value="aryeeteyemmanuel852@gmail.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white">Password</label>
+                    <input type="password" class="form-control" 
+                           value="Admin123!" required>
+                </div>
+                <button type="button" class="btn btn-success w-100" onclick="login()">
+                    Login
+                </button>
+                <div id="loginMessage" class="mt-3"></div>
+                <div class="text-center mt-3">
+                    <a href="index.html" class="text-muted">Back to Store</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const email = document.querySelector('#loginForm input[type="email"]').value;
+            const password = document.querySelector('#loginForm input[type="password"]').value;
+            
+            // Simple validation
+            if (!email || !password) {
+                showMessage('Please enter email and password', 'error');
+                return;
+            }
+            
+            // Check credentials (in real app, this would be with backend)
+            const validEmail = "aryeeteyemmanuel852@gmail.com";
+            const validPassword = "Admin123!";
+            
+            if (email === validEmail && password === validPassword) {
+                // Create admin session
+                localStorage.setItem('adminLoggedIn', 'true');
+                localStorage.setItem('adminEmail', email);
+                localStorage.setItem('adminToken', 'admin-' + Date.now());
+                
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Redirect to admin panel
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            } else {
+                showMessage('Invalid email or password', 'error');
+            }
+        }
+        
+        function showMessage(message, type) {
+            const messageEl = document.getElementById('loginMessage');
+            messageEl.innerHTML = `
+                <div class="alert alert-${type === 'error' ? 'danger' : 'success'}">
+                    ${message}
+                </div>
+            `;
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                messageEl.innerHTML = '';
+            }, 3000);
+        }
+        
+        // Auto-focus on email field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('#loginForm input[type="email"]').focus();
+        });
+        
+        // Allow Enter key to submit
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+</body>
+</html>
