@@ -319,7 +319,7 @@
             `;
 
             try {
-                const createOrderResp = await fetch('/api/orders/create', {
+                const createOrderResp = await fetch('https://mysterydatahub-bwqf.onrender.com/api/orders/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
