@@ -27,6 +27,17 @@
             margin-top: 20px;
             border-left: 4px solid #00ff88;
         }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status-delivered { background: #00ff88; color: black; }
+        .status-processing { background: #3498db; color: white; }
+        .status-paid { background: #f39c12; color: black; }
+        .status-pending { background: #95a5a6; color: white; }
+        .status-failed { background: #e74c3c; color: white; }
     </style>
 </head>
 <body>
@@ -35,9 +46,10 @@
             <h2 class="text-center mb-4">Track Your Order</h2>
             
             <div class="mb-4">
-                <label>Enter Order Reference or Phone Number</label>
+                <label>Enter Order ID or Phone Number</label>
                 <input type="text" class="form-control" 
                        id="trackInput" placeholder="ORD-12345 or 0550123456">
+                <small class="text-muted">Order ID was shown after payment</small>
             </div>
             
             <button class="btn btn-success w-100" onclick="trackOrder()">
@@ -54,11 +66,11 @@
     </div>
 
     <script>
-        function trackOrder() {
+        async function trackOrder() {
             const input = document.getElementById('trackInput').value.trim();
             
             if (!input) {
-                alert('Please enter order reference or phone number');
+                alert('Please enter order ID or phone number');
                 return;
             }
             
@@ -70,49 +82,117 @@
                 </div>
             `;
             
-            // Get orders from localStorage
-            const orders = JSON.parse(localStorage.getItem('orders')) || [];
-            
-            // Find order by ID or phone
-            const foundOrder = orders.find(order => 
-                order.id === input || order.phone.includes(input)
-            );
-            
-            // Simulate API call delay
-            setTimeout(() => {
-                if (foundOrder) {
+            try {
+                // FIXED: Use correct backend URL
+                const response = await fetch(`https://mysterydatahub-api.onrender.com/api/orders/${input}`);
+                
+                if (!response.ok) {
+                    throw new Error('Order not found');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.order) {
+                    const order = result.order;
+                    const statusClass = getStatusClass(order.status);
+                    const statusText = getStatusText(order.status);
+                    
                     document.getElementById('trackResult').innerHTML = `
                         <div class="order-card">
                             <h5>✅ Order Found</h5>
                             <hr>
-                            <p><strong>Order ID:</strong> ${foundOrder.id}</p>
-                            <p><strong>Phone:</strong> ${foundOrder.phone}</p>
-                            <p><strong>Bundle:</strong> ${foundOrder.network.toUpperCase()} ${foundOrder.bundle}</p>
-                            <p><strong>Amount:</strong> ₵${foundOrder.amount.toFixed(2)}</p>
-                            <p><strong>Status:</strong> <span class="badge bg-success">${foundOrder.status || 'Delivered'}</span></p>
-                            <p><strong>Delivery:</strong> ${foundOrder.delivery || '3-30 minutes'}</p>
-                            <p><strong>Date:</strong> ${new Date(foundOrder.date).toLocaleString()}</p>
-                            <p class="text-muted mt-3">
-                                <i class="ri-information-line"></i>
-                                ${foundOrder.instant ? '⚡ This bundle was delivered INSTANTLY!' : 
-                                  '⏱️ This bundle was delivered within 3-30 minutes.'}
+                            <p><strong>Order ID:</strong> ${order._id || order.orderId}</p>
+                            <p><strong>Phone:</strong> ${order.recipientPhone}</p>
+                            <p><strong>Bundle:</strong> ${order.network?.toUpperCase() || ''} ${order.bundleSize || order.bundle}</p>
+                            <p><strong>Amount:</strong> ₵${order.amount?.toFixed(2)}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="status-badge ${statusClass}">${statusText}</span>
                             </p>
+                            <p><strong>Payment Status:</strong> ${order.paymentStatus || 'Unknown'}</p>
+                            <p><strong>Delivery Time:</strong> ${order.deliveryType || '3-30 minutes'}</p>
+                            <p><strong>Date:</strong> ${new Date(order.createdAt || order.date).toLocaleString()}</p>
+                            
+                            ${order.apiReference ? `
+                                <p><strong>API Reference:</strong> ${order.apiReference}</p>
+                            ` : ''}
+                            
+                            ${order.error ? `
+                                <div class="alert alert-danger mt-3">
+                                    <strong>Error:</strong> ${order.error}
+                                </div>
+                            ` : ''}
+                            
+                            ${order.status === 'delivered' ? `
+                                <div class="alert alert-success mt-3">
+                                    ✅ Bundle delivered successfully!
+                                </div>
+                            ` : ''}
+                            
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-primary" onclick="refreshOrder('${order._id || order.orderId}')">
+                                    Refresh Status
+                                </button>
+                            </div>
                         </div>
                     `;
                 } else {
-                    document.getElementById('trackResult').innerHTML = `
-                        <div class="alert alert-danger">
-                            <h5>❌ Order Not Found</h5>
-                            <p>We couldn't find an order with that reference or phone number.</p>
-                            <ul>
-                                <li>Check the order reference</li>
-                                <li>Ensure phone number is correct</li>
-                                <li>Contact support if the issue persists</li>
-                            </ul>
-                        </div>
-                    `;
+                    throw new Error(result.error || 'Order not found');
                 }
-            }, 1500);
+                
+            } catch (error) {
+                document.getElementById('trackResult').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5>❌ Order Not Found</h5>
+                        <p>${error.message}</p>
+                        <ul>
+                            <li>Check the order ID (e.g., ORD-12345)</li>
+                            <li>Ensure phone number is correct (0550123456)</li>
+                            <li>Orders might take 1-2 minutes to appear after payment</li>
+                            <li>Contact support if the issue persists</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        function getStatusClass(status) {
+            const statusMap = {
+                'delivered': 'status-delivered',
+                'processing': 'status-processing',
+                'processing_api': 'status-processing',
+                'paid': 'status-paid',
+                'pending': 'status-pending',
+                'failed': 'status-failed',
+                'error': 'status-failed'
+            };
+            return statusMap[status] || 'status-pending';
+        }
+        
+        function getStatusText(status) {
+            const textMap = {
+                'delivered': '✅ Delivered',
+                'processing': '⚙️ Processing',
+                'processing_api': '⚙️ Processing API',
+                'paid': '💰 Payment Confirmed',
+                'pending': '⏳ Pending',
+                'failed': '❌ Failed',
+                'error': '❌ Error'
+            };
+            return textMap[status] || status;
+        }
+        
+        async function refreshOrder(orderId) {
+            document.getElementById('trackResult').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border spinner-border-sm text-success"></div>
+                    <p class="mt-2">Refreshing status...</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                document.getElementById('trackInput').value = orderId;
+                trackOrder();
+            }, 1000);
         }
         
         // Allow Enter key to trigger search
@@ -125,9 +205,9 @@
         // Check if there's a reference in URL
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const ref = urlParams.get('ref');
-            if (ref) {
-                document.getElementById('trackInput').value = ref;
+            const orderId = urlParams.get('orderId') || urlParams.get('ref');
+            if (orderId) {
+                document.getElementById('trackInput').value = orderId;
                 setTimeout(() => trackOrder(), 500);
             }
         });
