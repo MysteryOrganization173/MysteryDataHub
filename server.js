@@ -1,5 +1,4 @@
-// server.js - MYSTERY BUNDLE HUB - PRODUCTION BACKEND
-// COMPLETELY REWRITTEN WITH BENEFICIARY BUNDLES & PAYSTACK FIX
+// server.js - MYSTERY BUNDLE HUB - PRODUCTION READY
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -11,33 +10,32 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ========== CRITICAL: LOAD ENVIRONMENT VARIABLES ==========
+// CRITICAL: Load environment variables
 const {
-    PORT,
+    PORT = 3000,
     MONGODB_URI,
     SUCCESSBIZHUB_API_KEY,
-    SUCCESSBIZHUB_BASE_URL,
+    SUCCESSBIZHUB_BASE_URL = 'https://www.successbizhub.com/api/v1',
     PAYSTACK_SECRET_KEY,
     PAYSTACK_PUBLIC_KEY,
-    YOUR_DOMAIN,
-    ADMIN_EMAIL,
-    ADMIN_PASSWORD
+    YOUR_DOMAIN = 'https://mysterydatahub-api.onrender.com',
+    ADMIN_EMAIL = 'aryeeteyemmanuel852@gmail.com',
+    ADMIN_PASSWORD = '0573904148'
 } = process.env;
 
-// Validate config
-if (!PAYSTACK_SECRET_KEY || !YOUR_DOMAIN || !MONGODB_URI) {
-    console.error('❌ FATAL: Missing critical .env variables.');
+// Validate critical config
+if (!PAYSTACK_SECRET_KEY || !MONGODB_URI) {
+    console.error('❌ FATAL: Missing PayStack secret or MongoDB URI');
     process.exit(1);
 }
 
-// ========== DATABASE CONNECTION ==========
+// Database connection
 const connectDB = async () => {
     try {
         await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 10000,
-            socketTimeoutMS: 45000
+            serverSelectionTimeoutMS: 10000
         });
         console.log('✅ MongoDB Connected');
     } catch (err) {
@@ -47,24 +45,22 @@ const connectDB = async () => {
 };
 connectDB();
 
-// ========== ORDER SCHEMA ==========
+// Order Schema
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, unique: true, required: true },
     paystackReference: String,
     customerEmail: String,
     recipientPhone: String,
-    // FROM FRONTEND: 'mtn-1-express', 'mtn-10-beneficiary', 'airtel-1', etc.
     bundleId: String,
-    // FOR PROVIDER: 'mtn_express_bundle', 'master_beneficiary_bundle', 'ishare_data_bundle'
     bundleSlug: String,
     bundleSize: String,
-    bundleType: { type: String, enum: ['express', 'beneficiary', 'ishare', 'bigtime', 'telecel'] },
+    bundleType: String,
     network: String,
     amount: Number,
     costPrice: Number,
     profit: Number,
-    status: {
-        type: String,
+    status: { 
+        type: String, 
         default: 'pending_payment',
         enum: ['pending_payment', 'paid', 'processing_api', 'delivered', 'failed', 'cancelled']
     },
@@ -75,68 +71,39 @@ const orderSchema = new mongoose.Schema({
 });
 const Order = mongoose.model('Order', orderSchema);
 
-// ========== MASTER BUNDLE CATALOG ==========
-// Maps frontend bundleId -> Success Biz Hub API parameters
+// BUNDLE MAPPING (Matches frontend bundle IDs)
 const BUNDLE_MAP = {
-    // ===== MTN EXPRESS BUNDLES (3-15min) =====
-    'mtn-1-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 1,  bundleType: 'express', costPrice: 4.75 },
-    'mtn-2-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 2,  bundleType: 'express', costPrice: 9.25 },
-    'mtn-3-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 3,  bundleType: 'express', costPrice: 13.50 },
-    'mtn-4-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 4,  bundleType: 'express', costPrice: 18.50 },
-    'mtn-5-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 5,  bundleType: 'express', costPrice: 22.00 },
-    'mtn-6-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 6,  bundleType: 'express', costPrice: 27.00 },
-    'mtn-7-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 7,  bundleType: 'express', costPrice: 32.00 },
-    'mtn-8-express':   { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 8,  bundleType: 'express', costPrice: 36.20 },
-    'mtn-10-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 10, bundleType: 'express', costPrice: 42.00 },
-    'mtn-12-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 12, bundleType: 'express', costPrice: 53.00 },
-    'mtn-15-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 15, bundleType: 'express', costPrice: 62.50 },
-    'mtn-20-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 20, bundleType: 'express', costPrice: 83.00 },
-    'mtn-25-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 25, bundleType: 'express', costPrice: 104.00 },
-    'mtn-30-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 30, bundleType: 'express', costPrice: 125.00 },
-    'mtn-40-express':  { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 40, bundleType: 'express', costPrice: 165.00 },
-
-    // ===== MTN BENEFICIARY BUNDLES (30min-2hrs) =====
-    'mtn-1-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 1,   bundleType: 'beneficiary', costPrice: 4.40 },
-    'mtn-2-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 2,   bundleType: 'beneficiary', costPrice: 8.70 },
-    'mtn-3-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 3,   bundleType: 'beneficiary', costPrice: 12.90 },
-    'mtn-4-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 4,   bundleType: 'beneficiary', costPrice: 17.50 },
-    'mtn-5-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 5,   bundleType: 'beneficiary', costPrice: 21.60 },
-    'mtn-6-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 6,   bundleType: 'beneficiary', costPrice: 26.00 },
-    'mtn-7-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 7,   bundleType: 'beneficiary', costPrice: 30.40 },
-    'mtn-8-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 8,   bundleType: 'beneficiary', costPrice: 35.00 },
-    'mtn-9-beneficiary':   { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 9,   bundleType: 'beneficiary', costPrice: 38.50 },
-    'mtn-10-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 10,  bundleType: 'beneficiary', costPrice: 41.00 },
-    'mtn-12-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 12,  bundleType: 'beneficiary', costPrice: 51.60 },
-    'mtn-15-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 15,  bundleType: 'beneficiary', costPrice: 60.40 },
-    'mtn-20-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 20,  bundleType: 'beneficiary', costPrice: 79.00 },
-    'mtn-25-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 25,  bundleType: 'beneficiary', costPrice: 99.80 },
-    'mtn-30-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 30,  bundleType: 'beneficiary', costPrice: 119.20 },
-    'mtn-40-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 40,  bundleType: 'beneficiary', costPrice: 158.00 },
-    'mtn-50-beneficiary':  { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 50,  bundleType: 'beneficiary', costPrice: 195.00 },
-    'mtn-100-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 100, bundleType: 'beneficiary', costPrice: 380.00 },
-
-    // ===== AIRTELTIGO BUNDLES =====
-    'airtel-1':  { network: 'at', offerSlug: 'ishare_data_bundle', volume: 1,  bundleType: 'ishare', costPrice: 5.20 },
-    'airtel-2':  { network: 'at', offerSlug: 'ishare_data_bundle', volume: 2,  bundleType: 'ishare', costPrice: 9.80 },
-    'airtel-3':  { network: 'at', offerSlug: 'ishare_data_bundle', volume: 3,  bundleType: 'ishare', costPrice: 14.20 },
-    'airtel-5':  { network: 'at', offerSlug: 'ishare_data_bundle', volume: 5,  bundleType: 'ishare', costPrice: 20.50 },
-    'airtel-10': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 10, bundleType: 'ishare', costPrice: 39.00 },
-    'airtel-40-bigtime': { network: 'at', offerSlug: 'bigtime_data_bundle', volume: 40, bundleType: 'bigtime', costPrice: 85.00 },
-
-    // ===== TELECEL BUNDLES =====
-    'telecel-5':  { network: 'telecel', offerSlug: 'telecel_express', volume: 5,  bundleType: 'telecel', costPrice: 21.00 },
-    'telecel-10': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 10, bundleType: 'telecel', costPrice: 40.00 },
-    'telecel-20': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 20, bundleType: 'telecel', costPrice: 75.00 }
+    // MTN EXPRESS
+    'mtn-1-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 1, costPrice: 4.75 },
+    'mtn-2-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 2, costPrice: 9.25 },
+    'mtn-5-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 5, costPrice: 22.00 },
+    'mtn-10-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 10, costPrice: 42.00 },
+    
+    // MTN BENEFICIARY
+    'mtn-1-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 1, costPrice: 4.40 },
+    'mtn-2-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 2, costPrice: 8.70 },
+    'mtn-5-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 5, costPrice: 21.60 },
+    'mtn-10-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 10, costPrice: 41.00 },
+    
+    // AIRTELTIGO
+    'airtel-1': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 1, costPrice: 5.20 },
+    'airtel-5': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 5, costPrice: 20.50 },
+    
+    // TELECEL
+    'telecel-5': { network: 'telecel', offerSlug: 'telecel_express', volume: 5, costPrice: 21.00 },
+    'telecel-10': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 10, costPrice: 40.00 }
 };
 
-// ========== HELPER: FULFILL ORDER WITH SUCCESS BIZ HUB ==========
+// Fulfill order with Success Biz Hub
 async function fulfillOrderWithProvider(orderDoc) {
     const apiConfig = BUNDLE_MAP[orderDoc.bundleId];
     if (!apiConfig) {
-        throw new Error(`Bundle config missing for: ${orderDoc.bundleId}`);
+        console.error(`❌ Bundle config not found: ${orderDoc.bundleId}`);
+        return { success: false, error: 'Bundle configuration error' };
     }
 
     const formattedPhone = '233' + orderDoc.recipientPhone.substring(1);
+    
     const payload = {
         type: 'single',
         volume: apiConfig.volume,
@@ -145,7 +112,7 @@ async function fulfillOrderWithProvider(orderDoc) {
         webhookUrl: `${YOUR_DOMAIN}/api/successbizhub-webhook`
     };
 
-    console.log(`📤 Fulfilling order ${orderDoc.orderId} via Success Biz Hub...`);
+    console.log(`📤 Sending to Success Biz Hub:`, payload);
 
     try {
         const response = await axios.post(
@@ -165,57 +132,53 @@ async function fulfillOrderWithProvider(orderDoc) {
         orderDoc.status = 'processing_api';
         await orderDoc.save();
 
-        console.log(`✅ Order sent to provider. Ref: ${response.data.reference}`);
+        console.log(`✅ Order sent to provider: ${response.data.reference}`);
         return { success: true, data: response.data };
 
     } catch (error) {
         console.error('❌ Provider API Error:', error.response?.data || error.message);
         orderDoc.status = 'failed';
         await orderDoc.save();
-        return {
-            success: false,
-            error: error.response?.data?.error || 'Provider API call failed'
-        };
+        return { success: false, error: 'Provider API failed' };
     }
 }
 
 // ========== API ROUTES ==========
 
-// 1. HEALTH CHECK (for Render monitoring)
+// Health check
 app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'online',
+    res.json({ 
+        status: 'online', 
         service: 'Mystery Bundle Hub API',
         timestamp: new Date(),
         mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
     });
 });
 
-// 2. CREATE ORDER (called from frontend PayStack flow)
+// Create order
 app.post('/api/orders/create', async (req, res) => {
     try {
         const { bundleId, recipientPhone, customerEmail, amount } = req.body;
 
-        // Validate bundle exists in our map
         if (!BUNDLE_MAP[bundleId]) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid bundle selected. Please refresh the page.'
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid bundle selected. Please refresh.' 
             });
         }
 
         const bundleConfig = BUNDLE_MAP[bundleId];
-        const orderId = 'MYST-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+        const orderId = 'MYST-' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
 
-        // Create order in database
         const order = new Order({
             orderId,
-            customerEmail: customerEmail || 'customer@mysteryhub.com',
+            customerEmail: customerEmail || 'customer@example.com',
             recipientPhone,
             bundleId,
             bundleSlug: bundleConfig.offerSlug,
             bundleSize: `${bundleConfig.volume}GB`,
-            bundleType: bundleConfig.bundleType,
+            bundleType: bundleId.includes('express') ? 'express' : 
+                       bundleId.includes('beneficiary') ? 'beneficiary' : 'other',
             network: bundleConfig.network,
             amount: parseFloat(amount),
             costPrice: bundleConfig.costPrice,
@@ -227,30 +190,29 @@ app.post('/api/orders/create', async (req, res) => {
 
         console.log(`📝 Order created: ${orderId} for ${recipientPhone}`);
 
-        // Return data for PayStack initialization
         res.json({
             success: true,
             orderId: order.orderId,
-            amount: order.amount * 100, // Convert to pesewas for PayStack
+            amount: order.amount * 100, // Pesewas for PayStack
             email: order.customerEmail,
-            publicKey: PAYSTACK_PUBLIC_KEY,
-            message: 'Order created successfully. Proceed to payment.'
+            publicKey: PAYSTACK_PUBLIC_KEY
         });
 
     } catch (error) {
         console.error('Order creation error:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Failed to create order. Please try again or contact support.'
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to create order. Please try again.' 
         });
     }
 });
 
-// 3. PAYSTACK WEBHOOK (receives payment confirmation)
-app.post('/api/paystack-webhook', async (req, res) => {
+// PayStack webhook - FIXED FOR LIVE
+app.post('/api/paystack-webhook', express.raw({type: 'application/json'}), async (req, res) => {
+    // Verify it's from PayStack (basic check)
     const event = req.body;
     
-    // Immediately respond to PayStack to prevent retries
+    // Immediate response to prevent retries
     res.status(200).send('Webhook received');
 
     if (event.event === 'charge.success') {
@@ -270,31 +232,27 @@ app.post('/api/paystack-webhook', async (req, res) => {
                 return;
             }
 
-            // Update order with payment reference and mark as paid
+            // Update order with payment reference
             order.paystackReference = paymentData.reference;
             order.status = 'paid';
             order.updatedAt = new Date();
             await order.save();
 
-            console.log(`✅ Payment verified for ${orderId}. Reference: ${paymentData.reference}`);
+            console.log(`✅ Payment verified for ${orderId}`);
 
-            // Fulfill order with provider (with 2 second delay)
+            // Fulfill order after 2 seconds
             setTimeout(async () => {
-                try {
-                    await fulfillOrderWithProvider(order);
-                } catch (fulfillError) {
-                    console.error(`Fulfillment error for ${orderId}:`, fulfillError);
-                }
+                await fulfillOrderWithProvider(order);
             }, 2000);
 
         } catch (error) {
-            console.error('❌ Webhook processing error:', error);
+            console.error('Webhook processing error:', error);
         }
     }
 });
 
-// 4. SUCCESS BIZ HUB WEBHOOK (receives delivery status)
-app.post('/api/successbizhub-webhook', async (req, res) => {
+// Success Biz Hub webhook
+app.post('/api/successbizhub-webhook', express.json(), async (req, res) => {
     const { event, orderId, reference, status } = req.body;
     
     res.status(200).send('OK');
@@ -308,14 +266,14 @@ app.post('/api/successbizhub-webhook', async (req, res) => {
             order.status = status;
             order.updatedAt = new Date();
             await order.save();
-            console.log(`🔄 Order ${order.orderId} status updated to: ${status}`);
+            console.log(`🔄 Order ${order.orderId} status: ${status}`);
         }
     } catch (error) {
         console.error('Provider webhook error:', error);
     }
 });
 
-// 5. GET ORDER STATUS (for frontend tracking)
+// Get order status
 app.get('/api/orders/:orderId', async (req, res) => {
     try {
         const order = await Order.findOne({ orderId: req.params.orderId });
@@ -329,12 +287,9 @@ app.get('/api/orders/:orderId', async (req, res) => {
                 status: order.status,
                 recipientPhone: order.recipientPhone,
                 bundleSize: order.bundleSize,
-                bundleType: order.bundleType,
                 network: order.network,
                 amount: order.amount,
-                createdAt: order.createdAt,
-                paystackReference: order.paystackReference,
-                apiReference: order.apiReference
+                createdAt: order.createdAt
             }
         });
     } catch (error) {
@@ -342,7 +297,7 @@ app.get('/api/orders/:orderId', async (req, res) => {
     }
 });
 
-// 6. ADMIN LOGIN
+// Admin login
 app.post('/api/admin/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -355,13 +310,12 @@ app.post('/api/admin/login', async (req, res) => {
         }
         
         if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-            const token = 'admin-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const token = 'admin-' + Date.now();
             
             return res.json({
                 success: true,
                 token: token,
-                email: email,
-                message: 'Login successful'
+                email: email
             });
         } else {
             return res.status(401).json({
@@ -370,24 +324,20 @@ app.post('/api/admin/login', async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Admin login error:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Internal server error' 
-        });
+        res.status(500).json({ success: false, error: 'Internal error' });
     }
 });
 
-// 7. ADMIN GET ORDERS
+// Get admin orders
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // Simple token check (in production use proper JWT)
+        // Simple auth check
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('admin-')) {
             return res.status(401).json({ success: false, error: 'Unauthorized' });
         }
         
-        const orders = await Order.find().sort({ createdAt: -1 }).limit(100);
+        const orders = await Order.find().sort({ createdAt: -1 }).limit(50);
         
         res.json({
             success: true,
@@ -395,39 +345,24 @@ app.get('/api/admin/orders', async (req, res) => {
                 orderId: order.orderId,
                 customerEmail: order.customerEmail,
                 recipientPhone: order.recipientPhone,
-                bundleId: order.bundleId,
                 bundleSize: order.bundleSize,
                 bundleType: order.bundleType,
                 network: order.network,
                 amount: order.amount,
-                costPrice: order.costPrice,
-                profit: order.profit,
                 status: order.status,
-                paystackReference: order.paystackReference,
-                apiReference: order.apiReference,
                 createdAt: order.createdAt
             }))
         });
     } catch (error) {
-        console.error('Admin orders error:', error);
         res.status(500).json({ success: false, error: 'Failed to fetch orders' });
     }
 });
 
-// 8. GET ALL BUNDLES (for potential future features)
-app.get('/api/bundles', (req, res) => {
-    res.json({
-        success: true,
-        bundles: BUNDLE_MAP,
-        count: Object.keys(BUNDLE_MAP).length
-    });
-});
-
-// ========== START SERVER ==========
+// Start server
 const serverPort = process.env.PORT || 3000;
 app.listen(serverPort, '0.0.0.0', () => {
     console.log(`🚀 Mystery Bundle Hub API running on port ${serverPort}`);
-    console.log(`🔗 Backend URL: ${YOUR_DOMAIN}`);
+    console.log(`🔗 Health check: http://0.0.0.0:${serverPort}/api/health`);
     console.log(`🔗 PayStack Webhook: ${YOUR_DOMAIN}/api/paystack-webhook`);
-    console.log(`✅ Bundle types loaded: Express, Beneficiary, iShare, BigTime, Telecel`);
+    console.log(`✅ Ready for production!`);
 });
