@@ -248,6 +248,67 @@ app.post('/api/create-transaction', async (req, res) => {
     }
 });
 
+// ========== ADD THIS ENDPOINT FOR FRONTEND COMPATIBILITY ==========
+app.post('/api/orders/create', async (req, res) => {
+    try {
+        const { bundleId, recipientPhone, customerEmail, amount } = req.body;
+        
+        if (!bundleId || !recipientPhone || !amount) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Missing required fields: bundleId, recipientPhone, amount' 
+            });
+        }
+
+        // 1. Create order
+        const orderId = 'MYST-' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        const bundleConfig = BUNDLE_MAP[bundleId];
+        
+        if (!bundleConfig) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid bundle selected' 
+            });
+        }
+
+        const order = new Order({
+            orderId,
+            customerEmail: customerEmail || 'customer@example.com',
+            recipientPhone,
+            bundleId,
+            bundleSlug: bundleConfig.offerSlug,
+            bundleSize: `${bundleConfig.volume}GB`,
+            bundleType: bundleId.includes('express') ? 'express' : 
+                       bundleId.includes('beneficiary') ? 'beneficiary' : 'other',
+            network: bundleConfig.network,
+            amount: parseFloat(amount),
+            costPrice: bundleConfig.costPrice,
+            profit: parseFloat(amount) - bundleConfig.costPrice,
+            status: 'pending_payment'
+        });
+
+        await order.save();
+        console.log(`📝 Order created via /orders/create: ${orderId}`);
+
+        // 2. Return response in format frontend expects
+        res.json({
+            success: true,
+            orderId: order.orderId,
+            amount: order.amount * 100, // Convert to pesewas for PayStack
+            email: order.customerEmail,
+            publicKey: PAYSTACK_PUBLIC_KEY
+            // Note: The frontend will generate its own PayStack reference
+        });
+
+    } catch (error) {
+        console.error('❌ /orders/create error:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to create order. Please try again.' 
+        });
+    }
+});
+
 // Payment callback (optional, for frontend redirect)
 app.get('/api/payment-callback', async (req, res) => {
     const { reference, trxref } = req.query;
