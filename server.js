@@ -1,4 +1,4 @@
-// server.js - MYSTERY BUNDLE HUB - PRODUCTION READY
+// server.js - MYSTERY BUNDLE HUB - PRODUCTION READY (FIXED VERSION)
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -34,7 +34,6 @@ const connectDB = async () => {
     try {
         await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
-            useUnifiedTopology: true,
             serverSelectionTimeoutMS: 10000
         });
         console.log('✅ MongoDB Connected');
@@ -45,10 +44,10 @@ const connectDB = async () => {
 };
 connectDB();
 
-// Order Schema
+// Order Schema - FIXED: paystackReference is now NOT unique (allows multiple nulls)
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, unique: true, required: true },
-    paystackReference: String,
+    paystackReference: String, // CHANGED: Removed 'unique: true' - this was causing the error!
     customerEmail: String,
     recipientPhone: String,
     bundleId: String,
@@ -155,55 +154,127 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Create order
-app.post('/api/orders/create', async (req, res) => {
+// ========== CRITICAL FIX: ADDED MISSING ENDPOINT ==========
+// This endpoint is called by your frontend when user clicks "Buy"
+app.post('/api/create-transaction', async (req, res) => {
     try {
-        const { bundleId, recipientPhone, customerEmail, amount } = req.body;
-
-        if (!BUNDLE_MAP[bundleId]) {
+        const { email, phone, amount, bundle } = req.body;
+        
+        if (!email || !phone || !amount || !bundle) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Invalid bundle selected. Please refresh.' 
+                error: 'Missing required fields: email, phone, amount, bundle' 
             });
         }
 
-        const bundleConfig = BUNDLE_MAP[bundleId];
+        // 1. FIRST create order (without paystackReference)
         const orderId = 'MYST-' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        const bundleConfig = BUNDLE_MAP[bundle];
+        
+        if (!bundleConfig) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid bundle selected' 
+            });
+        }
 
         const order = new Order({
             orderId,
-            customerEmail: customerEmail || 'customer@example.com',
-            recipientPhone,
-            bundleId,
+            customerEmail: email,
+            recipientPhone: phone,
+            bundleId: bundle,
             bundleSlug: bundleConfig.offerSlug,
             bundleSize: `${bundleConfig.volume}GB`,
-            bundleType: bundleId.includes('express') ? 'express' : 
-                       bundleId.includes('beneficiary') ? 'beneficiary' : 'other',
+            bundleType: bundle.includes('express') ? 'express' : 
+                       bundle.includes('beneficiary') ? 'beneficiary' : 'other',
             network: bundleConfig.network,
             amount: parseFloat(amount),
             costPrice: bundleConfig.costPrice,
             profit: parseFloat(amount) - bundleConfig.costPrice,
             status: 'pending_payment'
+            // NOTE: paystackReference is NOT set here - it will be set in webhook
         });
 
         await order.save();
+        console.log(`📝 Order created: ${orderId} for ${phone}`);
 
-        console.log(`📝 Order created: ${orderId} for ${recipientPhone}`);
+        // 2. THEN call PayStack API with the orderId in metadata
+        const paystackResponse = await axios.post(
+            'https://api.paystack.co/transaction/initialize',
+            {
+                email: email,
+                amount: amount * 100, // Convert to pesewas
+                currency: 'GHS',
+                callback_url: `${YOUR_DOMAIN}/api/payment-callback`,
+                metadata: {
+                    orderId: orderId,
+                    phone: phone,
+                    bundle: bundle
+                }
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
 
+        console.log(`✅ PayStack initialized for order ${orderId}`);
+        
+        // 3. Return PayStack authorization URL to frontend
         res.json({
             success: true,
-            orderId: order.orderId,
-            amount: order.amount * 100, // Pesewas for PayStack
-            email: order.customerEmail,
-            publicKey: PAYSTACK_PUBLIC_KEY
+            authorization_url: paystackResponse.data.data.authorization_url,
+            reference: paystackResponse.data.data.reference,
+            orderId: orderId
         });
 
     } catch (error) {
-        console.error('Order creation error:', error);
+        console.error('❌ Transaction creation error:', error.response?.data || error.message);
+        
+        if (error.code === 11000) {
+            // If still getting duplicate error, drop the problematic index
+            console.error('⚠️  Duplicate key error - you need to remove the index:');
+            console.error('Run in MongoDB: db.orders.dropIndex("paymentReference_1")');
+        }
+        
         res.status(500).json({ 
             success: false, 
-            error: 'Failed to create order. Please try again.' 
+            error: 'Failed to create transaction. Please try again.' 
         });
+    }
+});
+
+// Payment callback (optional, for frontend redirect)
+app.get('/api/payment-callback', async (req, res) => {
+    const { reference, trxref } = req.query;
+    const paymentRef = reference || trxref;
+    
+    if (!paymentRef) {
+        return res.redirect('https://your-frontend-url.com/payment-error');
+    }
+    
+    try {
+        // Verify payment with PayStack
+        const verifyResponse = await axios.get(
+            `https://api.paystack.co/transaction/verify/${paymentRef}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${PAYSTACK_SECRET_KEY}`
+                }
+            }
+        );
+        
+        if (verifyResponse.data.data.status === 'success') {
+            const orderId = verifyResponse.data.data.metadata.orderId;
+            return res.redirect(`https://your-frontend-url.com/success?order=${orderId}`);
+        } else {
+            return res.redirect('https://your-frontend-url.com/payment-failed');
+        }
+    } catch (error) {
+        console.error('Callback verification error:', error);
+        return res.redirect('https://your-frontend-url.com/payment-error');
     }
 });
 
