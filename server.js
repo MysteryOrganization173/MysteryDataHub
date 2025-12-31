@@ -1,4 +1,4 @@
-// server.js - MYSTERY BUNDLE HUB - PRODUCTION READY (FIXED VERSION)
+// server.js - MYSTERY BUNDLE HUB - PRODUCTION READY (FINAL FIXED VERSION)
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -29,25 +29,25 @@ if (!PAYSTACK_SECRET_KEY || !MONGODB_URI) {
     process.exit(1);
 }
 
-// Database connection
+// Database connection - IMPROVED
 const connectDB = async () => {
     try {
         await mongoose.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            serverSelectionTimeoutMS: 10000
+            serverSelectionTimeoutMS: 10000,
+            serverApi: { version: '1', strict: true, deprecationErrors: true }
         });
         console.log('✅ MongoDB Connected');
     } catch (err) {
-        console.error('❌ MongoDB Error:', err.message);
+        console.error('❌ MongoDB Connection Error:', err.message);
         process.exit(1);
     }
 };
 connectDB();
 
-// Order Schema - FIXED: paystackReference is now NOT unique (allows multiple nulls)
+// Order Schema - FINAL FIX: Prevents auto-index creation
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, unique: true, required: true },
-    paystackReference: String, // CHANGED: Removed 'unique: true' - this was causing the error!
+    paystackReference: String, // Correct: No 'unique' constraint
     customerEmail: String,
     recipientPhone: String,
     bundleId: String,
@@ -68,6 +68,10 @@ const orderSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
+
+// CRITICAL LINE: Prevents Mongoose from auto-creating indexes
+orderSchema.set('autoIndex', false);
+
 const Order = mongoose.model('Order', orderSchema);
 
 // BUNDLE MAPPING (Matches frontend bundle IDs)
@@ -154,8 +158,7 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// ========== CRITICAL FIX: ADDED MISSING ENDPOINT ==========
-// This endpoint is called by your frontend when user clicks "Buy"
+// ========== CREATE TRANSACTION ENDPOINT ==========
 app.post('/api/create-transaction', async (req, res) => {
     try {
         const { email, phone, amount, bundle } = req.body;
@@ -192,13 +195,12 @@ app.post('/api/create-transaction', async (req, res) => {
             costPrice: bundleConfig.costPrice,
             profit: parseFloat(amount) - bundleConfig.costPrice,
             status: 'pending_payment'
-            // NOTE: paystackReference is NOT set here - it will be set in webhook
         });
 
         await order.save();
         console.log(`📝 Order created: ${orderId} for ${phone}`);
 
-        // 2. THEN call PayStack API with the orderId in metadata
+        // 2. THEN call PayStack API
         const paystackResponse = await axios.post(
             'https://api.paystack.co/transaction/initialize',
             {
@@ -234,9 +236,9 @@ app.post('/api/create-transaction', async (req, res) => {
         console.error('❌ Transaction creation error:', error.response?.data || error.message);
         
         if (error.code === 11000) {
-            // If still getting duplicate error, drop the problematic index
-            console.error('⚠️  Duplicate key error - you need to remove the index:');
-            console.error('Run in MongoDB: db.orders.dropIndex("paymentReference_1")');
+            console.error('⚠️  Duplicate key error. The database index needs to be removed.');
+            console.error('Go to MongoDB Atlas > Data Explorer > Indexes tab for the "orders" collection.');
+            console.error('Find and delete the "paymentReference_1" index.');
         }
         
         res.status(500).json({ 
@@ -278,9 +280,8 @@ app.get('/api/payment-callback', async (req, res) => {
     }
 });
 
-// PayStack webhook - FIXED FOR LIVE
+// PayStack webhook
 app.post('/api/paystack-webhook', express.raw({type: 'application/json'}), async (req, res) => {
-    // Verify it's from PayStack (basic check)
     const event = req.body;
     
     // Immediate response to prevent retries
@@ -402,7 +403,6 @@ app.post('/api/admin/login', async (req, res) => {
 // Get admin orders
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // Simple auth check
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('admin-')) {
             return res.status(401).json({ success: false, error: 'Unauthorized' });
