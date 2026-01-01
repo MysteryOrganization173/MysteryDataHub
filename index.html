@@ -6,183 +6,117 @@
     <title>Mystery Bundle Hub - Ghana's Fastest Data Delivery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- PayStack Script -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root {
             --primary-dark: #0f172a;
             --secondary-dark: #1e293b;
             --accent-green: #00ff88;
-            --accent-blue: #3b82f6;      /* EXPRESS BLUE */
-            --accent-purple: #8b5cf6;   /* BENEFICIARY PURPLE */
-            --accent-yellow: #ffcc00;   /* MTN */
-            --accent-red: #e4002b;      /* AirtelTigo */
-            --accent-teal: #00a1e0;     /* Telecel */
-            --text-light: #f8fafc;
-            --text-muted: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-yellow: #ffcc00;
+            --accent-red: #e4002b;
+            --accent-teal: #00a1e0;
             --express-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
             --beneficiary-gradient: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            --instant-gradient: linear-gradient(135deg, #ef4444, #dc2626);
         }
         
         body {
             background: var(--primary-dark);
-            color: var(--text-light);
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #f8fafc;
+            font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
         }
         
-        /* Ultra-Compact Navbar */
+        /* Navbar */
         .navbar {
             background: rgba(15, 23, 42, 0.98) !important;
             backdrop-filter: blur(10px);
-            padding: 0.5rem 0;
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
         
         .navbar-brand {
             font-weight: 800;
-            font-size: 1.4rem;
             background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
         }
         
-        .nav-link {
-            font-size: 0.9rem;
-            font-weight: 500;
-            padding: 0.4rem 0.8rem !important;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        
-        .nav-link:hover {
-            background: rgba(0, 255, 136, 0.1);
-            transform: translateY(-1px);
-        }
-        
-        /* Super Compact Hero */
+        /* Hero Section */
         .hero-section {
-            padding: 1.5rem 0 2rem;
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
         
-        .hero-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-        
-        .hero-subtitle {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-        
-        /* Ultra-Compact Badge System */
-        .micro-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin: 0.15rem;
-        }
-        
+        /* Badges */
         .badge-express {
             background: var(--express-gradient);
             color: white;
-            border: 1px solid rgba(59, 130, 246, 0.3);
         }
         
         .badge-beneficiary {
             background: var(--beneficiary-gradient);
             color: white;
-            border: 1px solid rgba(139, 92, 246, 0.3);
         }
         
         .badge-instant {
-            background: var(--instant-gradient);
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
-            border: 1px solid rgba(239, 68, 68, 0.3);
         }
         
-        .badge-no-expiry {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        /* Network Filter - Ultra Compact */
+        /* Network Filter */
         .network-filter {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
             justify-content: center;
-            margin: 0.5rem 0;
         }
         
         .filter-btn {
-            padding: 0.4rem 1rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 20px;
-            font-size: 0.8rem;
             font-weight: 600;
             border: 2px solid transparent;
             transition: all 0.2s;
             background: rgba(255,255,255,0.05);
-            color: var(--text-muted);
+            color: #94a3b8;
         }
         
-        .filter-btn:hover, .filter-btn.active {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        .filter-btn.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
         }
         
-        .filter-btn.all { border-color: var(--accent-green); color: var(--accent-green); }
-        .filter-btn.mtn { border-color: var(--accent-yellow); color: var(--accent-yellow); }
-        .filter-btn.airtel { border-color: var(--accent-red); color: var(--accent-red); }
-        .filter-btn.telecel { border-color: var(--accent-teal); color: var(--accent-teal); }
-        .filter-btn.express-only { border-color: var(--accent-blue); color: var(--accent-blue); }
-        .filter-btn.beneficiary-only { border-color: var(--accent-purple); color: var(--accent-purple); }
+        .filter-btn.mtn.active { background: rgba(255, 204, 0, 0.1); color: #ffcc00; }
+        .filter-btn.airtel.active { background: rgba(228, 0, 43, 0.1); color: #e4002b; }
+        .filter-btn.telecel.active { background: rgba(0, 161, 224, 0.1); color: #00a1e0; }
+        .filter-btn.express.active { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .filter-btn.beneficiary.active { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
         
-        /* Ultra-Compact Bundle Cards */
+        /* Bundle Grid */
         .bundle-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            padding: 1rem 0;
-        }
-        
-        @media (min-width: 1400px) {
-            .bundle-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.2rem;
+            padding: 1.5rem 0;
         }
         
         @media (max-width: 768px) {
             .bundle-grid {
                 grid-template-columns: 1fr;
-                gap: 0.8rem;
             }
         }
         
         .bundle-card {
             background: var(--secondary-dark);
             border-radius: 14px;
-            padding: 1.25rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1.5rem;
             border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.3s;
             position: relative;
             overflow: hidden;
             height: 100%;
-            display: flex;
-            flex-direction: column;
         }
         
         .bundle-card::before {
@@ -191,61 +125,41 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
         }
         
-        /* Network Colors */
         .bundle-card.mtn::before { background: var(--accent-yellow); }
         .bundle-card.airtel::before { background: var(--accent-red); }
         .bundle-card.telecel::before { background: var(--accent-teal); }
         
-        /* Express vs Beneficiary Highlights */
-        .bundle-card.express {
-            border-color: rgba(59, 130, 246, 0.2);
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
-        }
-        
-        .bundle-card.beneficiary {
-            border-color: rgba(139, 92, 246, 0.2);
-            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.1);
-        }
-        
         .bundle-card:hover {
-            transform: translateY(-6px);
+            transform: translateY(-5px);
             border-color: rgba(0, 255, 136, 0.3);
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
         }
         
-        .bundle-card.express:hover {
-            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+        .bundle-card.express {
+            border-color: rgba(59, 130, 246, 0.2);
         }
         
-        .bundle-card.beneficiary:hover {
-            box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+        .bundle-card.beneficiary {
+            border-color: rgba(139, 92, 246, 0.2);
         }
         
-        /* Bundle Header - Ultra Compact */
-        .bundle-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.75rem;
-        }
-        
+        /* Bundle Header */
         .bundle-size {
-            font-size: 1.6rem;
+            font-size: 2rem;
             font-weight: 900;
-            line-height: 1;
-            background: linear-gradient(135deg, #fff, var(--text-muted));
+            background: linear-gradient(135deg, #fff, #94a3b8);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
         }
         
         .bundle-type-tag {
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.65rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.7rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -261,114 +175,26 @@
             color: white;
         }
         
-        /* Network Info */
-        .bundle-network {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .network-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .icon-mtn { background: rgba(255, 204, 0, 0.15); color: var(--accent-yellow); }
-        .icon-airtel { background: rgba(228, 0, 43, 0.15); color: var(--accent-red); }
-        .icon-telecel { background: rgba(0, 161, 224, 0.15); color: var(--accent-teal); }
-        
         /* Price Display */
-        .bundle-price-container {
-            margin: 0.75rem 0;
-            padding: 0.75rem;
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
         .bundle-price {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: 900;
             color: var(--accent-green);
             line-height: 1;
         }
         
         .price-per-gb {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-        
-        /* Bundle Features - Ultra Compact */
-        .bundle-features {
-            list-style: none;
-            padding: 0;
-            margin: 0.75rem 0;
-            flex-grow: 1;
-        }
-        
-        .bundle-features li {
-            margin-bottom: 0.4rem;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-muted);
-        }
-        
-        .bundle-features li i {
             font-size: 0.9rem;
-            min-width: 16px;
+            color: #94a3b8;
         }
         
-        .feature-validity i { color: #60a5fa; }
-        .feature-delivery i { color: var(--accent-green); }
-        .feature-benefit i { color: #fbbf24; }
-        
-        /* Delivery Time Tooltip */
-        .delivery-time {
-            position: relative;
-            cursor: help;
-            border-bottom: 1px dashed var(--text-muted);
-        }
-        
-        .delivery-tooltip {
-            visibility: hidden;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            white-space: nowrap;
-            z-index: 1000;
-            margin-bottom: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .delivery-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 5px;
-            border-style: solid;
-            border-color: rgba(0,0,0,0.9) transparent transparent transparent;
-        }
-        
-        .delivery-time:hover .delivery-tooltip {
-            visibility: visible;
+        .savings-badge {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
         
         /* Buy Button */
@@ -377,11 +203,10 @@
             color: black !important;
             font-weight: 800;
             border: none;
-            padding: 0.85rem;
+            padding: 1rem;
             width: 100%;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            margin-top: 0.75rem;
+            border-radius: 12px;
+            font-size: 1rem;
             transition: all 0.2s;
             letter-spacing: 0.5px;
             text-transform: uppercase;
@@ -392,12 +217,12 @@
             box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
         }
         
-        /* Contact Section - Compact */
+        /* Contact Section */
         .contact-section {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 14px;
-            padding: 1.25rem;
-            margin: 1.5rem auto;
+            padding: 1.5rem;
+            margin: 2rem auto;
             max-width: 600px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -405,70 +230,39 @@
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.6rem;
-            border-radius: 8px;
+            gap: 1rem;
+            padding: 0.8rem;
+            border-radius: 10px;
             transition: all 0.2s;
             text-decoration: none;
-            color: var(--text-light);
+            color: #f8fafc;
         }
         
         .contact-item:hover {
             background: rgba(0, 255, 136, 0.1);
-            transform: translateX(4px);
         }
         
         /* Footer */
         .footer {
             background: var(--secondary-dark);
             border-top: 1px solid rgba(255,255,255,0.08);
-            padding: 2rem 0 1.5rem;
+            padding: 2rem 0;
             margin-top: 3rem;
         }
         
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.2s;
-        }
-        
-        .footer-links a:hover {
-            color: var(--accent-green);
-        }
-        
-        /* Enhanced Modal */
+        /* Modal */
         .modal-content {
             background: var(--secondary-dark);
             border-radius: 16px;
             border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden;
-        }
-        
-        .modal-header {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 1.25rem;
-        }
-        
-        .modal-body {
-            padding: 1.25rem;
         }
         
         .form-control {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-light);
+            color: #f8fafc;
             border-radius: 8px;
-            padding: 0.7rem 1rem;
-            font-size: 0.95rem;
+            padding: 0.8rem 1rem;
         }
         
         .form-control:focus {
@@ -477,23 +271,7 @@
             box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
         }
         
-        /* Bundle Comparison Banner */
-        .comparison-banner {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            margin: 1rem 0;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .comparison-banner h6 {
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Loading Animation */
+        /* Loading Spinner */
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -510,131 +288,116 @@
     </style>
 </head>
 <body>
-    <!-- Ultra Compact Navbar -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">
                 <i class="bi bi-lightning-charge-fill me-1"></i>Mystery Bundle Hub
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="track-order.html">
-                        <i class="bi bi-truck me-1"></i>Track Order
-                    </a>
-                    <a class="nav-link" href="#contact">
-                        <i class="bi bi-headset me-1"></i>Support
-                    </a>
-                </div>
+            <div class="d-flex">
+                <a class="nav-link text-white me-3" href="track-order.html">
+                    <i class="bi bi-truck me-1"></i>Track Order
+                </a>
+                <a class="nav-link text-white" href="#contact">
+                    <i class="bi bi-headset me-1"></i>Support
+                </a>
             </div>
         </div>
     </nav>
 
-    <!-- Super Compact Hero -->
+    <!-- Hero Section -->
     <div class="hero-section">
-        <div class="container">
+        <div class="container py-4">
             <div class="text-center">
-                <h1 class="hero-title">Buy Mobile Data Bundles</h1>
-                <p class="hero-subtitle">Instant delivery • 3-15 minutes • 100% Guaranteed</p>
+                <h1 class="display-6 fw-bold mb-2">Buy Mobile Data Bundles</h1>
+                <p class="lead mb-3">Instant delivery • 3-15 minutes • 100% Guaranteed</p>
                 
-                <div class="d-flex flex-wrap justify-content-center gap-1 mb-3">
-                    <span class="micro-badge badge-express">
-                        <i class="bi bi-lightning me-1"></i>Express 3-15min
+                <!-- Info Badges -->
+                <div class="d-flex flex-wrap justify-content-center gap-2 mb-3">
+                    <span class="badge-express px-3 py-2">
+                        <i class="bi bi-lightning me-1"></i>Express: 3-15min
                     </span>
-                    <span class="micro-badge badge-beneficiary">
-                        <i class="bi bi-cash-coin me-1"></i>Beneficiary Save
+                    <span class="badge-beneficiary px-3 py-2">
+                        <i class="bi bi-cash-coin me-1"></i>Beneficiary: Save More
                     </span>
-                    <span class="micro-badge badge-instant">
-                        <i class="bi bi-rocket-takeoff me-1"></i>Instant Airtel
+                    <span class="badge-instant px-3 py-2">
+                        <i class="bi bi-rocket-takeoff me-1"></i>Airtel: Instant
                     </span>
-                    <span class="micro-badge badge-no-expiry">
-                        <i class="bi bi-infinity me-1"></i>No Expiry
-                    </span>
-                </div>
-                
-                <!-- Bundle Comparison Info -->
-                <div class="comparison-banner mx-auto" style="max-width: 800px;">
-                    <h6 class="mb-1">
-                        <i class="bi bi-info-circle"></i> Choosing Between Express & Beneficiary?
-                    </h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <small class="d-flex align-items-center mb-1">
-                                <span class="badge-express me-2" style="padding: 0.15rem 0.4rem;">EXPRESS</span>
-                                <span class="text-light">Fast (3-15min) • Standard Price</span>
-                            </small>
-                        </div>
-                        <div class="col-md-6">
-                            <small class="d-flex align-items-center mb-1">
-                                <span class="badge-beneficiary me-2" style="padding: 0.15rem 0.4rem;">BENEFICIARY</span>
-                                <span class="text-light">Slower (30min-2hrs) • Cheaper Price</span>
-                            </small>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Network Filter -->
-                <div class="network-filter">
-                    <button class="filter-btn all active" onclick="filterBundles('all')">All</button>
+                <div class="network-filter mb-3">
+                    <button class="filter-btn all active" onclick="filterBundles('all')">All Networks</button>
                     <button class="filter-btn mtn" onclick="filterBundles('mtn')">
                         <i class="bi bi-wifi"></i> MTN
                     </button>
-                    <button class="filter-btn airtel" onclick="filterBundles('airteltigo')">
+                    <button class="filter-btn airtel" onclick="filterBundles('airtel')">
                         <i class="bi bi-wifi"></i> AirtelTigo
                     </button>
                     <button class="filter-btn telecel" onclick="filterBundles('telecel')">
                         <i class="bi bi-wifi"></i> Telecel
                     </button>
-                    <button class="filter-btn express-only" onclick="filterBundles('express')">
+                    <button class="filter-btn express" onclick="filterBundles('express')">
                         <i class="bi bi-lightning"></i> Express Only
                     </button>
-                    <button class="filter-btn beneficiary-only" onclick="filterBundles('beneficiary')">
+                    <button class="filter-btn beneficiary" onclick="filterBundles('beneficiary')">
                         <i class="bi bi-cash-coin"></i> Beneficiary Only
                     </button>
+                </div>
+                
+                <!-- Pricing Note -->
+                <div class="alert alert-info bg-dark border-info mx-auto" style="max-width: 800px;">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <small>
+                            <strong>New Pricing:</strong> MTN Beneficiary starts at <strong>₵5.00/GB</strong>, 
+                            MTN Express at <strong>₵6.70/GB</strong>, AirtelTigo at <strong>₵5.00/GB</strong>
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Bundles Container -->
-    <div class="container">
+    <!-- Main Content -->
+    <div class="container py-4">
+        <!-- Bundles Container -->
         <div id="bundlesContainer" class="bundle-grid">
-            <!-- Bundles will load here -->
+            <!-- Bundles will be loaded here -->
         </div>
         
         <!-- Contact Section -->
         <div class="contact-section" id="contact">
-            <h5 class="text-center mb-3">
+            <h4 class="text-center mb-4">
                 <i class="bi bi-headset me-2"></i>Need Help? Contact Support
-            </h5>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <a href="https://wa.me/233592066298" target="_blank" class="contact-item mb-2">
-                        <div class="network-icon" style="background: #25D366; color: white;">
-                            <i class="bi bi-whatsapp"></i>
+            </h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <a href="https://wa.me/233592066298" target="_blank" class="contact-item">
+                        <div class="rounded-circle bg-success p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi bi-whatsapp text-white"></i>
                         </div>
-                        <div class="flex-grow-1">
+                        <div>
                             <strong>WhatsApp Support</strong>
-                            <small class="d-block text-muted">Click to chat instantly: 0592066298</small>
+                            <p class="mb-0 text-muted">Click to chat instantly</p>
+                            <small>0592066298</small>
                         </div>
-                        <i class="bi bi-arrow-right"></i>
                     </a>
-                    
+                </div>
+                <div class="col-md-6 mb-3">
                     <a href="mailto:aryeeteyemmanuel852@gmail.com" class="contact-item">
-                        <div class="network-icon" style="background: var(--accent-teal); color: white;">
-                            <i class="bi bi-envelope"></i>
+                        <div class="rounded-circle bg-primary p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                            <i class="bi bi-envelope text-white"></i>
                         </div>
-                        <div class="flex-grow-1">
+                        <div>
                             <strong>Email Support</strong>
-                            <small class="d-block text-muted">Send us an email for assistance</small>
+                            <p class="mb-0 text-muted">Send us an email</p>
+                            <small>aryeeteyemmanuel852@gmail.com</small>
                         </div>
-                        <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
-            <p class="text-center text-muted mt-3 mb-0 small">
+            <p class="text-center text-muted mt-3 mb-0">
                 <i class="bi bi-clock me-1"></i>Response time: 5-15 minutes during business hours
             </p>
         </div>
@@ -642,17 +405,30 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container text-center">
-            <div class="footer-links">
-                <a href="index.html">Home</a>
-                <a href="track-order.html">Track Order</a>
-                <a href="#contact">Support</a>
-                <a href="admin-login.html">Admin</a>
-                <a href="https://wa.me/233592066298" target="_blank">WhatsApp</a>
-                <a href="mailto:aryeeteyemmanuel852@gmail.com">Email</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <h5>Mystery Bundle Hub</h5>
+                    <p class="text-muted">Ghana's fastest mobile data delivery service with guaranteed delivery times.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-muted">Home</a></li>
+                        <li><a href="track-order.html" class="text-muted">Track Order</a></li>
+                        <li><a href="#contact" class="text-muted">Contact Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h5>Contact</h5>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="bi bi-whatsapp me-2"></i>0592066298</li>
+                        <li><i class="bi bi-envelope me-2"></i>aryeeteyemmanuel852@gmail.com</li>
+                    </ul>
+                </div>
             </div>
-            <p class="mb-2">© 2026 Mystery Bundle Hub • Ghana's Fastest Data Delivery</p>
-            <p class="text-muted small">All telecom bundles delivered via secure API integration</p>
+            <hr class="my-3">
+            <p class="text-center text-muted mb-0">© 2024 Mystery Bundle Hub • All rights reserved</p>
         </div>
     </footer>
 
@@ -660,42 +436,34 @@
     <div class="modal fade" id="buyModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0">
                     <h5 class="modal-title">
                         <i class="bi bi-cart-check me-2"></i>Buy Data Bundle
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="bundleInfo" class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.05);">
-                        <!-- Bundle info here -->
+                    <div id="bundleInfo" class="mb-4 p-3 rounded" style="background: rgba(255,255,255,0.05);">
+                        <!-- Bundle info will be loaded here -->
                     </div>
                     
                     <!-- Customer Form -->
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label small">Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input type="email" id="emailInput" class="form-control" 
-                                       placeholder="you@example.com" required>
-                            </div>
-                            <small class="text-muted">Payment receipt will be sent here</small>
-                        </div>
-                        
-                        <div class="col-12">
-                            <label class="form-label small">Phone Number</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-phone"></i></span>
-                                <input type="tel" id="phoneInput" class="form-control" 
-                                       placeholder="0550123456" required>
-                            </div>
-                            <small class="text-muted">Bundle will be delivered to this number</small>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="emailInput" class="form-control" 
+                               placeholder="your@email.com" required>
+                        <div class="form-text">Payment receipt will be sent here</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="phoneInput" class="form-control" 
+                               placeholder="0550123456" required>
+                        <div class="form-text">Bundle will be delivered to this number</div>
                     </div>
                     
                     <!-- Payment Summary -->
-                    <div class="payment-summary mt-3 p-3 rounded" style="background: rgba(0, 255, 136, 0.1);">
+                    <div class="p-3 rounded mb-4" style="background: rgba(0, 255, 136, 0.1);">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-1">Total Amount</h6>
@@ -706,163 +474,210 @@
                     </div>
                     
                     <!-- Pay Now Button -->
-                    <button type="button" class="btn btn-success w-100 py-3 fw-bold mt-3" onclick="processPayment()">
+                    <button type="button" class="btn btn-success w-100 py-3 fw-bold mb-3" onclick="processPayment()">
                         <i class="bi bi-lock me-2"></i>Pay Securely with PayStack
                     </button>
                     
                     <!-- Support Note -->
-                    <div class="alert alert-info mt-3">
-                        <div class="d-flex align-items-center">
+                    <div class="alert alert-dark">
+                        <small>
                             <i class="bi bi-info-circle me-2"></i>
-                            <small>Need help? Contact us: 
-                                <a href="https://wa.me/233592066298" class="text-success">WhatsApp 0592066298</a> or 
-                                <a href="mailto:aryeeteyemmanuel852@gmail.com" class="text-primary">Email</a>
-                            </small>
-                        </div>
+                            Need help? WhatsApp: <a href="https://wa.me/233592066298" class="text-success">0592066298</a>
+                        </small>
                     </div>
                     
                     <!-- Payment Status -->
-                    <div id="paymentStatus" class="mt-3">
-                        <!-- Payment status messages will appear here -->
-                    </div>
+                    <div id="paymentStatus"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Main JavaScript -->
     <script>
-        // COMPLETE BUNDLE DATA - With clear Express vs Beneficiary pricing
+        // ✅ COMPLETE BUNDLE DATA WITH EXACT PRICING AS REQUESTED
+        // Based on your supplier costs from Success Biz Hub
         const allBundles = [
-            // ========== MTN EXPRESS BUNDLES (3-15min, Blue Theme) ==========
-            { id: 'mtn-1-express', network: 'mtn', size: '1GB', price: 7.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 7.00 },
-            { id: 'mtn-2-express', network: 'mtn', size: '2GB', price: 13.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 6.50 },
-            { id: 'mtn-3-express', network: 'mtn', size: '3GB', price: 18.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 6.00 },
-            { id: 'mtn-4-express', network: 'mtn', size: '4GB', price: 24.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 6.00 },
-            { id: 'mtn-5-express', network: 'mtn', size: '5GB', price: 29.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.80 },
-            { id: 'mtn-6-express', network: 'mtn', size: '6GB', price: 34.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.67 },
-            { id: 'mtn-7-express', network: 'mtn', size: '7GB', price: 40.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.71 },
-            { id: 'mtn-8-express', network: 'mtn', size: '8GB', price: 45.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.63 },
-            { id: 'mtn-10-express', network: 'mtn', size: '10GB', price: 53.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.30 },
-            { id: 'mtn-12-express', network: 'mtn', size: '12GB', price: 65.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.42 },
-            { id: 'mtn-15-express', network: 'mtn', size: '15GB', price: 78.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.20 },
-            { id: 'mtn-20-express', network: 'mtn', size: '20GB', price: 100.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.00 },
-            { id: 'mtn-25-express', network: 'mtn', size: '25GB', price: 125.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 5.00 },
-            { id: 'mtn-30-express', network: 'mtn', size: '30GB', price: 148.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 4.93 },
-            { id: 'mtn-40-express', network: 'mtn', size: '40GB', price: 195.00, validity: '90 days', 
-              delivery: '3-15min', type: 'express', perGB: 4.88 },
+            // ========== MTN EXPRESS BUNDLES (3-15min delivery) ==========
+            // Supplier Cost: 1GB=₵4.70, Selling: ₵6.70 (₵2.00 profit)
+            { id: 'mtn-1-express', network: 'mtn', size: '1GB', price: 6.70, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 4.70, profit: 2.00 },
             
-            // ========== MTN BENEFICIARY BUNDLES (30min-2hrs, Purple Theme) ==========
-            { id: 'mtn-1-beneficiary', network: 'mtn', size: '1GB', price: 5.50, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.50, save: 'Save ₵1.50' },
-            { id: 'mtn-2-beneficiary', network: 'mtn', size: '2GB', price: 10.50, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.25, save: 'Save ₵2.50' },
-            { id: 'mtn-3-beneficiary', network: 'mtn', size: '3GB', price: 15.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.00, save: 'Save ₵3.00' },
-            { id: 'mtn-4-beneficiary', network: 'mtn', size: '4GB', price: 20.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.00, save: 'Save ₵4.00' },
-            { id: 'mtn-5-beneficiary', network: 'mtn', size: '5GB', price: 26.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.20, save: 'Save ₵3.00' },
-            { id: 'mtn-6-beneficiary', network: 'mtn', size: '6GB', price: 31.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.17, save: 'Save ₵3.00' },
-            { id: 'mtn-7-beneficiary', network: 'mtn', size: '7GB', price: 36.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.14, save: 'Save ₵4.00' },
-            { id: 'mtn-8-beneficiary', network: 'mtn', size: '8GB', price: 41.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 5.13, save: 'Save ₵4.00' },
-            { id: 'mtn-10-beneficiary', network: 'mtn', size: '10GB', price: 48.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.80, save: 'Save ₵5.00' },
-            { id: 'mtn-12-beneficiary', network: 'mtn', size: '12GB', price: 58.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.83, save: 'Save ₵7.00' },
-            { id: 'mtn-15-beneficiary', network: 'mtn', size: '15GB', price: 70.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.67, save: 'Save ₵8.00' },
-            { id: 'mtn-20-beneficiary', network: 'mtn', size: '20GB', price: 92.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.60, save: 'Save ₵8.00' },
-            { id: 'mtn-25-beneficiary', network: 'mtn', size: '25GB', price: 115.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.60, save: 'Save ₵10.00' },
-            { id: 'mtn-30-beneficiary', network: 'mtn', size: '30GB', price: 135.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.50, save: 'Save ₵13.00' },
-            { id: 'mtn-40-beneficiary', network: 'mtn', size: '40GB', price: 175.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.38, save: 'Save ₵20.00' },
-            { id: 'mtn-50-beneficiary', network: 'mtn', size: '50GB', price: 215.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.30, save: 'Save ₵10.00' },
-            { id: 'mtn-100-beneficiary', network: 'mtn', size: '100GB', price: 435.00, validity: '90 days', 
-              delivery: '30min-2hrs', type: 'beneficiary', perGB: 4.35, save: 'Save ₵-5.00' },
+            { id: 'mtn-2-express', network: 'mtn', size: '2GB', price: 12.90, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 9.15, profit: 3.75 },
             
-            // ========== AIRTELTIGO iSHARE (INSTANT, Red Theme) ==========
-            { id: 'airtel-1', network: 'airteltigo', size: '1GB', price: 6.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 6.00 },
-            { id: 'airtel-2', network: 'airteltigo', size: '2GB', price: 11.50, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 5.75 },
-            { id: 'airtel-3', network: 'airteltigo', size: '3GB', price: 16.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 5.33 },
-            { id: 'airtel-4', network: 'airteltigo', size: '4GB', price: 20.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 5.00 },
-            { id: 'airtel-5', network: 'airteltigo', size: '5GB', price: 24.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.80 },
-            { id: 'airtel-6', network: 'airteltigo', size: '6GB', price: 29.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.83 },
-            { id: 'airtel-7', network: 'airteltigo', size: '7GB', price: 33.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.71 },
-            { id: 'airtel-8', network: 'airteltigo', size: '8GB', price: 38.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.75 },
-            { id: 'airtel-10', network: 'airteltigo', size: '10GB', price: 47.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.70 },
-            { id: 'airtel-15', network: 'airteltigo', size: '15GB', price: 70.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.67 },
-            { id: 'airtel-20', network: 'airteltigo', size: '20GB', price: 93.00, validity: '60 days', 
-              delivery: 'INSTANT', type: 'ishare', instant: true, perGB: 4.65 },
+            { id: 'mtn-3-express', network: 'mtn', size: '3GB', price: 18.80, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 13.35, profit: 5.45 },
             
-            // ========== AIRTELTIGO BIGTIME (No Expiry) ==========
-            { id: 'airtel-bt-40', network: 'airteltigo', size: '40GB', price: 100.00, validity: 'No expiry', 
-              delivery: '3-15min', type: 'bigtime', bigTime: true, perGB: 2.50 },
+            { id: 'mtn-4-express', network: 'mtn', size: '4GB', price: 24.50, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 18.00, profit: 6.50 },
             
+            { id: 'mtn-5-express', network: 'mtn', size: '5GB', price: 29.50, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 21.80, profit: 7.70 },
+            
+            { id: 'mtn-6-express', network: 'mtn', size: '6GB', price: 35.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 26.50, profit: 8.50 },
+            
+            { id: 'mtn-7-express', network: 'mtn', size: '7GB', price: 40.50, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 31.00, profit: 9.50 },
+            
+            { id: 'mtn-8-express', network: 'mtn', size: '8GB', price: 45.80, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 35.80, profit: 10.00 },
+            
+            { id: 'mtn-10-express', network: 'mtn', size: '10GB', price: 55.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 41.50, profit: 13.50 },
+            
+            { id: 'mtn-15-express', network: 'mtn', size: '15GB', price: 79.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 61.00, profit: 18.00 },
+            
+            { id: 'mtn-20-express', network: 'mtn', size: '20GB', price: 102.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 82.00, profit: 20.00 },
+            
+            { id: 'mtn-25-express', network: 'mtn', size: '25GB', price: 124.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 102.00, profit: 22.00 },
+            
+            { id: 'mtn-30-express', network: 'mtn', size: '30GB', price: 145.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 122.50, profit: 22.50 },
+            
+            { id: 'mtn-40-express', network: 'mtn', size: '40GB', price: 190.00, validity: '90 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 162.00, profit: 28.00 },
+
+            // ========== MTN BENEFICIARY BUNDLES (30min-2hrs) ==========
+            // Supplier Cost: 1GB=₵4.25, Selling: ₵5.00 (₵0.75 profit)
+            { id: 'mtn-1-beneficiary', network: 'mtn', size: '1GB', price: 5.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 4.25, profit: 0.75 },
+            
+            { id: 'mtn-2-beneficiary', network: 'mtn', size: '2GB', price: 9.80, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 8.50, profit: 1.30 },
+            
+            { id: 'mtn-3-beneficiary', network: 'mtn', size: '3GB', price: 14.20, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 12.55, profit: 1.65 },
+            
+            { id: 'mtn-4-beneficiary', network: 'mtn', size: '4GB', price: 18.90, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 17.00, profit: 1.90 },
+            
+            { id: 'mtn-5-beneficiary', network: 'mtn', size: '5GB', price: 23.50, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 21.00, profit: 2.50 },
+            
+            { id: 'mtn-6-beneficiary', network: 'mtn', size: '6GB', price: 28.20, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 25.20, profit: 3.00 },
+            
+            { id: 'mtn-7-beneficiary', network: 'mtn', size: '7GB', price: 32.80, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 29.50, profit: 3.30 },
+            
+            { id: 'mtn-8-beneficiary', network: 'mtn', size: '8GB', price: 37.50, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 34.00, profit: 3.50 },
+            
+            { id: 'mtn-10-beneficiary', network: 'mtn', size: '10GB', price: 46.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 39.90, profit: 6.10 },
+            
+            { id: 'mtn-15-beneficiary', network: 'mtn', size: '15GB', price: 68.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 59.00, profit: 9.00 },
+            
+            { id: 'mtn-20-beneficiary', network: 'mtn', size: '20GB', price: 89.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 78.60, profit: 10.40 },
+            
+            { id: 'mtn-25-beneficiary', network: 'mtn', size: '25GB', price: 109.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 98.00, profit: 11.00 },
+            
+            { id: 'mtn-30-beneficiary', network: 'mtn', size: '30GB', price: 128.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 117.60, profit: 10.40 },
+            
+            { id: 'mtn-40-beneficiary', network: 'mtn', size: '40GB', price: 168.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 157.00, profit: 11.00 },
+            
+            { id: 'mtn-50-beneficiary', network: 'mtn', size: '50GB', price: 206.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 193.50, profit: 12.50 },
+            
+            { id: 'mtn-100-beneficiary', network: 'mtn', size: '100GB', price: 390.00, validity: '90 days', 
+              delivery: '30min-2 hours', type: 'beneficiary', costPrice: 367.80, profit: 22.20 },
+
+            // ========== AIRTELTIGO BUNDLES (Instant Delivery) ==========
+            // Supplier Cost: 1GB=₵3.85, Selling: ₵5.00 (₵1.15 profit)
+            { id: 'airtel-1', network: 'airtel', size: '1GB', price: 5.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 3.85, profit: 1.15 },
+            
+            { id: 'airtel-2', network: 'airtel', size: '2GB', price: 9.50, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 7.80, profit: 1.70 },
+            
+            { id: 'airtel-3', network: 'airtel', size: '3GB', price: 13.80, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 11.60, profit: 2.20 },
+            
+            { id: 'airtel-4', network: 'airtel', size: '4GB', price: 18.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 15.40, profit: 2.60 },
+            
+            { id: 'airtel-5', network: 'airtel', size: '5GB', price: 22.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 19.10, profit: 2.90 },
+            
+            { id: 'airtel-6', network: 'airtel', size: '6GB', price: 26.50, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 23.00, profit: 3.50 },
+            
+            { id: 'airtel-7', network: 'airtel', size: '7GB', price: 30.50, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 27.00, profit: 3.50 },
+            
+            { id: 'airtel-8', network: 'airtel', size: '8GB', price: 34.50, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 31.00, profit: 3.50 },
+            
+            { id: 'airtel-9', network: 'airtel', size: '9GB', price: 38.50, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 35.00, profit: 3.50 },
+            
+            { id: 'airtel-10', network: 'airtel', size: '10GB', price: 42.50, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 39.00, profit: 3.50 },
+            
+            { id: 'airtel-12', network: 'airtel', size: '12GB', price: 50.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 46.50, profit: 3.50 },
+            
+            { id: 'airtel-15', network: 'airtel', size: '15GB', price: 62.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 58.00, profit: 4.00 },
+            
+            { id: 'airtel-20', network: 'airtel', size: '20GB', price: 82.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 77.00, profit: 5.00 },
+            
+            { id: 'airtel-25', network: 'airtel', size: '25GB', price: 101.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 95.80, profit: 5.20 },
+            
+            { id: 'airtel-30', network: 'airtel', size: '30GB', price: 120.00, validity: '60 days', 
+              delivery: 'INSTANT', type: 'instant', costPrice: 115.00, profit: 5.00 },
+
             // ========== TELECEL BUNDLES ==========
-            { id: 'telecel-5', network: 'telecel', size: '5GB', price: 25.00, validity: '60 days', 
-              delivery: '3-15min', type: 'telecel', perGB: 5.00 },
+            { id: 'telecel-5', network: 'telecel', size: '5GB', price: 26.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 20.50, profit: 5.50 },
+            
             { id: 'telecel-10', network: 'telecel', size: '10GB', price: 48.00, validity: '60 days', 
-              delivery: '3-15min', type: 'telecel', perGB: 4.80 },
-            { id: 'telecel-15', network: 'telecel', size: '15GB', price: 68.00, validity: '60 days', 
-              delivery: '3-15min', type: 'telecel', perGB: 4.53 },
-            { id: 'telecel-20', network: 'telecel', size: '20GB', price: 88.00, validity: '60 days', 
-              delivery: '3-15min', type: 'telecel', perGB: 4.40 },
-            { id: 'telecel-25', network: 'telecel', size: '25GB', price: 110.00, validity: '60 days', 
-              delivery: '3-15min', type: 'telecel', perGB: 4.40 },
+              delivery: '3-15 minutes', type: 'express', costPrice: 39.00, profit: 9.00 },
+            
+            { id: 'telecel-15', network: 'telecel', size: '15GB', price: 69.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 56.00, profit: 13.00 },
+            
+            { id: 'telecel-20', network: 'telecel', size: '20GB', price: 90.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 74.00, profit: 16.00 },
+            
+            { id: 'telecel-25', network: 'telecel', size: '25GB', price: 112.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 92.50, profit: 19.50 },
+            
             { id: 'telecel-30', network: 'telecel', size: '30GB', price: 130.00, validity: '60 days', 
-              delivery: '3-15min', type: 'telecel', perGB: 4.33 }
+              delivery: '3-15 minutes', type: 'express', costPrice: 109.40, profit: 20.60 },
+            
+            { id: 'telecel-40', network: 'telecel', size: '40GB', price: 168.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 147.00, profit: 21.00 },
+            
+            { id: 'telecel-50', network: 'telecel', size: '50GB', price: 205.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 182.00, profit: 23.00 },
+            
+            { id: 'telecel-100', network: 'telecel', size: '100GB', price: 390.00, validity: '60 days', 
+              delivery: '3-15 minutes', type: 'express', costPrice: 365.00, profit: 25.00 }
         ];
 
         let selectedBundle = null;
         const modal = new bootstrap.Modal(document.getElementById('buyModal'));
 
-        // Load bundles on page load
-        window.onload = function() {
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
             displayBundles('all');
-            
-            // Add active class to clicked filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        };
+        });
 
         // Display bundles with filtering
         function displayBundles(filter) {
@@ -871,33 +686,25 @@
             
             let filtered = allBundles;
             
-            // Apply filters
-            if (filter === 'mtn') {
-                filtered = allBundles.filter(b => b.network === 'mtn');
-            } else if (filter === 'airteltigo') {
-                filtered = allBundles.filter(b => b.network === 'airteltigo');
-            } else if (filter === 'telecel') {
-                filtered = allBundles.filter(b => b.network === 'telecel');
-            } else if (filter === 'express') {
-                filtered = allBundles.filter(b => b.type === 'express');
-            } else if (filter === 'beneficiary') {
-                filtered = allBundles.filter(b => b.type === 'beneficiary');
+            switch(filter) {
+                case 'mtn':
+                    filtered = allBundles.filter(b => b.network === 'mtn');
+                    break;
+                case 'airtel':
+                    filtered = allBundles.filter(b => b.network === 'airtel');
+                    break;
+                case 'telecel':
+                    filtered = allBundles.filter(b => b.network === 'telecel');
+                    break;
+                case 'express':
+                    filtered = allBundles.filter(b => b.type === 'express');
+                    break;
+                case 'beneficiary':
+                    filtered = allBundles.filter(b => b.type === 'beneficiary');
+                    break;
             }
             
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <i class="bi bi-wifi-off fs-1 text-muted"></i>
-                        <p class="mt-2 text-muted">No bundles found for this filter</p>
-                        <button class="btn btn-sm btn-outline-light" onclick="displayBundles('all')">
-                            Show All Bundles
-                        </button>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Sort by size (numeric)
+            // Sort by size (extract numeric value)
             filtered.sort((a, b) => {
                 const sizeA = parseInt(a.size);
                 const sizeB = parseInt(b.size);
@@ -907,90 +714,69 @@
             // Create bundle cards
             filtered.forEach(bundle => {
                 const card = document.createElement('div');
+                card.className = `bundle-card ${bundle.network} ${bundle.type}`;
                 
-                // Determine card classes
-                const networkClass = `bundle-card ${bundle.network === 'mtn' ? 'mtn' : 
-                                     bundle.network === 'airteltigo' ? 'airtel' : 'telecel'}`;
-                
-                const typeClass = bundle.type === 'express' ? 'express' : 
-                                 bundle.type === 'beneficiary' ? 'beneficiary' : '';
+                // Calculate price per GB
+                const sizeNum = parseInt(bundle.size);
+                const pricePerGB = bundle.price / sizeNum;
                 
                 // Network icon
                 let networkIcon = '';
                 let networkName = '';
                 if (bundle.network === 'mtn') {
-                    networkIcon = '<div class="network-icon icon-mtn">M</div>';
+                    networkIcon = '<div class="rounded-circle bg-warning bg-opacity-25 p-2 d-inline-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;"><i class="bi bi-wifi text-warning"></i></div>';
                     networkName = 'MTN';
-                } else if (bundle.network === 'airteltigo') {
-                    networkIcon = '<div class="network-icon icon-airtel">A</div>';
+                } else if (bundle.network === 'airtel') {
+                    networkIcon = '<div class="rounded-circle bg-danger bg-opacity-25 p-2 d-inline-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;"><i class="bi bi-wifi text-danger"></i></div>';
                     networkName = 'AirtelTigo';
                 } else {
-                    networkIcon = '<div class="network-icon icon-telecel">T</div>';
+                    networkIcon = '<div class="rounded-circle bg-info bg-opacity-25 p-2 d-inline-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px;"><i class="bi bi-wifi text-info"></i></div>';
                     networkName = 'Telecel';
                 }
                 
-                // Delivery tooltip
-                let deliveryTooltip = '';
+                // Type badge
+                let typeBadge = '';
                 if (bundle.type === 'express') {
-                    deliveryTooltip = 'Fast delivery: 3-15 minutes in good network conditions';
+                    typeBadge = '<span class="bundle-type-tag type-express">EXPRESS</span>';
                 } else if (bundle.type === 'beneficiary') {
-                    deliveryTooltip = 'Standard delivery: 30 minutes to 2 hours in good network conditions';
-                } else if (bundle.instant) {
-                    deliveryTooltip = 'Instant delivery: Usually within seconds';
+                    typeBadge = '<span class="bundle-type-tag type-beneficiary">BENEFICIARY</span>';
+                } else if (bundle.type === 'instant') {
+                    typeBadge = '<span class="bundle-type-tag" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">INSTANT</span>';
                 }
                 
-                card.className = `${networkClass} ${typeClass}`;
                 card.innerHTML = `
-                    <div class="bundle-header">
-                        <div class="bundle-size">${bundle.size}</div>
-                        <div class="bundle-type-tag ${bundle.type === 'express' ? 'type-express' : 'type-beneficiary'}">
-                            ${bundle.type === 'express' ? 'EXPRESS' : 
-                              bundle.type === 'beneficiary' ? 'SAVE' : 
-                              bundle.instant ? 'INSTANT' : bundle.type.toUpperCase()}
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <div class="bundle-size">${bundle.size}</div>
+                            <div class="d-flex align-items-center mt-1">
+                                ${networkIcon}
+                                <div>
+                                    <div class="fw-bold">${networkName}</div>
+                                    <small class="text-muted">${bundle.validity}</small>
+                                </div>
+                            </div>
                         </div>
+                        ${typeBadge}
                     </div>
                     
-                    <div class="bundle-network">
-                        ${networkIcon}
-                        <span>${networkName}</span>
-                        ${bundle.save ? `<span class="ms-auto micro-badge badge-beneficiary">${bundle.save}</span>` : ''}
-                    </div>
-                    
-                    <div class="bundle-price-container">
+                    <div class="my-3">
                         <div class="bundle-price">₵${bundle.price.toFixed(2)}</div>
-                        <div class="price-per-gb">
-                            ₵${bundle.perGB.toFixed(2)}/GB • ${bundle.validity}
-                        </div>
+                        <div class="price-per-gb">₵${pricePerGB.toFixed(2)}/GB</div>
                     </div>
                     
-                    <ul class="bundle-features">
-                        <li class="feature-validity">
-                            <i class="bi bi-calendar-check"></i>
-                            <span>${bundle.validity}</span>
-                        </li>
-                        <li class="feature-delivery">
-                            <i class="bi ${bundle.instant ? 'bi-rocket-takeoff' : 'bi-clock'}"></i>
-                            <span class="delivery-time">
-                                ${bundle.delivery}
-                                ${deliveryTooltip ? `<span class="delivery-tooltip">${deliveryTooltip}</span>` : ''}
-                            </span>
-                        </li>
-                        ${bundle.bigTime ? `
-                            <li class="feature-benefit">
-                                <i class="bi bi-infinity"></i>
-                                <span>No Expiry - BigTime Bundle</span>
-                            </li>
-                        ` : ''}
-                        ${bundle.save ? `
-                            <li class="feature-benefit">
-                                <i class="bi bi-arrow-down-circle"></i>
-                                <span>${bundle.save} vs Express</span>
-                            </li>
-                        ` : ''}
-                    </ul>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center text-muted mb-1">
+                            <i class="bi bi-clock me-2"></i>
+                            <small>${bundle.delivery}</small>
+                        </div>
+                        <div class="d-flex align-items-center text-muted">
+                            <i class="bi bi-cash-coin me-2"></i>
+                            <small>Your profit: ₵${bundle.profit.toFixed(2)}</small>
+                        </div>
+                    </div>
                     
                     <button class="btn-buy" onclick="openBuyModal('${bundle.id}')">
-                        <i class="bi bi-cart-plus me-1"></i> Buy Now
+                        <i class="bi bi-cart-plus me-2"></i> Buy Now
                     </button>
                 `;
                 
@@ -1003,25 +789,18 @@
             selectedBundle = allBundles.find(b => b.id === bundleId);
             
             if (!selectedBundle) {
-                showMessage('Bundle not found! Please try again.', 'error');
+                alert('Bundle not found!');
                 return;
             }
             
-            // Update modal with bundle info
+            // Update modal content
             document.getElementById('bundleInfo').innerHTML = `
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <h5 class="mb-1">
-                            ${selectedBundle.network.toUpperCase()} - ${selectedBundle.size}
-                            <span class="bundle-type-tag ${selectedBundle.type === 'express' ? 'type-express' : 'type-beneficiary'} ms-2">
-                                ${selectedBundle.type === 'express' ? 'EXPRESS' : 'SAVE'}
-                            </span>
-                        </h5>
+                        <h5 class="mb-1">${selectedBundle.network.toUpperCase()} - ${selectedBundle.size}</h5>
                         <p class="text-muted mb-0">
-                            ${selectedBundle.validity} • 
-                            ${selectedBundle.instant ? '⚡ INSTANT' : selectedBundle.delivery} Delivery
+                            ${selectedBundle.validity} • ${selectedBundle.delivery}
                         </p>
-                        ${selectedBundle.save ? `<small class="text-success">${selectedBundle.save} compared to Express</small>` : ''}
                     </div>
                     <h4 class="text-success mb-0">₵${selectedBundle.price.toFixed(2)}</h4>
                 </div>
@@ -1035,7 +814,7 @@
             modal.show();
         }
 
-        // Process payment (FIXED to match backend)
+        // Process payment
         async function processPayment() {
             const phone = document.getElementById('phoneInput').value.trim();
             const email = document.getElementById('emailInput').value.trim();
@@ -1045,10 +824,10 @@
                 return;
             }
 
-            // Ghana phone validation
+            // Validate Ghana phone number
             const phoneRegex = /^(0[2-9][0-9]{8}|233[2-9][0-9]{8})$/;
             if (!phoneRegex.test(phone)) {
-                showMessage('Please enter a valid Ghana phone number (e.g., 0241234567, 0550123456)', 'error');
+                showMessage('Please enter a valid Ghana phone number (e.g., 0241234567)', 'error');
                 return;
             }
 
@@ -1061,29 +840,29 @@
             `;
 
             try {
-                // Step 1: Create order on backend
-                const createOrderResp = await fetch('https://mysterydatahub-api.onrender.com/api/orders/create', {
+                // Create order on backend
+                const response = await fetch('https://mysterydatahub-api.onrender.com/api/orders/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        bundleId: selectedBundle.id, // This must match backend BUNDLE_MAP
+                        bundleId: selectedBundle.id,
                         recipientPhone: phone,
                         customerEmail: email,
                         amount: selectedBundle.price
                     })
                 });
 
-                if (!createOrderResp.ok) {
-                    throw new Error(`HTTP error! status: ${createOrderResp.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const orderData = await createOrderResp.json();
+                const orderData = await response.json();
 
                 if (!orderData.success) {
                     throw new Error(orderData.error || 'Failed to create order.');
                 }
 
-                // Step 2: Initialize PayStack
+                // Initialize PayStack
                 document.getElementById('paymentStatus').innerHTML = `
                     <div class="alert alert-info">
                         <div class="loading-spinner me-2"></div>
@@ -1092,11 +871,11 @@
                 `;
 
                 const handler = PaystackPop.setup({
-                    key: orderData.publicKey || 'pk_live_f786738518503826805eb02c3c2ad945b62e5e8f',
+                    key: orderData.publicKey,
                     email: email,
                     amount: orderData.amount,
-                    currency: 'GHS',  // ← CRITICAL: Specify Ghanaian Cedis
-                    ref: orderData.reference || orderData.orderId,
+                    currency: 'GHS',
+                    ref: orderData.orderId,
                     metadata: {
                         orderId: orderData.orderId,
                         phone: phone,
@@ -1104,10 +883,9 @@
                     },
                     callback: function(response) {
                         document.getElementById('paymentStatus').innerHTML = `
-                            <div class="alert alert-warning">
-                                <h6>⏳ Payment Submitted</h6>
-                                <p>Your payment is being verified...</p>
-                                <p>Your ${selectedBundle.size} ${selectedBundle.network.toUpperCase()} bundle will be delivered to ${phone}</p>
+                            <div class="alert alert-success">
+                                <h6>✅ Payment Successful!</h6>
+                                <p>Your ${selectedBundle.size} ${selectedBundle.network.toUpperCase()} bundle is being delivered to ${phone}</p>
                                 <a href="track-order.html?orderId=${orderData.orderId}" class="btn btn-primary btn-sm mt-2">
                                     Track Order Status
                                 </a>
@@ -1119,10 +897,9 @@
                     },
                     onClose: function() {
                         document.getElementById('paymentStatus').innerHTML = `
-                            <div class="alert alert-secondary">
-                                <h6>Payment Incomplete</h6>
+                            <div class="alert alert-warning">
+                                <h6>⚠️ Payment Incomplete</h6>
                                 <p>You closed the payment window.</p>
-                                <p>Order ID: ${orderData.orderId}</p>
                                 <a href="track-order.html?orderId=${orderData.orderId}" class="btn btn-sm btn-warning mt-1">
                                     Check Order Status
                                 </a>
@@ -1137,7 +914,7 @@
                 console.error('Payment error:', error);
                 document.getElementById('paymentStatus').innerHTML = `
                     <div class="alert alert-danger">
-                        <h6>❌ Setup Failed</h6>
+                        <h6>❌ Payment Failed</h6>
                         <p>${error.message}</p>
                         <button class="btn btn-sm btn-warning mt-1" onclick="processPayment()">Try Again</button>
                     </div>
@@ -1165,10 +942,7 @@
                 try {
                     const response = await fetch(`https://mysterydatahub-api.onrender.com/api/orders/${orderId}`);
                     
-                    if (!response.ok) {
-                        console.log('Failed to fetch order status');
-                        return;
-                    }
+                    if (!response.ok) return;
                     
                     const result = await response.json();
                     
@@ -1182,13 +956,12 @@
                                 statusEl.innerHTML = `
                                     <h6>✅ Bundle Delivered!</h6>
                                     <p>Check your phone <strong>${result.order.recipientPhone}</strong>.</p>
-                                    <p>Your ${selectedBundle.size} ${selectedBundle.network} bundle has been sent.</p>
+                                    <p>Your ${selectedBundle.size} bundle has been sent.</p>
                                     <a href="track-order.html?orderId=${orderId}" class="btn btn-success btn-sm mt-1">
                                         View Receipt
                                     </a>
                                 `;
                                 clearInterval(interval);
-                                
                             } else if (status === 'processing_api') {
                                 statusEl.innerHTML = `
                                     <h6>⚙️ Delivering Your Bundle...</h6>
@@ -1197,7 +970,6 @@
                                         <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 70%"></div>
                                     </div>
                                 `;
-                                
                             } else if (status === 'paid') {
                                 statusEl.innerHTML = `
                                     <h6>✅ Payment Verified!</h6>
@@ -1206,47 +978,40 @@
                                         <div class="progress-bar progress-bar-striped" style="width: 40%"></div>
                                     </div>
                                 `;
-                                
-                            } else if (status === 'failed') {
-                                statusEl.className = 'alert alert-danger';
-                                statusEl.innerHTML = `
-                                    <h6>❌ Delivery Failed</h6>
-                                    <p>Please contact support for assistance.</p>
-                                    <button class="btn btn-sm btn-warning" onclick="processPayment()">Try Again</button>
-                                    <a href="track-order.html?orderId=${orderId}" class="btn btn-sm btn-secondary ms-1">
-                                        View Details
-                                    </a>
-                                `;
-                                clearInterval(interval);
                             }
                         }
                     }
-                } catch (e) { 
-                    console.log('Polling error, continuing...');
+                } catch (e) {
+                    // Silently continue polling
                 }
             }, 5000);
         }
 
-        // Filter function
+        // Filter functions
         window.filterBundles = function(filter) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter bundles
             displayBundles(filter);
         };
 
         // Show message
         function showMessage(message, type) {
             const alertClass = type === 'error' ? 'alert-danger' : 'alert-info';
-            const icon = type === 'error' ? '❌' : 'ℹ️';
             
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
             alertDiv.innerHTML = `
-                ${icon} ${message}
+                ${message}
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
             `;
             
             document.body.appendChild(alertDiv);
             
-            // Auto-remove after 5 seconds
             setTimeout(() => {
                 if (alertDiv.parentNode) {
                     alertDiv.remove();
