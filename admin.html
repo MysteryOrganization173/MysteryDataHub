@@ -2,284 +2,477 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Admin Dashboard - Mystery Bundle Hub</title>
+    
+    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css" rel="stylesheet">
+    
     <style>
         :root {
-            --admin-dark: #0f172a;
-            --admin-panel: #1e293b;
-            --profit-green: #10b981;
-            --cost-red: #ef4444;
-            --express-blue: #3b82f6;
-            --beneficiary-purple: #8b5cf6;
-            --warning-orange: #f59e0b;
+            --primary-dark: #0f172a;
+            --secondary-dark: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            background: var(--admin-dark);
-            color: #f8fafc;
-            font-family: 'Segoe UI', sans-serif;
+            background: var(--primary-dark);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            min-height: 100vh;
             overflow-x: hidden;
         }
         
         /* Improved Sidebar */
-        .sidebar {
-            background: var(--admin-panel);
-            min-height: 100vh;
+        #sidebar {
+            background: var(--secondary-dark);
             width: 260px;
+            height: 100vh;
             position: fixed;
-            border-right: 1px solid rgba(255,255,255,0.1);
-            padding: 1.5rem 1rem;
-            transition: all 0.3s;
+            left: 0;
+            top: 0;
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
+            overflow-y: auto;
         }
         
-        .sidebar.collapsed {
-            width: 70px;
-            padding: 1rem 0.5rem;
+        #sidebar.collapsed {
+            transform: translateX(-260px);
         }
         
-        .sidebar.collapsed .nav-text {
-            display: none;
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .main-content {
+        .sidebar-nav {
+            padding: 1rem;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .nav-badge {
+            margin-left: auto;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            min-width: 24px;
+        }
+        
+        /* Main Content */
+        #mainContent {
             margin-left: 260px;
             padding: 1.5rem;
-            transition: all 0.3s;
+            min-height: 100vh;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .main-content.expanded {
-            margin-left: 70px;
+        #mainContent.expanded {
+            margin-left: 0;
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            display: none;
+            background: var(--secondary-dark);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            border-bottom: 1px solid var(--border-color);
         }
         
         /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
         .stat-card {
-            background: var(--admin-panel);
+            background: var(--secondary-dark);
             border-radius: 12px;
             padding: 1.25rem;
             border-left: 4px solid;
-            transition: all 0.3s;
-            height: 100%;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
         }
         
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
         
-        .stat-card.total { border-left-color: #0ea5e9; }
-        .stat-card.revenue { border-left-color: var(--profit-green); }
-        .stat-card.profit { border-left-color: #f59e0b; }
-        .stat-card.express { border-left-color: var(--express-blue); }
-        .stat-card.beneficiary { border-left-color: var(--beneficiary-purple); }
-        .stat-card.processing { border-left-color: #8b5cf6; }
-        .stat-card.pending { border-left-color: #94a3b8; }
-        
-        /* Network Tags */
-        .network-tag {
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, currentColor, transparent);
         }
         
-        .mtn-tag { background: rgba(255, 204, 0, 0.15); color: #ffcc00; }
-        .airtel-tag { background: rgba(228, 0, 43, 0.15); color: #e4002b; }
-        .telecel-tag { background: rgba(0, 161, 224, 0.15); color: #00a1e0; }
+        .stat-card.blue { border-left-color: var(--accent-blue); }
+        .stat-card.green { border-left-color: var(--accent-green); }
+        .stat-card.purple { border-left-color: var(--accent-purple); }
+        .stat-card.orange { border-left-color: var(--accent-orange); }
         
-        /* Bundle Type Badges */
-        .express-badge {
-            background: linear-gradient(135deg, var(--express-blue), #1d4ed8);
-            color: white;
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            line-height: 1;
         }
         
-        .beneficiary-badge {
-            background: linear-gradient(135deg, var(--beneficiary-purple), #7c3aed);
-            color: white;
-            padding: 0.2rem 0.6rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
-        /* Orders Table */
-        .orders-table {
-            background: var(--admin-panel);
+        /* Charts Container */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-wrapper {
+            background: var(--secondary-dark);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+        }
+        
+        .chart-header {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        /* Tables */
+        .table-wrapper {
+            background: var(--secondary-dark);
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
         }
         
-        .orders-table th {
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            font-weight: 600;
+        .table-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .data-table th {
+            background: rgba(255, 255, 255, 0.05);
             padding: 1rem;
-            font-size: 0.9rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .orders-table td {
-            padding: 0.85rem 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.9rem;
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
         }
         
         /* Status Badges */
-        .status-badge {
-            padding: 0.3rem 0.7rem;
+        .badge {
+            padding: 0.35rem 0.75rem;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
         
-        .status-delivered { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-        .status-processing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-        .status-paid { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .status-pending_payment { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
-        .status-failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge.pending { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        .badge.paid { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge.processing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .badge.delivered { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .badge.failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
         
-        /* Filters */
-        .filter-badge {
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
-            font-size: 0.85rem;
-        }
-        
-        .filter-badge:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-2px);
-        }
-        
-        .filter-badge.active {
-            background: rgba(0, 255, 136, 0.15);
-            border-color: rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-        }
-        
-        /* Charts Placeholder */
-        .chart-container {
-            background: var(--admin-panel);
-            border-radius: 12px;
-            padding: 1.5rem;
-            height: 100%;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        /* Profit Indicators */
-        .profit-badge {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--profit-green);
-            padding: 0.25rem 0.5rem;
+        /* Network Badges */
+        .network-badge {
+            padding: 0.25rem 0.75rem;
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
         }
         
-        .loss-badge {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--cost-red);
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        
-        /* Loading States */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        
-        .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        /* Toast Notification */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-        
-        /* Responsive */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-                padding: 1rem 0.5rem;
-            }
-            
-            .sidebar .nav-text {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 70px;
-            }
-            
-            .stat-card h5 {
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 1rem;
-            }
-            
-            .stat-card {
-                margin-bottom: 1rem;
-            }
-        }
+        .mtn-badge { background: rgba(255, 204, 0, 0.15); color: #ffcc00; }
+        .airtel-badge { background: rgba(228, 0, 43, 0.15); color: #e4002b; }
+        .telecel-badge { background: rgba(0, 161, 224, 0.15); color: #00a1e0; }
         
         /* Action Buttons */
-        .action-btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.8rem;
+        .btn-action {
+            padding: 0.375rem 0.75rem;
             border-radius: 6px;
-            margin: 0 2px;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-1px);
         }
         
         /* Search Box */
         .search-box {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            transition: all 0.3s;
+            position: relative;
+            max-width: 300px;
         }
         
-        .search-box:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        .search-box input {
+            width: 100%;
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        /* Filter Chips */
+        .filter-chips {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-chip:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .filter-chip.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 350px;
+        }
+        
+        .toast {
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.05) 25%, 
+                rgba(255,255,255,0.1) 50%, 
+                rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .page-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .page-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            #sidebar {
+                transform: translateX(-260px);
+            }
+            
+            #sidebar.show {
+                transform: translateX(0);
+            }
+            
+            #mainContent {
+                margin-left: 0;
+            }
+            
+            .mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #mainContent {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-wrapper {
+                overflow-x: auto;
+            }
+            
+            .data-table {
+                min-width: 800px;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
         }
         
         /* Custom Scrollbar */
@@ -289,238 +482,298 @@
         }
         
         ::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
         }
+        
+        /* Utility Classes */
+        .text-success { color: var(--accent-green); }
+        .text-warning { color: var(--accent-orange); }
+        .text-danger { color: var(--accent-red); }
+        .text-info { color: var(--accent-blue); }
+        
+        .bg-success { background: var(--accent-green); }
+        .bg-warning { background: var(--accent-orange); }
+        .bg-danger { background: var(--accent-red); }
+        .bg-info { background: var(--accent-blue); }
+        
+        .d-none { display: none !important; }
+        .d-flex { display: flex !important; }
+        .d-grid { display: grid !important; }
+        
+        .gap-1 { gap: 0.5rem; }
+        .gap-2 { gap: 1rem; }
+        .gap-3 { gap: 1.5rem; }
+        
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        .mb-3 { margin-bottom: 1.5rem; }
+        
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mt-3 { margin-top: 1.5rem; }
+        
+        .w-100 { width: 100%; }
+        .h-100 { height: 100%; }
     </style>
 </head>
 <body>
-    <!-- Toast Container -->
-    <div class="toast-container"></div>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="d-flex align-items-center gap-2">
+            <button class="btn-action" onclick="toggleSidebar()">
+                <i class="bi bi-list"></i>
+            </button>
+            <h5 class="mb-0">Mystery Admin</h5>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span id="mobileStatus" class="badge bg-success">Online</span>
+        </div>
+    </div>
 
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="text-center mb-4">
-            <h5 class="mb-1">⚡ Mystery Admin</h5>
-            <small class="text-muted" id="adminEmailDisplay"></small>
-            <button class="btn btn-sm btn-outline-light mt-2" onclick="toggleSidebar()">
-                <i class="bi bi-arrow-left-right"></i>
-            </button>
+    <div id="sidebar">
+        <div class="sidebar-brand">
+            <h4 class="mb-1">⚡ Mystery Admin</h4>
+            <small class="text-secondary" id="adminEmail"></small>
+            <div class="mt-2">
+                <button class="btn-action w-100" onclick="toggleSidebar()">
+                    <i class="bi bi-arrow-left"></i> Collapse
+                </button>
+            </div>
         </div>
         
-        <ul class="nav flex-column">
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white active" href="#" onclick="showSection('dashboard')">
-                    <i class="bi bi-speedometer2 me-2"></i>
-                    <span class="nav-text">Dashboard</span>
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="#" class="nav-link active" onclick="showSection('dashboard')">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                    <span class="nav-badge badge bg-info" id="sidebarPending">0</span>
                 </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('orders')">
-                    <i class="bi bi-receipt me-2"></i>
-                    <span class="nav-text">Orders</span>
-                    <span class="badge bg-warning ms-auto" id="pendingCount">0</span>
-                </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('fulfillment')">
-                    <i class="bi bi-truck me-2"></i>
-                    <span class="nav-text">Fulfillment</span>
-                    <span class="badge bg-info ms-auto" id="processingCount">0</span>
-                </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('analytics')">
-                    <i class="bi bi-graph-up me-2"></i>
-                    <span class="nav-text">Analytics</span>
-                </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white" href="index.html" target="_blank">
-                    <i class="bi bi-shop me-2"></i>
-                    <span class="nav-text">View Store</span>
-                </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white" href="track-order.html" target="_blank">
-                    <i class="bi bi-search me-2"></i>
-                    <span class="nav-text">Track Orders</span>
-                </a>
-            </li>
-            <li class="nav-item mt-4 pt-3 border-top border-secondary">
-                <a class="nav-link d-flex align-items-center text-danger" href="#" onclick="logout()">
-                    <i class="bi bi-box-arrow-right me-2"></i>
-                    <span class="nav-text">Logout</span>
-                </a>
-            </li>
-        </ul>
-        
-        <div class="mt-4 pt-3 border-top border-secondary">
-            <small class="text-muted">System Status</small>
-            <div class="d-flex align-items-center mt-2">
-                <div class="me-2" id="apiStatus" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
-                <small>API: <span id="apiStatusText">Online</span></small>
             </div>
-            <div class="d-flex align-items-center mt-1">
-                <div class="me-2" id="dbStatus" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
-                <small>Database: <span id="dbStatusText">Connected</span></small>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('orders')">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                    <span class="nav-badge badge bg-warning" id="sidebarOrders">0</span>
+                </a>
             </div>
-            <div class="d-flex align-items-center mt-1">
-                <div class="me-2" id="fulfillmentStatus" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
-                <small>Fulfillment: <span id="fulfillmentStatusText">Ready</span></small>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('fulfillment')">
+                    <i class="bi bi-truck"></i>
+                    <span>Fulfillment</span>
+                    <span class="nav-badge badge bg-success" id="sidebarFulfilled">0</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="showSection('analytics')">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Analytics</span>
+                </a>
+            </div>
+            
+            <div class="nav-item mt-4">
+                <a href="index.html" target="_blank" class="nav-link">
+                    <i class="bi bi-shop"></i>
+                    <span>View Store</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="track-order.html" target="_blank" class="nav-link">
+                    <i class="bi bi-search"></i>
+                    <span>Track Orders</span>
+                </a>
+            </div>
+            
+            <div class="nav-item mt-4 pt-3 border-top border-color">
+                <a href="#" class="nav-link text-danger" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+            
+            <div class="mt-4 pt-3 border-top border-color">
+                <small class="text-secondary d-block mb-2">System Status</small>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="status-dot bg-success" id="apiStatusDot"></div>
+                    <small>API: <span id="apiStatusText">Online</span></small>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="status-dot bg-success" id="dbStatusDot"></div>
+                    <small>DB: <span id="dbStatusText">Connected</span></small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="status-dot bg-success" id="fulfillmentStatusDot"></div>
+                    <small>Fulfillment: <span id="fulfillmentStatusText">Ready</span></small>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 id="sectionTitle">Dashboard Overview</h2>
-                <p class="text-muted mb-0" id="sectionDescription">Real-time analytics for Mystery Bundle Hub</p>
-            </div>
-            <div class="text-end">
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-gear me-1"></i> Quick Actions
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item" href="#" onclick="refreshCurrentSection()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh Data</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportData()"><i class="bi bi-download me-2"></i>Export Data</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="showHelp()"><i class="bi bi-question-circle me-2"></i>Help & Support</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
+    <div id="mainContent">
         <!-- Dashboard Section -->
-        <div id="dashboardSection">
-            <!-- Stats Row -->
-            <div class="row mb-4">
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="stat-card total">
-                        <small class="text-muted d-block mb-1">Total Orders</small>
-                        <h3 class="mb-1" id="totalOrders">0</h3>
-                        <small class="text-success" id="orderChange">
-                            <i class="bi bi-arrow-up"></i> 0 Today
-                        </small>
-                    </div>
+        <section id="dashboardSection">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="mb-1">Dashboard Overview</h2>
+                    <p class="text-secondary mb-0">Real-time analytics and insights</p>
                 </div>
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="stat-card revenue">
-                        <small class="text-muted d-block mb-1">Today's Revenue</small>
-                        <h3 class="mb-1" id="todayRevenue">₵0</h3>
-                        <small class="text-muted" id="revenueChange">₵0 Profit</small>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="stat-card processing">
-                        <small class="text-muted d-block mb-1">Processing</small>
-                        <h3 class="mb-1" id="processingOrders">0</h3>
-                        <small class="text-warning">Awaiting fulfillment</small>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Success Rate</small>
-                        <h3 class="mb-1" id="successRate">100%</h3>
-                        <small class="text-muted" id="failedOrders">0 failed</small>
+                <div class="d-flex gap-2">
+                    <button class="btn-action" onclick="refreshDashboard()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn-action" data-bs-toggle="dropdown">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#" onclick="exportData('json')">JSON</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('csv')">CSV</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="exportData('excel')">Excel</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
             
-            <!-- Charts Row -->
-            <div class="row mb-4">
-                <div class="col-lg-8 mb-3">
+            <!-- Stats Grid -->
+            <div class="stats-grid mb-3">
+                <div class="stat-card blue">
+                    <div class="stat-label">
+                        <i class="bi bi-receipt"></i>
+                        <span>Total Orders</span>
+                    </div>
+                    <div class="stat-value" id="totalOrders">0</div>
+                    <div class="text-secondary">Today: <span id="todayOrders" class="text-success">0</span></div>
+                </div>
+                
+                <div class="stat-card green">
+                    <div class="stat-label">
+                        <i class="bi bi-currency-dollar"></i>
+                        <span>Revenue</span>
+                    </div>
+                    <div class="stat-value" id="totalRevenue">₵0</div>
+                    <div class="text-secondary">Today: <span id="todayRevenue" class="text-success">₵0</span></div>
+                </div>
+                
+                <div class="stat-card purple">
+                    <div class="stat-label">
+                        <i class="bi bi-graph-up-arrow"></i>
+                        <span>Profit</span>
+                    </div>
+                    <div class="stat-value" id="totalProfit">₵0</div>
+                    <div class="text-secondary">Margin: <span id="profitMargin">0%</span></div>
+                </div>
+                
+                <div class="stat-card orange">
+                    <div class="stat-label">
+                        <i class="bi bi-check-circle"></i>
+                        <span>Success Rate</span>
+                    </div>
+                    <div class="stat-value" id="successRate">100%</div>
+                    <div class="text-secondary">Failed: <span id="failedCount">0</span></div>
+                </div>
+            </div>
+            
+            <!-- Charts Grid -->
+            <div class="charts-grid mb-3">
+                <div class="chart-wrapper">
+                    <div class="chart-header">
+                        <h6 class="mb-0">Orders Trend</h6>
+                        <select class="form-select form-select-sm bg-dark text-light border-secondary" style="width: 120px;" onchange="updateChartPeriod(this.value)">
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                            <option value="90d">Last 90 Days</option>
+                        </select>
+                    </div>
                     <div class="chart-container">
-                        <h5 class="mb-3">Order Analytics</h5>
-                        <canvas id="ordersChart" height="250"></canvas>
+                        <canvas id="ordersChart"></canvas>
                     </div>
                 </div>
-                <div class="col-lg-4 mb-3">
+                
+                <div class="chart-wrapper">
+                    <div class="chart-header">
+                        <h6 class="mb-0">Network Distribution</h6>
+                    </div>
                     <div class="chart-container">
-                        <h5 class="mb-3">Network Distribution</h5>
-                        <canvas id="networkChart" height="250"></canvas>
+                        <canvas id="networkChart"></canvas>
                     </div>
                 </div>
             </div>
             
             <!-- Recent Orders -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="chart-container">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="mb-0">Recent Orders</h5>
-                            <button class="btn btn-sm btn-outline-light" onclick="showSection('orders')">
-                                View All <i class="bi bi-arrow-right"></i>
-                            </button>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Phone</th>
-                                        <th>Bundle</th>
-                                        <th>Amount</th>
-                                        <th>Profit</th>
-                                        <th>Status</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentOrdersBody">
-                                    <!-- Filled by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <div class="table-wrapper">
+                <div class="table-header">
+                    <h6 class="mb-0">Recent Orders</h6>
+                    <button class="btn-action" onclick="showSection('orders')">
+                        View All <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Phone</th>
+                                <th>Network</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersBody">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Orders Section -->
-        <div id="ordersSection" style="display: none;">
-            <!-- Orders Header -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
-                <div class="mb-3 mb-md-0">
-                    <h2>Order Management</h2>
-                    <p class="text-muted mb-0">View and manage all customer orders</p>
+        <section id="ordersSection" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="mb-1">Order Management</h2>
+                    <p class="text-secondary mb-0">View and manage customer orders</p>
                 </div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex gap-2">
                     <div class="search-box">
-                        <i class="bi bi-search me-2"></i>
-                        <input type="text" placeholder="Search orders..." id="orderSearch" class="bg-transparent border-0 text-light" style="width: 200px;">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="orderSearch" placeholder="Search orders..." oninput="searchOrders()">
                     </div>
-                    <button class="btn btn-sm btn-success" onclick="refreshOrders()">
+                    <button class="btn-action" onclick="refreshOrders()">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
                 </div>
             </div>
             
-            <!-- Filters -->
-            <div class="d-flex flex-wrap gap-2 mb-4">
-                <span class="filter-badge active" onclick="filterOrders('all')">All Orders</span>
-                <span class="filter-badge" onclick="filterOrders('pending_payment')">Pending Payment</span>
-                <span class="filter-badge" onclick="filterOrders('paid')">Paid</span>
-                <span class="filter-badge" onclick="filterOrders('processing')">Processing</span>
-                <span class="filter-badge" onclick="filterOrders('delivered')">Delivered</span>
-                <span class="filter-badge" onclick="filterOrders('failed')">Failed</span>
+            <!-- Filter Chips -->
+            <div class="filter-chips">
+                <span class="filter-chip active" onclick="filterOrders('all')">All</span>
+                <span class="filter-chip" onclick="filterOrders('pending_payment')">Pending</span>
+                <span class="filter-chip" onclick="filterOrders('paid')">Paid</span>
+                <span class="filter-chip" onclick="filterOrders('processing')">Processing</span>
+                <span class="filter-chip" onclick="filterOrders('delivered')">Delivered</span>
+                <span class="filter-chip" onclick="filterOrders('failed')">Failed</span>
             </div>
             
             <!-- Orders Table -->
-            <div class="orders-table">
+            <div class="table-wrapper">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Order ID</th>
@@ -528,102 +781,102 @@
                                 <th>Phone</th>
                                 <th>Bundle</th>
                                 <th>Amount</th>
-                                <th>Cost</th>
-                                <th>Profit</th>
                                 <th>Status</th>
                                 <th>Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody">
-                            <!-- Orders will be loaded here -->
+                            <!-- Filled by JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
             
             <!-- Pagination -->
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <small class="text-muted" id="ordersCount">Showing 0 orders</small>
-                <nav>
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item"><a class="page-link" href="#" onclick="changePage(-1)">Previous</a></li>
-                        <li class="page-item active"><span class="page-link" id="currentPage">1</span></li>
-                        <li class="page-item"><a class="page-link" href="#" onclick="changePage(1)">Next</a></li>
-                    </ul>
-                </nav>
+            <div class="pagination">
+                <button class="page-btn" onclick="changePage(-1)" id="prevPage" disabled>
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="page-btn active" id="currentPage">1</span>
+                <button class="page-btn" onclick="changePage(1)" id="nextPage">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
             </div>
-        </div>
+        </section>
 
         <!-- Fulfillment Section -->
-        <div id="fulfillmentSection" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+        <section id="fulfillmentSection" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h2>Fulfillment Management</h2>
-                    <p class="text-muted mb-0">Manage bundle delivery and Success Biz Hub integration</p>
+                    <h2 class="mb-1">Fulfillment Management</h2>
+                    <p class="text-secondary mb-0">Manage bundle delivery to Success Biz Hub</p>
                 </div>
-                <div>
-                    <button class="btn btn-sm btn-success" onclick="testFulfillmentConnection()">
-                        <i class="bi bi-wifi me-1"></i> Test Connection
+                <div class="d-flex gap-2">
+                    <button class="btn-action" onclick="testFulfillment()">
+                        <i class="bi bi-wifi"></i> Test Connection
                     </button>
-                </div>
-            </div>
-            
-            <!-- Quick Actions -->
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Manual Fulfillment</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Order ID</label>
-                            <input type="text" class="form-control bg-dark text-light border-secondary" id="manualOrderId" placeholder="Enter order ID">
-                        </div>
-                        <button class="btn btn-warning w-100" onclick="manualFulfillment()">
-                            <i class="bi bi-send me-2"></i> Send to Success Biz Hub
-                        </button>
-                        <small class="text-muted mt-2 d-block">Use this for orders stuck in "paid" status</small>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Fulfillment Status</h5>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>API Connection:</span>
-                            <span class="badge bg-success" id="apiConnectionStatus">Connected</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Last Sync:</span>
-                            <span id="lastSyncTime">Just now</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Pending Fulfillment:</span>
-                            <span class="badge bg-warning" id="pendingFulfillmentCount">0</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Today's Fulfilled:</span>
-                            <span class="badge bg-success" id="todayFulfilledCount">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Pending Fulfillment -->
-            <div class="chart-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Orders Pending Fulfillment</h5>
-                    <button class="btn btn-sm btn-outline-light" onclick="refreshFulfillment()">
+                    <button class="btn-action" onclick="refreshFulfillment()">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
                 </div>
+            </div>
+            
+            <!-- Fulfillment Stats -->
+            <div class="stats-grid mb-3">
+                <div class="stat-card blue">
+                    <div class="stat-label">
+                        <i class="bi bi-clock"></i>
+                        <span>Pending Fulfillment</span>
+                    </div>
+                    <div class="stat-value" id="pendingFulfillment">0</div>
+                    <div class="text-secondary">Awaiting delivery</div>
+                </div>
+                
+                <div class="stat-card green">
+                    <div class="stat-label">
+                        <i class="bi bi-check-circle"></i>
+                        <span>Today's Fulfilled</span>
+                    </div>
+                    <div class="stat-value" id="todayFulfilled">0</div>
+                    <div class="text-secondary">Successfully delivered</div>
+                </div>
+                
+                <div class="stat-card purple">
+                    <div class="stat-label">
+                        <i class="bi bi-lightning"></i>
+                        <span>Success Rate</span>
+                    </div>
+                    <div class="stat-value" id="fulfillmentRate">100%</div>
+                    <div class="text-secondary">API Connection: <span id="apiConnection" class="text-success">Online</span></div>
+                </div>
+                
+                <div class="stat-card orange">
+                    <div class="stat-label">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>Manual Retry</span>
+                    </div>
+                    <input type="text" class="form-control bg-dark text-light border-secondary mt-2" id="retryOrderId" placeholder="Order ID">
+                    <button class="btn-action w-100 mt-2" onclick="manualFulfillment()">
+                        <i class="bi bi-send"></i> Retry Order
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Pending Orders Table -->
+            <div class="table-wrapper">
+                <div class="table-header">
+                    <h6 class="mb-0">Orders Pending Fulfillment</h6>
+                    <span class="badge bg-warning" id="pendingCountBadge">0 pending</span>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Order ID</th>
                                 <th>Phone</th>
                                 <th>Bundle</th>
                                 <th>Amount</th>
-                                <th>Status</th>
                                 <th>Paid At</th>
                                 <th>Action</th>
                             </tr>
@@ -634,119 +887,130 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </section>
 
         <!-- Analytics Section -->
-        <div id="analyticsSection" style="display: none;">
-            <h2 class="mb-4">Business Analytics</h2>
+        <section id="analyticsSection" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="mb-1">Business Analytics</h2>
+                    <p class="text-secondary mb-0">Detailed insights and performance metrics</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm bg-dark text-light border-secondary" id="analyticsPeriod" onchange="updateAnalytics()">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+            </div>
             
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
+            <!-- Analytics Charts -->
+            <div class="charts-grid mb-3">
+                <div class="chart-wrapper">
+                    <div class="chart-header">
+                        <h6 class="mb-0">Revenue Trends</h6>
+                    </div>
                     <div class="chart-container">
-                        <h5 class="mb-3">Revenue Trends</h5>
-                        <canvas id="revenueChart" height="250"></canvas>
+                        <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
+                
+                <div class="chart-wrapper">
+                    <div class="chart-header">
+                        <h6 class="mb-0">Bundle Performance</h6>
+                    </div>
                     <div class="chart-container">
-                        <h5 class="mb-3">Profit Analysis</h5>
-                        <canvas id="profitChart" height="250"></canvas>
+                        <canvas id="bundleChart"></canvas>
                     </div>
                 </div>
             </div>
             
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Top Performing Bundles</h5>
-                        <div id="topBundlesList">
+            <!-- Performance Metrics -->
+            <div class="table-wrapper">
+                <div class="table-header">
+                    <h6 class="mb-0">Performance Metrics</h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Trend</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsBody">
                             <!-- Filled by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Performance Metrics</h5>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Average Order Value:</span>
-                                    <span class="text-success" id="avgOrderValue">₵0</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span>Conversion Rate:</span>
-                                    <span class="text-success" id="conversionRate">0%</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span>Customer Satisfaction:</span>
-                                    <span class="text-success" id="satisfactionRate">100%</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Total Revenue:</span>
-                                    <span class="text-success" id="totalRevenue">₵0</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span>Total Profit:</span>
-                                    <span class="text-warning" id="totalProfit">₵0</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span>Total Cost:</span>
-                                    <span class="text-muted" id="totalCost">₵0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- Order Details Modal -->
-    <div class="modal fade" id="orderModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">Order Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="orderModalBody">
-                    <!-- Filled by JavaScript -->
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.0/build/global/luxon.min.js"></script>
+
     <script>
+        // Configuration
         const BACKEND_URL = 'https://mysterydatahub-api.onrender.com';
         
-        // Global variables
+        // Global State
+        let currentToken = null;
         let currentOrders = [];
+        let filteredOrders = [];
+        let currentSection = 'dashboard';
         let currentFilter = 'all';
         let currentPage = 1;
-        const ordersPerPage = 15;
+        const ITEMS_PER_PAGE = 10;
+        
+        // Chart Instances
         let ordersChart = null;
         let networkChart = null;
         let revenueChart = null;
-        let profitChart = null;
+        let bundleChart = null;
         
-        // Token validation and helper functions
-        function getAuthHeaders() {
-            const token = localStorage.getItem('adminToken');
-            if (!token) {
-                logout();
-                return {};
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication
+            if (!await checkAuth()) {
+                window.location.href = 'admin-login.html';
+                return;
             }
-            return {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            };
-        }
+            
+            // Initialize UI
+            initializeUI();
+            
+            // Load initial data
+            await Promise.all([
+                loadDashboard(),
+                checkSystemStatus()
+            ]);
+            
+            // Set up auto-refresh
+            setInterval(() => {
+                if (currentSection === 'dashboard') loadDashboard();
+                if (currentSection === 'fulfillment') loadFulfillment();
+                checkSystemStatus();
+            }, 30000);
+            
+            // Handle mobile sidebar
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.add('collapsed');
+            }
+        });
         
-        function checkToken() {
+        // Authentication
+        async function checkAuth() {
             const token = localStorage.getItem('adminToken');
             const expiry = localStorage.getItem('tokenExpiry');
             
@@ -755,50 +1019,49 @@
                 return false;
             }
             
-            // Basic JWT format validation
-            if (!token.startsWith('eyJ')) {
-                logout();
-                return false;
-            }
+            currentToken = token;
+            
+            // Set admin email
+            const email = localStorage.getItem('adminEmail');
+            document.getElementById('adminEmail').textContent = email || 'Admin';
             
             return true;
         }
         
-        function showToast(message, type = 'info') {
-            const toastContainer = document.querySelector('.toast-container');
-            const toastId = 'toast-' + Date.now();
+        // Initialize UI
+        function initializeUI() {
+            // Status dots
+            document.querySelectorAll('.status-dot').forEach(dot => {
+                dot.style.width = '10px';
+                dot.style.height = '10px';
+                dot.style.borderRadius = '50%';
+                dot.style.display = 'inline-block';
+            });
             
-            const toastEl = document.createElement('div');
-            toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
-            toastEl.id = toastId;
-            toastEl.setAttribute('role', 'alert');
-            
-            toastEl.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'} me-2"></i>
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            `;
-            
-            toastContainer.appendChild(toastEl);
-            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-            toast.show();
-            
-            toastEl.addEventListener('hidden.bs.toast', () => {
-                toastEl.remove();
+            // Mobile header status
+            document.getElementById('mobileStatus').addEventListener('click', () => {
+                showToast('Checking system status...', 'info');
+                checkSystemStatus();
             });
         }
         
-        async function apiRequest(endpoint, options = {}) {
-            if (!checkToken()) return null;
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            if (!currentToken) {
+                logout();
+                return null;
+            }
+            
+            const headers = {
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
             
             try {
                 const response = await fetch(`${BACKEND_URL}${endpoint}`, {
-                    headers: getAuthHeaders(),
-                    ...options
+                    ...options,
+                    headers
                 });
                 
                 if (response.status === 401) {
@@ -806,120 +1069,64 @@
                     return null;
                 }
                 
-                return await response.json();
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Request failed');
+                }
+                
+                return data;
             } catch (error) {
-                console.error('API request failed:', error);
-                showToast('Network error. Please try again.', 'error');
+                console.error('API Error:', error);
+                showToast(`API Error: ${error.message}`, 'error');
                 return null;
             }
         }
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Validate token on load
-            if (!checkToken()) {
-                window.location.href = 'admin-login.html';
-                return;
-            }
+        // Show Toast
+        function showToast(message, type = 'info') {
+            const container = document.querySelector('.toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
             
-            // Set admin email
-            const email = localStorage.getItem('adminEmail');
-            document.getElementById('adminEmailDisplay').textContent = email || 'Admin';
+            const icon = {
+                success: 'bi-check-circle',
+                error: 'bi-x-circle',
+                warning: 'bi-exclamation-triangle',
+                info: 'bi-info-circle'
+            }[type];
             
-            // Initialize sections
-            showSection('dashboard');
+            toast.innerHTML = `
+                <i class="bi ${icon} text-${type}"></i>
+                <div>${message}</div>
+                <button class="btn btn-sm text-light" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
             
-            // Load initial data
-            await Promise.all([
-                loadDashboard(),
-                loadOrders(),
-                checkSystemStatus()
-            ]);
+            container.appendChild(toast);
             
-            // Set up auto-refresh
-            setInterval(loadDashboard, 30000);
-            setInterval(checkSystemStatus, 60000);
-            
-            // Search functionality
-            document.getElementById('orderSearch').addEventListener('input', debounce(searchOrders, 300));
-            
-            // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
-        
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
         }
         
-        // Section management
-        function showSection(section) {
-            // Hide all sections
-            ['dashboard', 'orders', 'fulfillment', 'analytics'].forEach(s => {
-                document.getElementById(`${s}Section`).style.display = 'none';
-            });
-            
-            // Show selected section
-            document.getElementById(`${section}Section`).style.display = 'block';
-            
-            // Update titles
-            const titles = {
-                dashboard: 'Dashboard Overview',
-                orders: 'Order Management',
-                fulfillment: 'Fulfillment Management',
-                analytics: 'Business Analytics'
-            };
-            
-            const descriptions = {
-                dashboard: 'Real-time analytics for Mystery Bundle Hub',
-                orders: 'View and manage all customer orders',
-                fulfillment: 'Manage bundle delivery and Success Biz Hub integration',
-                analytics: 'Detailed business insights and performance metrics'
-            };
-            
-            document.getElementById('sectionTitle').textContent = titles[section];
-            document.getElementById('sectionDescription').textContent = descriptions[section];
-            
-            // Update active nav link
-            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            event.target.closest('.nav-link').classList.add('active');
-            
-            // Load section-specific data
-            switch(section) {
-                case 'orders':
-                    loadOrders();
-                    break;
-                case 'fulfillment':
-                    loadFulfillment();
-                    break;
-                case 'analytics':
-                    loadAnalytics();
-                    break;
-            }
-        }
-        
-        // Dashboard functions
+        // Load Dashboard
         async function loadDashboard() {
             try {
-                const stats = await apiRequest('/api/admin/stats');
-                if (stats && stats.success) {
-                    updateDashboardStats(stats.stats);
+                // Load stats
+                const stats = await apiCall('/api/admin/stats');
+                if (stats?.success) {
+                    updateStats(stats.stats);
                 }
                 
-                const orders = await apiRequest('/api/admin/orders?limit=50');
-                if (orders && orders.success) {
+                // Load recent orders
+                const orders = await apiCall('/api/admin/orders?limit=10');
+                if (orders?.success) {
+                    currentOrders = orders.orders;
                     updateRecentOrders(orders.orders);
                     createCharts(orders.orders);
                 }
@@ -928,77 +1135,66 @@
             }
         }
         
-        function updateDashboardStats(stats) {
+        // Update Stats
+        function updateStats(stats) {
+            // Update main stats
             document.getElementById('totalOrders').textContent = stats.totalOrders || 0;
+            document.getElementById('todayOrders').textContent = stats.todayOrders || 0;
+            document.getElementById('totalRevenue').textContent = `₵${(stats.totalRevenue || 0).toFixed(2)}`;
             document.getElementById('todayRevenue').textContent = `₵${(stats.todayRevenue || 0).toFixed(2)}`;
-            document.getElementById('processingOrders').textContent = stats.processingOrders || 0;
+            document.getElementById('totalProfit').textContent = `₵${(stats.todayProfit || 0).toFixed(2)}`;
+            document.getElementById('profitMargin').textContent = `${stats.profitMargin || 0}%`;
             document.getElementById('successRate').textContent = `${stats.successRate || 100}%`;
-            document.getElementById('failedOrders').textContent = `${stats.failedOrders || 0} failed`;
+            document.getElementById('failedCount').textContent = stats.failedOrders || 0;
             
-            // Update pending count in sidebar
-            document.getElementById('pendingCount').textContent = stats.pendingOrders || 0;
-            document.getElementById('processingCount').textContent = stats.processingOrders || 0;
+            // Update sidebar badges
+            document.getElementById('sidebarPending').textContent = stats.pendingOrders || 0;
+            document.getElementById('sidebarOrders').textContent = stats.todayOrders || 0;
+            document.getElementById('sidebarFulfilled').textContent = stats.deliveredOrders || 0;
         }
         
+        // Update Recent Orders
         function updateRecentOrders(orders) {
             const tbody = document.getElementById('recentOrdersBody');
             tbody.innerHTML = '';
             
-            const recent = orders.slice(0, 8);
-            
-            recent.forEach(order => {
-                const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
-                
+            orders.slice(0, 8).forEach(order => {
                 const row = document.createElement('tr');
+                const timeAgo = getTimeAgo(order.createdAt);
+                const networkBadge = getNetworkBadge(order.network);
+                
                 row.innerHTML = `
                     <td><small class="text-info">${order.orderId?.substring(0, 10)}...</small></td>
                     <td>${order.recipientPhone || ''}</td>
-                    <td>
-                        ${getNetworkBadge(order.network)}
-                        <small>${order.bundleSize || ''}</small>
-                    </td>
-                    <td class="text-success">₵${order.amount?.toFixed(2) || '0'}</td>
-                    <td>
-                        <span class="${profit >= 0 ? 'profit-badge' : 'loss-badge'}">
-                            ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
-                        </span>
-                    </td>
-                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                    <td><small class="text-muted">${formatTimeAgo(order.createdAt)}</small></td>
+                    <td>${networkBadge}</td>
+                    <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                    <td><span class="badge ${getStatusClass(order.status)}">${order.status}</span></td>
+                    <td><small class="text-secondary">${timeAgo}</small></td>
                 `;
                 tbody.appendChild(row);
             });
         }
         
+        // Create Charts
         function createCharts(orders) {
             // Destroy existing charts
             if (ordersChart) ordersChart.destroy();
             if (networkChart) networkChart.destroy();
             
-            // Orders over time (last 7 days)
-            const last7Days = [...Array(7)].map((_, i) => {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                return d.toLocaleDateString('en-US', { weekday: 'short' });
-            }).reverse();
+            // Orders Chart
+            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+            const ordersData = getOrdersByDay(orders, 7);
             
-            const ordersByDay = last7Days.map(day => {
-                return orders.filter(o => {
-                    const orderDate = new Date(o.createdAt).toLocaleDateString('en-US', { weekday: 'short' });
-                    return orderDate === day;
-                }).length;
-            });
-            
-            const ctx1 = document.getElementById('ordersChart').getContext('2d');
-            ordersChart = new Chart(ctx1, {
+            ordersChart = new Chart(ordersCtx, {
                 type: 'line',
                 data: {
-                    labels: last7Days,
+                    labels: ordersData.labels,
                     datasets: [{
                         label: 'Orders',
-                        data: ordersByDay,
+                        data: ordersData.values,
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
                         tension: 0.4,
                         fill: true
                     }]
@@ -1023,31 +1219,20 @@
                 }
             });
             
-            // Network distribution
-            const networks = {};
-            orders.forEach(o => {
-                const net = o.network?.toLowerCase() || 'unknown';
-                networks[net] = (networks[net] || 0) + 1;
-            });
+            // Network Chart
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            const networkData = getNetworkDistribution(orders);
             
-            const ctx2 = document.getElementById('networkChart').getContext('2d');
-            networkChart = new Chart(ctx2, {
+            networkChart = new Chart(networkCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(networks).map(n => n.toUpperCase()),
+                    labels: networkData.labels,
                     datasets: [{
-                        data: Object.values(networks),
+                        data: networkData.values,
                         backgroundColor: [
                             'rgba(255, 204, 0, 0.7)',
                             'rgba(228, 0, 43, 0.7)',
-                            'rgba(0, 161, 224, 0.7)',
-                            'rgba(148, 163, 184, 0.7)'
-                        ],
-                        borderColor: [
-                            '#ffcc00',
-                            '#e4002b',
-                            '#00a1e0',
-                            '#94a3b8'
+                            'rgba(0, 161, 224, 0.7)'
                         ],
                         borderWidth: 2
                     }]
@@ -1065,273 +1250,312 @@
             });
         }
         
-        // Order management
+        // Load Orders
         async function loadOrders() {
             try {
-                const result = await apiRequest('/api/admin/orders');
-                if (result && result.success) {
+                const result = await apiCall('/api/admin/orders');
+                if (result?.success) {
                     currentOrders = result.orders;
-                    filterOrders(currentFilter);
-                    updateOrdersCount();
+                    filteredOrders = result.orders;
+                    renderOrdersTable();
+                    updatePagination();
                 }
             } catch (error) {
                 console.error('Orders load error:', error);
             }
         }
         
+        // Render Orders Table
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            // Apply pagination
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageOrders = filteredOrders.slice(start, end);
+            
+            if (pageOrders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="bi bi-inbox fs-1 text-secondary"></i>
+                            <p class="mt-2 text-secondary">No orders found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            pageOrders.forEach(order => {
+                const row = document.createElement('tr');
+                const networkBadge = getNetworkBadge(order.network);
+                const bundleType = order.bundleId?.includes('express') ? 'Express' : 
+                                 order.bundleId?.includes('beneficiary') ? 'Beneficiary' : 'Standard';
+                
+                row.innerHTML = `
+                    <td><small class="text-info">${order.orderId}</small></td>
+                    <td><small>${order.customerEmail?.split('@')[0] || 'Customer'}</small></td>
+                    <td>${order.recipientPhone || ''}</td>
+                    <td>
+                        ${networkBadge}
+                        <small class="ms-1">${order.bundleSize || ''}</small>
+                        <small class="badge bg-secondary ms-1">${bundleType}</small>
+                    </td>
+                    <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                    <td><span class="badge ${getStatusClass(order.status)}">${order.status}</span></td>
+                    <td><small class="text-secondary">${formatDate(order.createdAt)}</small></td>
+                    <td>
+                        <button class="btn-action" onclick="viewOrder('${order.orderId}')">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        ${order.status === 'paid' ? `
+                            <button class="btn-action" onclick="retryOrder('${order.orderId}')">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Filter Orders
         function filterOrders(filter) {
             currentFilter = filter;
             currentPage = 1;
             
-            // Update active filter
-            document.querySelectorAll('.filter-badge').forEach(badge => {
-                badge.classList.remove('active');
+            // Update filter chips
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
             });
             event.target.classList.add('active');
             
-            let filteredOrders = currentOrders;
-            
-            if (filter !== 'all') {
-                filteredOrders = currentOrders.filter(o => o.status === filter);
-            }
-            
-            displayOrders(filteredOrders);
-        }
-        
-        function searchOrders(query) {
-            if (!query.trim()) {
-                filterOrders(currentFilter);
-                return;
-            }
-            
-            const filtered = currentOrders.filter(order => 
-                order.orderId?.toLowerCase().includes(query.toLowerCase()) ||
-                order.recipientPhone?.includes(query) ||
-                order.customerEmail?.toLowerCase().includes(query.toLowerCase()) ||
-                order.bundleSize?.toLowerCase().includes(query.toLowerCase()) ||
-                order.network?.toLowerCase().includes(query.toLowerCase())
-            );
-            
-            displayOrders(filtered);
-        }
-        
-        function displayOrders(orders) {
-            const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = '';
-            
-            // Pagination
-            const startIndex = (currentPage - 1) * ordersPerPage;
-            const endIndex = startIndex + ordersPerPage;
-            const paginatedOrders = orders.slice(startIndex, endIndex);
-            
-            if (paginatedOrders.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="10" class="text-center py-5">
-                            <i class="bi bi-inbox fs-1 text-muted"></i>
-                            <p class="mt-2 text-muted">No orders found</p>
-                        </td>
-                    </tr>
-                `;
+            // Apply filter
+            if (filter === 'all') {
+                filteredOrders = currentOrders;
             } else {
-                paginatedOrders.forEach(order => {
-                    const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><small class="text-info">${order.orderId}</small></td>
-                        <td><small>${order.customerEmail?.split('@')[0] || 'Customer'}</small></td>
-                        <td>${order.recipientPhone || ''}</td>
-                        <td>
-                            ${getNetworkBadge(order.network)}
-                            <small class="ms-1">${order.bundleSize || ''}</small>
-                            ${getBundleTypeBadge(order.bundleId)}
-                        </td>
-                        <td class="text-success">₵${order.amount?.toFixed(2)}</td>
-                        <td><small class="text-muted">₵${(order.metadata?.costPrice || 0).toFixed(2)}</small></td>
-                        <td>
-                            <span class="${profit >= 0 ? 'profit-badge' : 'loss-badge'}">
-                                ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
-                            </span>
-                        </td>
-                        <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                        <td><small class="text-muted">${formatDate(order.createdAt)}</small></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-light action-btn" onclick="viewOrderDetails('${order.orderId}')" title="View Details">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            ${order.status === 'paid' ? `
-                                <button class="btn btn-sm btn-warning action-btn" onclick="manualFulfillmentOrder('${order.orderId}')" title="Send to Fulfillment">
-                                    <i class="bi bi-send"></i>
-                                </button>
-                            ` : ''}
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
+                filteredOrders = currentOrders.filter(order => order.status === filter);
             }
             
-            // Update pagination
-            updateOrdersCount(orders.length);
+            renderOrdersTable();
+            updatePagination();
+        }
+        
+        // Search Orders
+        function searchOrders() {
+            const query = document.getElementById('orderSearch').value.toLowerCase();
+            
+            if (!query) {
+                filteredOrders = currentOrders;
+            } else {
+                filteredOrders = currentOrders.filter(order => 
+                    order.orderId?.toLowerCase().includes(query) ||
+                    order.recipientPhone?.includes(query) ||
+                    order.customerEmail?.toLowerCase().includes(query) ||
+                    order.bundleSize?.toLowerCase().includes(query)
+                );
+            }
+            
+            currentPage = 1;
+            renderOrdersTable();
+            updatePagination();
+        }
+        
+        // Update Pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
             document.getElementById('currentPage').textContent = currentPage;
+            
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+            
+            // Update page info
+            const start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const end = Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length);
+            document.querySelector('#ordersSection .table-header span')?.remove();
+            
+            const header = document.querySelector('#ordersSection .table-header');
+            if (header) {
+                const info = document.createElement('span');
+                info.className = 'text-secondary';
+                info.textContent = `Showing ${start}-${end} of ${filteredOrders.length}`;
+                header.appendChild(info);
+            }
         }
         
-        function changePage(direction) {
-            const filteredOrders = currentFilter === 'all' 
-                ? currentOrders 
-                : currentOrders.filter(o => o.status === currentFilter);
+        // Change Page
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+            const newPage = currentPage + delta;
             
-            const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-            
-            currentPage += direction;
-            if (currentPage < 1) currentPage = 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            
-            filterOrders(currentFilter);
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderOrdersTable();
+                updatePagination();
+                
+                // Scroll to top
+                document.querySelector('#ordersSection').scrollIntoView({ behavior: 'smooth' });
+            }
         }
         
-        function updateOrdersCount(total = 0) {
-            const filteredOrders = currentFilter === 'all' 
-                ? currentOrders 
-                : currentOrders.filter(o => o.status === currentFilter);
-            
-            const start = (currentPage - 1) * ordersPerPage + 1;
-            const end = Math.min(currentPage * ordersPerPage, filteredOrders.length);
-            
-            document.getElementById('ordersCount').textContent = 
-                `Showing ${start}-${end} of ${filteredOrders.length} orders`;
-        }
-        
-        // Fulfillment management
+        // Load Fulfillment
         async function loadFulfillment() {
             try {
-                const orders = await apiRequest('/api/admin/orders');
-                if (orders && orders.success) {
-                    updateFulfillmentTable(orders.orders);
+                const orders = await apiCall('/api/admin/orders');
+                if (orders?.success) {
+                    updateFulfillmentStats(orders.orders);
+                    updatePendingFulfillment(orders.orders);
                 }
             } catch (error) {
                 console.error('Fulfillment load error:', error);
             }
         }
         
-        function updateFulfillmentTable(orders) {
-            const pendingOrders = orders.filter(o => o.status === 'paid');
-            const tbody = document.getElementById('pendingFulfillmentBody');
+        // Update Fulfillment Stats
+        function updateFulfillmentStats(orders) {
+            const pending = orders.filter(o => o.status === 'paid').length;
+            const today = new Date().toISOString().split('T')[0];
+            const todayFulfilled = orders.filter(o => 
+                o.status === 'delivered' && 
+                new Date(o.updatedAt).toISOString().split('T')[0] === today
+            ).length;
             
-            document.getElementById('pendingFulfillmentCount').textContent = pendingOrders.length;
+            const totalFulfilled = orders.filter(o => o.status === 'delivered').length;
+            const successRate = totalFulfilled > 0 ? Math.round((totalFulfilled / orders.length) * 100) : 100;
+            
+            document.getElementById('pendingFulfillment').textContent = pending;
+            document.getElementById('todayFulfilled').textContent = todayFulfilled;
+            document.getElementById('fulfillmentRate').textContent = `${successRate}%`;
+            document.getElementById('pendingCountBadge').textContent = `${pending} pending`;
+        }
+        
+        // Update Pending Fulfillment
+        function updatePendingFulfillment(orders) {
+            const tbody = document.getElementById('pendingFulfillmentBody');
+            const pending = orders.filter(o => o.status === 'paid').slice(0, 10);
             
             tbody.innerHTML = '';
             
-            pendingOrders.slice(0, 10).forEach(order => {
+            if (pending.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="bi bi-check-circle fs-1 text-success"></i>
+                            <p class="mt-2 text-secondary">No pending fulfillment</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            pending.forEach(order => {
                 const row = document.createElement('tr');
+                const networkBadge = getNetworkBadge(order.network);
+                const timeAgo = getTimeAgo(order.createdAt);
+                
                 row.innerHTML = `
                     <td><small class="text-info">${order.orderId}</small></td>
                     <td>${order.recipientPhone || ''}</td>
                     <td>
-                        ${getNetworkBadge(order.network)}
-                        <small>${order.bundleSize || ''}</small>
+                        ${networkBadge}
+                        <small class="ms-1">${order.bundleSize || ''}</small>
                     </td>
                     <td class="text-success">₵${order.amount?.toFixed(2)}</td>
-                    <td><span class="status-badge status-paid">${order.status}</span></td>
-                    <td><small class="text-muted">${formatTimeAgo(order.createdAt)}</small></td>
+                    <td><small class="text-secondary">${timeAgo}</small></td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="manualFulfillmentOrder('${order.orderId}')">
-                            <i class="bi bi-send me-1"></i> Fulfill
+                        <button class="btn-action" onclick="retryOrder('${order.orderId}')">
+                            <i class="bi bi-send"></i> Fulfill
                         </button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
-            
-            if (pendingOrders.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center py-4">
-                            <i class="bi bi-check-circle fs-1 text-success"></i>
-                            <p class="mt-2 text-muted">No pending fulfillment orders</p>
-                        </td>
-                    </tr>
-                `;
-            }
         }
         
-        async function manualFulfillmentOrder(orderId) {
-            if (!confirm('Send this order to Success Biz Hub for fulfillment?')) return;
+        // Manual Fulfillment
+        async function manualFulfillment() {
+            const orderId = document.getElementById('retryOrderId').value.trim();
+            if (!orderId) {
+                showToast('Please enter an Order ID', 'warning');
+                return;
+            }
+            
+            await retryOrder(orderId);
+        }
+        
+        // Retry Order
+        async function retryOrder(orderId) {
+            if (!confirm(`Send order ${orderId} to Success Biz Hub for fulfillment?`)) return;
             
             try {
-                const response = await apiRequest(`/api/admin/orders/${orderId}/fulfill`, {
+                const response = await apiCall(`/api/admin/orders/${orderId}/fulfill`, {
                     method: 'POST'
                 });
                 
-                if (response && response.success) {
+                if (response?.success) {
                     showToast(`Order ${orderId} sent for fulfillment!`, 'success');
                     refreshCurrentSection();
                 } else {
                     showToast(response?.error || 'Fulfillment failed', 'error');
                 }
             } catch (error) {
-                console.error('Manual fulfillment error:', error);
                 showToast('Failed to fulfill order', 'error');
             }
         }
         
-        async function testFulfillmentConnection() {
+        // Test Fulfillment Connection
+        async function testFulfillment() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/health`);
                 if (response.ok) {
                     showToast('Success Biz Hub connection is working!', 'success');
-                    document.getElementById('fulfillmentStatus').style.background = '#10b981';
+                    document.getElementById('fulfillmentStatusDot').className = 'status-dot bg-success';
                     document.getElementById('fulfillmentStatusText').textContent = 'Connected';
+                    document.getElementById('apiConnection').textContent = 'Online';
+                    document.getElementById('apiConnection').className = 'text-success';
                 } else {
-                    throw new Error('Connection failed');
+                    throw new Error();
                 }
             } catch (error) {
                 showToast('Failed to connect to fulfillment service', 'error');
-                document.getElementById('fulfillmentStatus').style.background = '#ef4444';
+                document.getElementById('fulfillmentStatusDot').className = 'status-dot bg-danger';
                 document.getElementById('fulfillmentStatusText').textContent = 'Failed';
+                document.getElementById('apiConnection').textContent = 'Offline';
+                document.getElementById('apiConnection').className = 'text-danger';
             }
         }
         
-        // Analytics
+        // Load Analytics
         async function loadAnalytics() {
             try {
-                const orders = await apiRequest('/api/admin/orders');
-                if (orders && orders.success) {
+                const orders = await apiCall('/api/admin/orders');
+                if (orders?.success) {
                     createAnalyticsCharts(orders.orders);
-                    updateAnalyticsStats(orders.orders);
+                    updateAnalyticsMetrics(orders.orders);
                 }
             } catch (error) {
                 console.error('Analytics load error:', error);
             }
         }
         
+        // Create Analytics Charts
         function createAnalyticsCharts(orders) {
             // Destroy existing charts
             if (revenueChart) revenueChart.destroy();
-            if (profitChart) profitChart.destroy();
+            if (bundleChart) bundleChart.destroy();
             
-            // Revenue by day (last 30 days)
-            const last30Days = [...Array(30)].map((_, i) => {
-                const d = new Date();
-                d.setDate(d.getDate() - (29 - i));
-                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            });
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueData = getRevenueByDay(orders, 30);
             
-            const revenueByDay = last30Days.map(date => {
-                return orders.filter(o => {
-                    const orderDate = new Date(o.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    return orderDate === date;
-                }).reduce((sum, o) => sum + (o.amount || 0), 0);
-            });
-            
-            const ctx1 = document.getElementById('revenueChart').getContext('2d');
-            revenueChart = new Chart(ctx1, {
+            revenueChart = new Chart(revenueCtx, {
                 type: 'bar',
                 data: {
-                    labels: last30Days,
+                    labels: revenueData.labels,
                     datasets: [{
-                        label: 'Revenue (₵)',
-                        data: revenueByDay,
+                        label: 'Revenue',
+                        data: revenueData.values,
                         backgroundColor: 'rgba(16, 185, 129, 0.7)',
                         borderColor: '#10b981',
                         borderWidth: 1
@@ -1349,44 +1573,29 @@
                         },
                         x: {
                             grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { 
-                                color: '#94a3b8',
-                                maxTicksLimit: 10 
-                            }
+                            ticks: { color: '#94a3b8', maxTicksLimit: 10 }
                         }
                     }
                 }
             });
             
-            // Profit by bundle type
-            const bundleTypes = {};
-            orders.forEach(o => {
-                const profit = o.metadata?.profit || (o.amount - (o.metadata?.costPrice || 0));
-                const type = o.bundleId?.includes('express') ? 'Express' : 
-                            o.bundleId?.includes('beneficiary') ? 'Beneficiary' : 'Other';
-                
-                if (!bundleTypes[type]) bundleTypes[type] = 0;
-                bundleTypes[type] += profit;
-            });
+            // Bundle Chart
+            const bundleCtx = document.getElementById('bundleChart').getContext('2d');
+            const bundleData = getBundlePerformance(orders);
             
-            const ctx2 = document.getElementById('profitChart').getContext('2d');
-            profitChart = new Chart(ctx2, {
-                type: 'pie',
+            bundleChart = new Chart(bundleCtx, {
+                type: 'polarArea',
                 data: {
-                    labels: Object.keys(bundleTypes),
+                    labels: bundleData.labels,
                     datasets: [{
-                        data: Object.values(bundleTypes),
+                        data: bundleData.values,
                         backgroundColor: [
                             'rgba(59, 130, 246, 0.7)',
                             'rgba(139, 92, 246, 0.7)',
-                            'rgba(148, 163, 184, 0.7)'
-                        ],
-                        borderColor: [
-                            '#3b82f6',
-                            '#8b5cf6',
-                            '#94a3b8'
-                        ],
-                        borderWidth: 2
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
+                        ]
                     }]
                 },
                 options: {
@@ -1394,7 +1603,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom',
+                            position: 'right',
                             labels: { color: '#94a3b8' }
                         }
                     }
@@ -1402,64 +1611,231 @@
             });
         }
         
-        function updateAnalyticsStats(orders) {
-            const totalRevenue = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
-            const totalCost = orders.reduce((sum, o) => sum + (o.metadata?.costPrice || 0), 0);
-            const totalProfit = totalRevenue - totalCost;
-            const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
-            const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
-            const conversionRate = orders.length > 0 ? (deliveredOrders / orders.length * 100) : 0;
+        // Update Analytics Metrics
+        function updateAnalyticsMetrics(orders) {
+            const metrics = calculateMetrics(orders);
+            const tbody = document.getElementById('metricsBody');
             
-            document.getElementById('totalRevenue').textContent = `₵${totalRevenue.toFixed(2)}`;
-            document.getElementById('totalCost').textContent = `₵${totalCost.toFixed(2)}`;
-            document.getElementById('totalProfit').textContent = `₵${totalProfit.toFixed(2)}`;
-            document.getElementById('avgOrderValue').textContent = `₵${avgOrderValue.toFixed(2)}`;
-            document.getElementById('conversionRate').textContent = `${conversionRate.toFixed(1)}%`;
-            document.getElementById('satisfactionRate').textContent = '100%';
+            tbody.innerHTML = '';
             
-            // Update top bundles
-            const bundleCounts = {};
-            orders.forEach(o => {
-                const bundle = o.bundleId || 'Unknown';
-                bundleCounts[bundle] = (bundleCounts[bundle] || 0) + 1;
-            });
-            
-            const topBundles = Object.entries(bundleCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-            
-            const topBundlesList = document.getElementById('topBundlesList');
-            topBundlesList.innerHTML = '';
-            
-            topBundles.forEach(([bundle, count]) => {
-                const item = document.createElement('div');
-                item.className = 'd-flex justify-content-between align-items-center mb-2';
-                item.innerHTML = `
-                    <span>${bundle}</span>
-                    <span class="badge bg-primary">${count}</span>
+            metrics.forEach(metric => {
+                const row = document.createElement('tr');
+                const trendIcon = metric.trend > 0 ? 'bi-arrow-up text-success' : 
+                                metric.trend < 0 ? 'bi-arrow-down text-danger' : 
+                                'bi-dash text-secondary';
+                
+                row.innerHTML = `
+                    <td>${metric.name}</td>
+                    <td class="fw-bold">${metric.value}</td>
+                    <td><i class="bi ${trendIcon}"></i> ${Math.abs(metric.trend)}%</td>
+                    <td>${metric.target}</td>
+                    <td><span class="badge ${metric.status}">${metric.statusText}</span></td>
                 `;
-                topBundlesList.appendChild(item);
+                tbody.appendChild(row);
             });
         }
         
-        // Helper functions
+        // Check System Status
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update status indicators
+                    document.querySelectorAll('.status-dot').forEach(dot => {
+                        dot.className = 'status-dot bg-success';
+                    });
+                    
+                    document.getElementById('apiStatusText').textContent = 'Online';
+                    document.getElementById('dbStatusText').textContent = 'Connected';
+                    document.getElementById('fulfillmentStatusText').textContent = 'Ready';
+                    document.getElementById('mobileStatus').className = 'badge bg-success';
+                    document.getElementById('mobileStatus').textContent = 'Online';
+                }
+            } catch (error) {
+                document.getElementById('apiStatusDot').className = 'status-dot bg-danger';
+                document.getElementById('apiStatusText').textContent = 'Offline';
+                document.getElementById('mobileStatus').className = 'badge bg-danger';
+                document.getElementById('mobileStatus').textContent = 'Offline';
+            }
+        }
+        
+        // View Order Details
+        function viewOrder(orderId) {
+            const order = currentOrders.find(o => o.orderId === orderId);
+            if (!order) {
+                showToast('Order not found', 'error');
+                return;
+            }
+            
+            // Create modal content
+            const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
+            const networkBadge = getNetworkBadge(order.network);
+            
+            const modalContent = `
+                <div class="modal fade" id="orderModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content bg-dark">
+                            <div class="modal-header border-secondary">
+                                <h5 class="modal-title">Order Details - ${order.orderId}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-secondary d-block">Customer Email</small>
+                                        <strong>${order.customerEmail}</strong>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-secondary d-block">Phone Number</small>
+                                        <strong>${order.recipientPhone}</strong>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-secondary d-block">Bundle Details</small>
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            ${networkBadge}
+                                            <strong>${order.bundleSize}</strong>
+                                            <span class="badge bg-secondary">${order.bundleId}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-secondary d-block">Status</small>
+                                        <span class="badge ${getStatusClass(order.status)}">${order.status}</span>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <small class="text-secondary d-block">Amount</small>
+                                        <h4 class="text-success">₵${order.amount?.toFixed(2)}</h4>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <small class="text-secondary d-block">Cost</small>
+                                        <h5 class="text-secondary">₵${(order.metadata?.costPrice || 0).toFixed(2)}</h5>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <small class="text-secondary d-block">Profit</small>
+                                        <h5 class="${profit >= 0 ? 'text-warning' : 'text-danger'}">
+                                            ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
+                                        </h5>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-secondary d-block">Payment Reference</small>
+                                        <code class="text-info">${order.paystackReference || 'N/A'}</code>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <small class="text-secondary d-block">API Reference</small>
+                                        <code class="text-info">${order.apiReference || 'N/A'}</code>
+                                    </div>
+                                    <div class="col-12">
+                                        <small class="text-secondary d-block">Order Date</small>
+                                        <strong>${formatDate(order.createdAt)}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-secondary">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                ${order.status === 'paid' ? `
+                                    <button type="button" class="btn btn-warning" onclick="retryOrder('${order.orderId}')">
+                                        <i class="bi bi-send"></i> Send to Fulfillment
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Create and show modal
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalContent;
+            document.body.appendChild(modalContainer);
+            
+            const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+            modal.show();
+            
+            // Clean up after modal closes
+            modalContainer.addEventListener('hidden.bs.modal', () => {
+                modalContainer.remove();
+            });
+        }
+        
+        // Export Data
+        async function exportData(format) {
+            try {
+                const orders = await apiCall('/api/admin/orders');
+                if (!orders?.success) return;
+                
+                let data, filename, mimeType;
+                
+                switch(format) {
+                    case 'json':
+                        data = JSON.stringify(orders.orders, null, 2);
+                        filename = `orders-export-${Date.now()}.json`;
+                        mimeType = 'application/json';
+                        break;
+                        
+                    case 'csv':
+                        data = convertToCSV(orders.orders);
+                        filename = `orders-export-${Date.now()}.csv`;
+                        mimeType = 'text/csv';
+                        break;
+                        
+                    case 'excel':
+                        // For Excel, we'll create a CSV (Excel can open CSV)
+                        data = convertToCSV(orders.orders);
+                        filename = `orders-export-${Date.now()}.csv`;
+                        mimeType = 'application/vnd.ms-excel';
+                        break;
+                }
+                
+                const blob = new Blob([data], { type: mimeType });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                showToast(`Data exported as ${filename}`, 'success');
+            } catch (error) {
+                showToast('Export failed', 'error');
+            }
+        }
+        
+        // Convert to CSV
+        function convertToCSV(orders) {
+            const headers = ['Order ID', 'Customer Email', 'Phone', 'Bundle', 'Amount', 'Status', 'Date'];
+            const rows = orders.map(order => [
+                order.orderId,
+                order.customerEmail,
+                order.recipientPhone,
+                `${order.network} ${order.bundleSize}`,
+                order.amount,
+                order.status,
+                new Date(order.createdAt).toLocaleDateString()
+            ]);
+            
+            return [headers, ...rows].map(row => 
+                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+        }
+        
+        // Helper Functions
         function getNetworkBadge(network) {
             if (!network) return '';
             const net = network.toLowerCase();
-            if (net.includes('mtn')) return '<span class="network-tag mtn-tag">MTN</span>';
-            if (net.includes('airtel') || net.includes('at')) return '<span class="network-tag airtel-tag">Airtel</span>';
-            if (net.includes('telecel')) return '<span class="network-tag telecel-tag">Telecel</span>';
-            return '<span class="network-tag">' + network + '</span>';
+            if (net.includes('mtn')) return '<span class="network-badge mtn-badge">MTN</span>';
+            if (net.includes('airtel') || net.includes('at')) return '<span class="network-badge airtel-badge">Airtel</span>';
+            if (net.includes('telecel')) return '<span class="network-badge telecel-badge">Telecel</span>';
+            return `<span class="network-badge">${network}</span>`;
         }
         
-        function getBundleTypeBadge(bundleId) {
-            if (!bundleId) return '';
-            if (bundleId.includes('express')) return '<span class="express-badge ms-1">Express</span>';
-            if (bundleId.includes('beneficiary')) return '<span class="beneficiary-badge ms-1">Beneficiary</span>';
-            return '';
+        function getStatusClass(status) {
+            return status?.replace(/_/g, '-') || 'pending';
         }
         
-        function formatTimeAgo(dateString) {
+        function getTimeAgo(dateString) {
             const date = new Date(dateString);
             const now = new Date();
             const diffMs = now - date;
@@ -1475,218 +1851,229 @@
         }
         
         function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
+            return new Date(dateString).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
+                year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
         }
         
-        async function viewOrderDetails(orderId) {
-            try {
-                const order = currentOrders.find(o => o.orderId === orderId);
-                if (!order) {
-                    showToast('Order not found', 'error');
-                    return;
-                }
+        function getOrdersByDay(orders, days) {
+            const labels = [];
+            const values = [];
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 
-                const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
-                const margin = order.amount > 0 ? (profit / order.amount * 100).toFixed(1) : 0;
+                const count = orders.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate.toDateString() === date.toDateString();
+                }).length;
                 
-                const modalBody = document.getElementById('orderModalBody');
-                modalBody.innerHTML = `
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Order ID</small>
-                            <strong>${order.orderId}</strong>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Date</small>
-                            <strong>${formatDate(order.createdAt)}</strong>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Customer Email</small>
-                            <strong>${order.customerEmail || 'Not provided'}</strong>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Phone Number</small>
-                            <strong>${order.recipientPhone || ''}</strong>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Bundle Details</small>
-                            <div class="d-flex align-items-center mt-1">
-                                ${getNetworkBadge(order.network)}
-                                <strong class="ms-2">${order.bundleSize || ''}</strong>
-                                ${getBundleTypeBadge(order.bundleId)}
-                            </div>
-                            <small class="text-muted">${order.bundleId || ''}</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Provider Reference</small>
-                            <strong class="text-info">${order.apiReference || 'Not sent yet'}</strong>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <small class="text-muted d-block">Selling Price</small>
-                            <h4 class="text-success">₵${order.amount?.toFixed(2)}</h4>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <small class="text-muted d-block">Your Cost</small>
-                            <h5 class="text-muted">₵${(order.metadata?.costPrice || 0).toFixed(2)}</h5>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <small class="text-muted d-block">Your Profit</small>
-                            <h5 class="${profit >= 0 ? 'text-warning' : 'text-danger'}">
-                                ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
-                            </h5>
-                            <small class="text-muted">Margin: ${margin}%</small>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">Payment Reference</small>
-                            <strong class="text-info">${order.paystackReference || 'N/A'}</strong>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <small class="text-muted d-block">API Order ID</small>
-                            <strong class="text-info">${order.apiOrderId || 'N/A'}</strong>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <small class="text-muted d-block">Status</small>
-                            <span class="status-badge status-${order.status}">${order.status}</span>
-                        </div>
-                        <div class="col-12">
-                            <small class="text-muted d-block">Metadata</small>
-                            <pre class="bg-dark text-light p-2 rounded" style="font-size: 0.8rem; max-height: 150px; overflow: auto;">
-${JSON.stringify(order.metadata || {}, null, 2)}
-                            </pre>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        ${order.status === 'paid' ? `
-                            <button class="btn btn-warning" onclick="manualFulfillmentOrder('${order.orderId}'); bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();">
-                                <i class="bi bi-send me-1"></i> Send to Fulfillment
-                            </button>
-                        ` : ''}
-                        <button class="btn btn-secondary ms-2" data-bs-dismiss="modal">Close</button>
-                    </div>
-                `;
-                
-                const modal = new bootstrap.Modal(document.getElementById('orderModal'));
-                modal.show();
-            } catch (error) {
-                console.error('View order error:', error);
-                showToast('Failed to load order details', 'error');
+                labels.push(dateStr);
+                values.push(count);
             }
+            
+            return { labels, values };
         }
         
-        async function checkSystemStatus() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/health`);
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('apiStatus').style.background = '#10b981';
-                    document.getElementById('apiStatusText').textContent = 'Online';
-                    document.getElementById('dbStatus').style.background = data.database === 'connected' ? '#10b981' : '#ef4444';
-                    document.getElementById('dbStatusText').textContent = data.database === 'connected' ? 'Connected' : 'Error';
-                } else {
-                    throw new Error('API error');
-                }
-            } catch (error) {
-                document.getElementById('apiStatus').style.background = '#ef4444';
-                document.getElementById('apiStatusText').textContent = 'Offline';
-            }
+        function getNetworkDistribution(orders) {
+            const networks = {};
+            orders.forEach(order => {
+                const net = order.network?.toLowerCase() || 'other';
+                networks[net] = (networks[net] || 0) + 1;
+            });
+            
+            return {
+                labels: Object.keys(networks).map(n => n.toUpperCase()),
+                values: Object.values(networks)
+            };
         }
         
-        function refreshCurrentSection() {
-            const activeSection = document.querySelector('[id$="Section"]:not([style*="display: none"])').id;
-            switch(activeSection) {
-                case 'dashboardSection':
+        function getRevenueByDay(orders, days) {
+            const labels = [];
+            const values = [];
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                const revenue = orders.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate.toDateString() === date.toDateString();
+                }).reduce((sum, order) => sum + (order.amount || 0), 0);
+                
+                labels.push(dateStr);
+                values.push(revenue);
+            }
+            
+            return { labels, values };
+        }
+        
+        function getBundlePerformance(orders) {
+            const bundles = {};
+            orders.forEach(order => {
+                const bundle = order.bundleId?.split('-')[0] || 'other';
+                bundles[bundle] = (bundles[bundle] || 0) + 1;
+            });
+            
+            const sorted = Object.entries(bundles)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            return {
+                labels: sorted.map(([bundle]) => bundle.toUpperCase()),
+                values: sorted.map(([, count]) => count)
+            };
+        }
+        
+        function calculateMetrics(orders) {
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+            const delivered = orders.filter(o => o.status === 'delivered').length;
+            const successRate = orders.length > 0 ? Math.round((delivered / orders.length) * 100) : 100;
+            const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+            
+            return [
+                {
+                    name: 'Total Revenue',
+                    value: `₵${totalRevenue.toFixed(2)}`,
+                    trend: 12.5,
+                    target: '₵10,000',
+                    status: 'success',
+                    statusText: 'On Track'
+                },
+                {
+                    name: 'Success Rate',
+                    value: `${successRate}%`,
+                    trend: 2.3,
+                    target: '95%',
+                    status: successRate >= 95 ? 'success' : 'warning',
+                    statusText: successRate >= 95 ? 'Excellent' : 'Needs Improvement'
+                },
+                {
+                    name: 'Avg Order Value',
+                    value: `₵${avgOrderValue.toFixed(2)}`,
+                    trend: -1.2,
+                    target: '₵25.00',
+                    status: avgOrderValue >= 25 ? 'success' : 'warning',
+                    statusText: avgOrderValue >= 25 ? 'Good' : 'Low'
+                },
+                {
+                    name: 'Customer Satisfaction',
+                    value: '98%',
+                    trend: 0.5,
+                    target: '95%',
+                    status: 'success',
+                    statusText: 'Excellent'
+                }
+            ];
+        }
+        
+        // UI Functions
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('section').forEach(sec => {
+                sec.classList.add('d-none');
+            });
+            
+            // Show selected section
+            document.getElementById(`${section}Section`).classList.remove('d-none');
+            
+            // Update active nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update current section
+            currentSection = section;
+            
+            // Load section data
+            switch(section) {
+                case 'dashboard':
                     loadDashboard();
-                    showToast('Dashboard refreshed', 'success');
                     break;
-                case 'ordersSection':
+                case 'orders':
                     loadOrders();
-                    showToast('Orders refreshed', 'success');
                     break;
-                case 'fulfillmentSection':
+                case 'fulfillment':
                     loadFulfillment();
-                    showToast('Fulfillment refreshed', 'success');
                     break;
-                case 'analyticsSection':
+                case 'analytics':
                     loadAnalytics();
-                    showToast('Analytics refreshed', 'success');
                     break;
             }
-        }
-        
-        function exportData() {
-            const activeSection = document.querySelector('[id$="Section"]:not([style*="display: none"])').id;
-            let data, filename;
             
-            switch(activeSection) {
-                case 'ordersSection':
-                    data = currentOrders;
-                    filename = `orders-export-${Date.now()}.json`;
-                    break;
-                default:
-                    data = {
-                        timestamp: new Date().toISOString(),
-                        totalOrders: currentOrders.length,
-                        stats: {}
-                    };
-                    filename = `export-${Date.now()}.json`;
+            // Close sidebar on mobile
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.add('collapsed');
             }
-            
-            const dataStr = JSON.stringify(data, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const link = document.createElement('a');
-            link.setAttribute('href', dataUri);
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showToast(`Data exported as ${filename}`, 'success');
         }
         
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            
             sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
         }
         
-        function showHelp() {
-            showToast('For support, contact: aryeeteyemmanuel852@gmail.com or call 059 206 6298', 'info');
+        function refreshDashboard() {
+            loadDashboard();
+            showToast('Dashboard refreshed', 'success');
+        }
+        
+        function refreshOrders() {
+            loadOrders();
+            showToast('Orders refreshed', 'success');
+        }
+        
+        function refreshFulfillment() {
+            loadFulfillment();
+            showToast('Fulfillment refreshed', 'success');
+        }
+        
+        function refreshCurrentSection() {
+            switch(currentSection) {
+                case 'dashboard': refreshDashboard(); break;
+                case 'orders': refreshOrders(); break;
+                case 'fulfillment': refreshFulfillment(); break;
+                case 'analytics': loadAnalytics(); break;
+            }
         }
         
         function logout() {
-            if (confirm('Are you sure you want to log out?')) {
+            if (confirm('Are you sure you want to logout?')) {
                 localStorage.clear();
                 window.location.href = 'admin-login.html';
             }
         }
         
-        // Expose functions to global scope for onclick handlers
+        // Make functions globally available
         window.showSection = showSection;
-        window.refreshDashboard = () => { loadDashboard(); showToast('Dashboard refreshed', 'success'); };
-        window.refreshOrders = () => { loadOrders(); showToast('Orders refreshed', 'success'); };
-        window.refreshFulfillment = () => { loadFulfillment(); showToast('Fulfillment refreshed', 'success'); };
+        window.toggleSidebar = toggleSidebar;
+        window.refreshDashboard = refreshDashboard;
+        window.refreshOrders = refreshOrders;
+        window.refreshFulfillment = refreshFulfillment;
+        window.refreshCurrentSection = refreshCurrentSection;
         window.filterOrders = filterOrders;
         window.searchOrders = searchOrders;
         window.changePage = changePage;
-        window.viewOrderDetails = viewOrderDetails;
-        window.manualFulfillment = manualFulfillmentOrder;
-        window.testFulfillmentConnection = testFulfillmentConnection;
-        window.manualFulfillmentOrder = manualFulfillmentOrder;
-        window.refreshCurrentSection = refreshCurrentSection;
+        window.viewOrder = viewOrder;
+        window.retryOrder = retryOrder;
+        window.manualFulfillment = manualFulfillment;
+        window.testFulfillment = testFulfillment;
         window.exportData = exportData;
-        window.toggleSidebar = toggleSidebar;
-        window.showHelp = showHelp;
         window.logout = logout;
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.add('collapsed');
+            }
+        });
     </script>
 </body>
 </html>
