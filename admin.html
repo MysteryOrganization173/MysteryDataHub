@@ -22,6 +22,8 @@
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --border-color: #334155;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 70px;
         }
         
         * {
@@ -38,27 +40,63 @@
             overflow-x: hidden;
         }
         
-        /* Improved Sidebar */
-        #sidebar {
-            background: var(--secondary-dark);
-            width: 260px;
-            height: 100vh;
+        /* Sidebar Styles - FIXED */
+        .sidebar-wrapper {
             position: fixed;
             left: 0;
             top: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--secondary-dark);
             border-right: 1px solid var(--border-color);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
+            transition: all 0.3s ease;
             overflow-y: auto;
+            overflow-x: hidden;
         }
         
-        #sidebar.collapsed {
-            transform: translateX(-260px);
+        .sidebar-wrapper.collapsed {
+            width: var(--sidebar-collapsed-width);
+            transform: translateX(0);
         }
         
         .sidebar-brand {
             padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 80px;
+        }
+        
+        .brand-text {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .sidebar-wrapper.collapsed .brand-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
         
         .sidebar-nav {
@@ -67,6 +105,7 @@
         
         .nav-item {
             margin-bottom: 0.5rem;
+            position: relative;
         }
         
         .nav-link {
@@ -76,18 +115,41 @@
             display: flex;
             align-items: center;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
         }
         
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+        
+        .nav-link.active {
             background: rgba(59, 130, 246, 0.1);
             color: var(--accent-blue);
         }
         
-        .nav-link i {
+        .nav-icon {
             width: 20px;
             margin-right: 12px;
             font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-wrapper.collapsed .nav-icon {
+            margin-right: 0;
+        }
+        
+        .nav-text {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar-wrapper.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
         }
         
         .nav-badge {
@@ -95,18 +157,28 @@
             font-size: 0.75rem;
             padding: 0.2rem 0.5rem;
             min-width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-wrapper.collapsed .nav-badge {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            font-size: 0.6rem;
+            padding: 0.15rem 0.3rem;
         }
         
         /* Main Content */
-        #mainContent {
-            margin-left: 260px;
+        .main-content {
+            margin-left: var(--sidebar-width);
             padding: 1.5rem;
             min-height: 100vh;
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
         
-        #mainContent.expanded {
-            margin-left: 0;
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
         }
         
         /* Mobile Header */
@@ -118,9 +190,19 @@
             top: 0;
             z-index: 999;
             border-bottom: 1px solid var(--border-color);
+            justify-content: space-between;
+            align-items: center;
         }
         
-        /* Stats Cards */
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -133,7 +215,7 @@
             border-radius: 12px;
             padding: 1.25rem;
             border-left: 4px solid;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -173,7 +255,7 @@
             gap: 0.5rem;
         }
         
-        /* Charts Container */
+        /* Charts */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -215,6 +297,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         
         .data-table {
@@ -230,11 +314,13 @@
             font-weight: 600;
             color: var(--text-secondary);
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
         
         .data-table td {
             padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
         }
         
         .data-table tr:hover {
@@ -264,13 +350,14 @@
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
+            display: inline-block;
         }
         
         .mtn-badge { background: rgba(255, 204, 0, 0.15); color: #ffcc00; }
         .airtel-badge { background: rgba(228, 0, 43, 0.15); color: #e4002b; }
         .telecel-badge { background: rgba(0, 161, 224, 0.15); color: #00a1e0; }
         
-        /* Action Buttons */
+        /* Buttons */
         .btn-action {
             padding: 0.375rem 0.75rem;
             border-radius: 6px;
@@ -278,10 +365,15 @@
             display: inline-flex;
             align-items: center;
             gap: 0.375rem;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
         }
         
         .btn-action:hover {
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-1px);
         }
         
@@ -289,6 +381,7 @@
         .search-box {
             position: relative;
             max-width: 300px;
+            width: 100%;
         }
         
         .search-box input {
@@ -324,7 +417,7 @@
             border-radius: 20px;
             font-size: 0.875rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
         
         .filter-chip:hover {
@@ -337,7 +430,7 @@
             color: var(--accent-blue);
         }
         
-        /* Toast Notifications */
+        /* Toast */
         .toast-container {
             position: fixed;
             top: 1rem;
@@ -365,21 +458,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
         
-        /* Loading States */
-        .loading-shimmer {
-            background: linear-gradient(90deg, 
-                rgba(255,255,255,0.05) 25%, 
-                rgba(255,255,255,0.1) 50%, 
-                rgba(255,255,255,0.05) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
         /* Pagination */
         .pagination {
             display: flex;
@@ -395,7 +473,7 @@
             border-radius: 6px;
             color: var(--text-primary);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
         }
         
         .page-btn:hover:not(:disabled) {
@@ -412,66 +490,71 @@
             cursor: not-allowed;
         }
         
-        /* Responsive Design */
+        /* Responsive Design - FIXED */
         @media (max-width: 1024px) {
-            #sidebar {
-                transform: translateX(-260px);
+            .sidebar-wrapper {
+                transform: translateX(-100%);
+                width: 280px;
             }
             
-            #sidebar.show {
+            .sidebar-wrapper.mobile-open {
                 transform: translateX(0);
             }
             
-            #mainContent {
+            .main-content {
                 margin-left: 0;
+                padding: 1rem;
             }
             
             .mobile-header {
                 display: flex;
-                justify-content: space-between;
-                align-items: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .charts-grid {
                 grid-template-columns: 1fr;
             }
             
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .chart-container {
+                height: 220px;
             }
         }
         
         @media (max-width: 768px) {
-            #mainContent {
-                padding: 1rem;
-            }
-            
             .stats-grid {
                 grid-template-columns: 1fr;
             }
             
-            .table-wrapper {
-                overflow-x: auto;
-            }
-            
-            .data-table {
-                min-width: 800px;
-            }
-            
-            .chart-container {
-                height: 200px;
-            }
-        }
-        
-        @media (max-width: 480px) {
             .table-header {
                 flex-direction: column;
-                gap: 1rem;
                 align-items: stretch;
+                gap: 0.75rem;
             }
             
             .search-box {
                 max-width: 100%;
+            }
+            
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.75rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .chart-container {
+                height: 200px;
             }
         }
         
@@ -495,17 +578,22 @@
             background: rgba(255, 255, 255, 0.3);
         }
         
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         /* Utility Classes */
-        .text-success { color: var(--accent-green); }
-        .text-warning { color: var(--accent-orange); }
-        .text-danger { color: var(--accent-red); }
-        .text-info { color: var(--accent-blue); }
-        
-        .bg-success { background: var(--accent-green); }
-        .bg-warning { background: var(--accent-orange); }
-        .bg-danger { background: var(--accent-red); }
-        .bg-info { background: var(--accent-blue); }
-        
         .d-none { display: none !important; }
         .d-flex { display: flex !important; }
         .d-grid { display: grid !important; }
@@ -524,109 +612,117 @@
         
         .w-100 { width: 100%; }
         .h-100 { height: 100%; }
+        
+        .text-success { color: var(--accent-green); }
+        .text-warning { color: var(--accent-orange); }
+        .text-danger { color: var(--accent-red); }
+        .text-info { color: var(--accent-blue); }
+        
+        .bg-success { background: var(--accent-green); }
+        .bg-warning { background: var(--accent-orange); }
+        .bg-danger { background: var(--accent-red); }
+        .bg-info { background: var(--accent-blue); }
     </style>
 </head>
 <body>
     <!-- Mobile Header -->
     <div class="mobile-header">
-        <div class="d-flex align-items-center gap-2">
-            <button class="btn-action" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            <h5 class="mb-0">Mystery Admin</h5>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <span id="mobileStatus" class="badge bg-success">Online</span>
-        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+        <h5 class="mb-0">Mystery Admin</h5>
+        <span class="badge bg-success" id="mobileStatus">Online</span>
     </div>
 
-    <!-- Sidebar -->
-    <div id="sidebar">
+    <!-- Sidebar - FIXED -->
+    <div class="sidebar-wrapper" id="sidebar">
         <div class="sidebar-brand">
-            <h4 class="mb-1">⚡ Mystery Admin</h4>
-            <small class="text-secondary" id="adminEmail"></small>
-            <div class="mt-2">
-                <button class="btn-action w-100" onclick="toggleSidebar()">
-                    <i class="bi bi-arrow-left"></i> Collapse
-                </button>
+            <div class="d-flex align-items-center gap-2">
+                <div class="brand-text">
+                    <h5 class="mb-1">⚡ Mystery Admin</h5>
+                    <small class="text-secondary" id="adminEmail"></small>
+                </div>
             </div>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="bi bi-arrow-left" id="toggleIcon"></i>
+            </button>
         </div>
         
         <div class="sidebar-nav">
             <div class="nav-item">
-                <a href="#" class="nav-link active" onclick="showSection('dashboard')">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
+                <a href="#" class="nav-link active" onclick="showSection('dashboard', this)">
+                    <i class="bi bi-speedometer2 nav-icon"></i>
+                    <span class="nav-text">Dashboard</span>
                     <span class="nav-badge badge bg-info" id="sidebarPending">0</span>
                 </a>
             </div>
             
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="showSection('orders')">
-                    <i class="bi bi-receipt"></i>
-                    <span>Orders</span>
+                <a href="#" class="nav-link" onclick="showSection('orders', this)">
+                    <i class="bi bi-receipt nav-icon"></i>
+                    <span class="nav-text">Orders</span>
                     <span class="nav-badge badge bg-warning" id="sidebarOrders">0</span>
                 </a>
             </div>
             
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="showSection('fulfillment')">
-                    <i class="bi bi-truck"></i>
-                    <span>Fulfillment</span>
+                <a href="#" class="nav-link" onclick="showSection('fulfillment', this)">
+                    <i class="bi bi-truck nav-icon"></i>
+                    <span class="nav-text">Fulfillment</span>
                     <span class="nav-badge badge bg-success" id="sidebarFulfilled">0</span>
                 </a>
             </div>
             
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="showSection('analytics')">
-                    <i class="bi bi-graph-up"></i>
-                    <span>Analytics</span>
+                <a href="#" class="nav-link" onclick="showSection('analytics', this)">
+                    <i class="bi bi-graph-up nav-icon"></i>
+                    <span class="nav-text">Analytics</span>
                 </a>
             </div>
             
             <div class="nav-item mt-4">
                 <a href="index.html" target="_blank" class="nav-link">
-                    <i class="bi bi-shop"></i>
-                    <span>View Store</span>
+                    <i class="bi bi-shop nav-icon"></i>
+                    <span class="nav-text">View Store</span>
                 </a>
             </div>
             
             <div class="nav-item">
                 <a href="track-order.html" target="_blank" class="nav-link">
-                    <i class="bi bi-search"></i>
-                    <span>Track Orders</span>
+                    <i class="bi bi-search nav-icon"></i>
+                    <span class="nav-text">Track Orders</span>
                 </a>
             </div>
             
             <div class="nav-item mt-4 pt-3 border-top border-color">
                 <a href="#" class="nav-link text-danger" onclick="logout()">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
+                    <i class="bi bi-box-arrow-right nav-icon"></i>
+                    <span class="nav-text">Logout</span>
                 </a>
             </div>
             
             <div class="mt-4 pt-3 border-top border-color">
-                <small class="text-secondary d-block mb-2">System Status</small>
+                <small class="text-secondary d-block mb-2 nav-text">System Status</small>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <div class="status-dot bg-success" id="apiStatusDot"></div>
-                    <small>API: <span id="apiStatusText">Online</span></small>
+                    <small class="nav-text">API: <span id="apiStatusText">Online</span></small>
                 </div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <div class="status-dot bg-success" id="dbStatusDot"></div>
-                    <small>DB: <span id="dbStatusText">Connected</span></small>
+                    <small class="nav-text">DB: <span id="dbStatusText">Connected</span></small>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <div class="status-dot bg-success" id="fulfillmentStatusDot"></div>
-                    <small>Fulfillment: <span id="fulfillmentStatusText">Ready</span></small>
+                    <small class="nav-text">Fulfillment: <span id="fulfillmentStatusText">Ready</span></small>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div id="mainContent">
+    <div class="main-content" id="mainContent">
         <!-- Dashboard Section -->
-        <section id="dashboardSection">
+        <section id="dashboardSection" class="section-content">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h2 class="mb-1">Dashboard Overview</h2>
@@ -634,16 +730,15 @@
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn-action" onclick="refreshDashboard()">
-                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                        <i class="bi bi-arrow-clockwise"></i> <span class="d-none d-md-inline">Refresh</span>
                     </button>
                     <div class="dropdown">
-                        <button class="btn-action" data-bs-toggle="dropdown">
-                            <i class="bi bi-download"></i> Export
+                        <button class="btn-action dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-download"></i> <span class="d-none d-md-inline">Export</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item" href="#" onclick="exportData('json')">JSON</a></li>
                             <li><a class="dropdown-item" href="#" onclick="exportData('csv')">CSV</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="exportData('excel')">Excel</a></li>
                         </ul>
                     </div>
                 </div>
@@ -696,7 +791,6 @@
                         <select class="form-select form-select-sm bg-dark text-light border-secondary" style="width: 120px;" onchange="updateChartPeriod(this.value)">
                             <option value="7d">Last 7 Days</option>
                             <option value="30d">Last 30 Days</option>
-                            <option value="90d">Last 90 Days</option>
                         </select>
                     </div>
                     <div class="chart-container">
@@ -735,7 +829,7 @@
                             </tr>
                         </thead>
                         <tbody id="recentOrdersBody">
-                            <!-- Filled by JavaScript -->
+                            <tr><td colspan="6" class="text-center py-4"><div class="loading"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -743,7 +837,7 @@
         </section>
 
         <!-- Orders Section -->
-        <section id="ordersSection" class="d-none">
+        <section id="ordersSection" class="section-content d-none">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h2 class="mb-1">Order Management</h2>
@@ -762,12 +856,12 @@
             
             <!-- Filter Chips -->
             <div class="filter-chips">
-                <span class="filter-chip active" onclick="filterOrders('all')">All</span>
-                <span class="filter-chip" onclick="filterOrders('pending_payment')">Pending</span>
-                <span class="filter-chip" onclick="filterOrders('paid')">Paid</span>
-                <span class="filter-chip" onclick="filterOrders('processing')">Processing</span>
-                <span class="filter-chip" onclick="filterOrders('delivered')">Delivered</span>
-                <span class="filter-chip" onclick="filterOrders('failed')">Failed</span>
+                <span class="filter-chip active" onclick="filterOrders('all', this)">All</span>
+                <span class="filter-chip" onclick="filterOrders('pending_payment', this)">Pending</span>
+                <span class="filter-chip" onclick="filterOrders('paid', this)">Paid</span>
+                <span class="filter-chip" onclick="filterOrders('processing', this)">Processing</span>
+                <span class="filter-chip" onclick="filterOrders('delivered', this)">Delivered</span>
+                <span class="filter-chip" onclick="filterOrders('failed', this)">Failed</span>
             </div>
             
             <!-- Orders Table -->
@@ -787,7 +881,7 @@
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody">
-                            <!-- Filled by JavaScript -->
+                            <tr><td colspan="8" class="text-center py-4"><div class="loading"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -806,7 +900,7 @@
         </section>
 
         <!-- Fulfillment Section -->
-        <section id="fulfillmentSection" class="d-none">
+        <section id="fulfillmentSection" class="section-content d-none">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h2 class="mb-1">Fulfillment Management</h2>
@@ -814,7 +908,7 @@
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn-action" onclick="testFulfillment()">
-                        <i class="bi bi-wifi"></i> Test Connection
+                        <i class="bi bi-wifi"></i> <span class="d-none d-md-inline">Test Connection</span>
                     </button>
                     <button class="btn-action" onclick="refreshFulfillment()">
                         <i class="bi bi-arrow-clockwise"></i>
@@ -848,7 +942,7 @@
                         <span>Success Rate</span>
                     </div>
                     <div class="stat-value" id="fulfillmentRate">100%</div>
-                    <div class="text-secondary">API Connection: <span id="apiConnection" class="text-success">Online</span></div>
+                    <div class="text-secondary">API: <span id="apiConnection" class="text-success">Online</span></div>
                 </div>
                 
                 <div class="stat-card orange">
@@ -882,7 +976,7 @@
                             </tr>
                         </thead>
                         <tbody id="pendingFulfillmentBody">
-                            <!-- Filled by JavaScript -->
+                            <tr><td colspan="6" class="text-center py-4"><div class="loading"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -890,7 +984,7 @@
         </section>
 
         <!-- Analytics Section -->
-        <section id="analyticsSection" class="d-none">
+        <section id="analyticsSection" class="section-content d-none">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h2 class="mb-1">Business Analytics</h2>
@@ -901,7 +995,6 @@
                         <option value="today">Today</option>
                         <option value="week">This Week</option>
                         <option value="month">This Month</option>
-                        <option value="year">This Year</option>
                     </select>
                 </div>
             </div>
@@ -944,7 +1037,7 @@
                             </tr>
                         </thead>
                         <tbody id="metricsBody">
-                            <!-- Filled by JavaScript -->
+                            <tr><td colspan="5" class="text-center py-4"><div class="loading"></div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -958,7 +1051,6 @@
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.0/build/global/luxon.min.js"></script>
 
     <script>
         // Configuration
@@ -972,6 +1064,7 @@
         let currentFilter = 'all';
         let currentPage = 1;
         const ITEMS_PER_PAGE = 10;
+        let isSidebarCollapsed = false;
         
         // Chart Instances
         let ordersChart = null;
@@ -979,42 +1072,49 @@
         let revenueChart = null;
         let bundleChart = null;
         
-        // Initialize
+        // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check authentication
+            console.log('Admin Dashboard Initializing...');
+            
+            // Check authentication first
             if (!await checkAuth()) {
                 window.location.href = 'admin-login.html';
                 return;
             }
             
-            // Initialize UI
-            initializeUI();
+            // Initialize status dots
+            initializeStatusDots();
             
             // Load initial data
-            await Promise.all([
-                loadDashboard(),
-                checkSystemStatus()
-            ]);
+            await loadInitialData();
+            
+            // Set up event listeners
+            setupEventListeners();
             
             // Set up auto-refresh
-            setInterval(() => {
-                if (currentSection === 'dashboard') loadDashboard();
-                if (currentSection === 'fulfillment') loadFulfillment();
-                checkSystemStatus();
-            }, 30000);
+            setupAutoRefresh();
             
-            // Handle mobile sidebar
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').classList.add('collapsed');
-            }
+            // Handle mobile
+            handleMobileView();
         });
         
-        // Authentication
+        // Initialize Status Dots
+        function initializeStatusDots() {
+            document.querySelectorAll('.status-dot').forEach(dot => {
+                dot.style.width = '10px';
+                dot.style.height = '10px';
+                dot.style.borderRadius = '50%';
+                dot.style.display = 'inline-block';
+            });
+        }
+        
+        // Authentication Check - FIXED
         async function checkAuth() {
             const token = localStorage.getItem('adminToken');
             const expiry = localStorage.getItem('tokenExpiry');
             
             if (!token || !expiry || Date.now() > parseInt(expiry)) {
+                console.log('Token expired or missing');
                 logout();
                 return false;
             }
@@ -1028,28 +1128,79 @@
             return true;
         }
         
-        // Initialize UI
-        function initializeUI() {
-            // Status dots
-            document.querySelectorAll('.status-dot').forEach(dot => {
-                dot.style.width = '10px';
-                dot.style.height = '10px';
-                dot.style.borderRadius = '50%';
-                dot.style.display = 'inline-block';
-            });
+        // Load Initial Data
+        async function loadInitialData() {
+            try {
+                await Promise.all([
+                    loadDashboard(),
+                    checkSystemStatus()
+                ]);
+            } catch (error) {
+                console.error('Initial data load error:', error);
+                showToast('Failed to load initial data', 'error');
+            }
+        }
+        
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Handle window resize
+            window.addEventListener('resize', handleResize);
             
-            // Mobile header status
-            document.getElementById('mobileStatus').addEventListener('click', () => {
-                showToast('Checking system status...', 'info');
-                checkSystemStatus();
+            // Handle clicks outside mobile sidebar
+            document.addEventListener('click', (e) => {
+                const sidebar = document.getElementById('sidebar');
+                const mobileHeader = document.querySelector('.mobile-header');
+                
+                if (window.innerWidth <= 1024 && 
+                    !sidebar.contains(e.target) && 
+                    !mobileHeader.contains(e.target) &&
+                    sidebar.classList.contains('mobile-open')) {
+                    sidebar.classList.remove('mobile-open');
+                }
             });
         }
         
-        // API Helper
+        // Setup Auto Refresh
+        function setupAutoRefresh() {
+            // Refresh dashboard every 30 seconds if on dashboard
+            setInterval(() => {
+                if (currentSection === 'dashboard') {
+                    loadDashboard();
+                }
+                checkSystemStatus();
+            }, 30000);
+            
+            // Refresh orders every minute if on orders
+            setInterval(() => {
+                if (currentSection === 'orders') {
+                    loadOrders();
+                }
+            }, 60000);
+        }
+        
+        // Handle Mobile View
+        function handleMobileView() {
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('mainContent').classList.remove('expanded');
+                isSidebarCollapsed = true;
+                updateToggleIcon();
+            }
+        }
+        
+        // Handle Window Resize
+        function handleResize() {
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        }
+        
+        // API Call Helper - FIXED
         async function apiCall(endpoint, options = {}) {
             if (!currentToken) {
-                logout();
-                return null;
+                if (!await checkAuth()) {
+                    return null;
+                }
             }
             
             const headers = {
@@ -1065,17 +1216,16 @@
                 });
                 
                 if (response.status === 401) {
+                    showToast('Session expired. Please login again.', 'error');
                     logout();
                     return null;
                 }
                 
-                const data = await response.json();
-                
                 if (!response.ok) {
-                    throw new Error(data.error || 'Request failed');
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
-                return data;
+                return await response.json();
             } catch (error) {
                 console.error('API Error:', error);
                 showToast(`API Error: ${error.message}`, 'error');
@@ -1083,7 +1233,7 @@
             }
         }
         
-        // Show Toast
+        // Show Toast Notification
         function showToast(message, type = 'info') {
             const container = document.querySelector('.toast-container');
             const toast = document.createElement('div');
@@ -1098,7 +1248,7 @@
             
             toast.innerHTML = `
                 <i class="bi ${icon} text-${type}"></i>
-                <div>${message}</div>
+                <div style="flex: 1;">${message}</div>
                 <button class="btn btn-sm text-light" onclick="this.parentElement.remove()">
                     <i class="bi bi-x"></i>
                 </button>
@@ -1114,9 +1264,95 @@
             }, 5000);
         }
         
+        // Show Section - FIXED
+        function showSection(section, element = null) {
+            console.log('Showing section:', section);
+            
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(sec => {
+                sec.classList.add('d-none');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(`${section}Section`);
+            if (targetSection) {
+                targetSection.classList.remove('d-none');
+                currentSection = section;
+                
+                // Load section data
+                switch(section) {
+                    case 'dashboard':
+                        loadDashboard();
+                        break;
+                    case 'orders':
+                        loadOrders();
+                        break;
+                    case 'fulfillment':
+                        loadFulfillment();
+                        break;
+                    case 'analytics':
+                        loadAnalytics();
+                        break;
+                }
+                
+                // Close mobile sidebar
+                if (window.innerWidth <= 1024) {
+                    document.getElementById('sidebar').classList.remove('mobile-open');
+                }
+                
+                // Update active nav link
+                if (element) {
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    element.classList.add('active');
+                }
+                
+                showToast(`${section.charAt(0).toUpperCase() + section.slice(1)} loaded`, 'success');
+            }
+        }
+        
+        // Toggle Sidebar - FIXED
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth > 1024) {
+                // Desktop toggle
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                isSidebarCollapsed = !isSidebarCollapsed;
+                updateToggleIcon();
+            } else {
+                // Mobile toggle
+                sidebar.classList.toggle('mobile-open');
+            }
+        }
+        
+        // Toggle Mobile Sidebar
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+        
+        // Update Toggle Icon
+        function updateToggleIcon() {
+            const icon = document.getElementById('toggleIcon');
+            if (isSidebarCollapsed) {
+                icon.className = 'bi bi-arrow-right';
+            } else {
+                icon.className = 'bi bi-arrow-left';
+            }
+        }
+        
         // Load Dashboard
         async function loadDashboard() {
             try {
+                // Show loading
+                document.getElementById('recentOrdersBody').innerHTML = `
+                    <tr><td colspan="6" class="text-center py-4"><div class="loading"></div></td></tr>
+                `;
+                
                 // Load stats
                 const stats = await apiCall('/api/admin/stats');
                 if (stats?.success) {
@@ -1132,6 +1368,7 @@
                 }
             } catch (error) {
                 console.error('Dashboard load error:', error);
+                showToast('Failed to load dashboard data', 'error');
             }
         }
         
@@ -1140,7 +1377,7 @@
             // Update main stats
             document.getElementById('totalOrders').textContent = stats.totalOrders || 0;
             document.getElementById('todayOrders').textContent = stats.todayOrders || 0;
-            document.getElementById('totalRevenue').textContent = `₵${(stats.totalRevenue || 0).toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `₵${(stats.todayRevenue || 0).toFixed(2)}`;
             document.getElementById('todayRevenue').textContent = `₵${(stats.todayRevenue || 0).toFixed(2)}`;
             document.getElementById('totalProfit').textContent = `₵${(stats.todayProfit || 0).toFixed(2)}`;
             document.getElementById('profitMargin').textContent = `${stats.profitMargin || 0}%`;
@@ -1158,6 +1395,18 @@
             const tbody = document.getElementById('recentOrdersBody');
             tbody.innerHTML = '';
             
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="bi bi-inbox fs-4 text-secondary"></i>
+                            <p class="mt-2 text-secondary">No orders yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
             orders.slice(0, 8).forEach(order => {
                 const row = document.createElement('tr');
                 const timeAgo = getTimeAgo(order.createdAt);
@@ -1167,7 +1416,7 @@
                     <td><small class="text-info">${order.orderId?.substring(0, 10)}...</small></td>
                     <td>${order.recipientPhone || ''}</td>
                     <td>${networkBadge}</td>
-                    <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                    <td class="text-success">₵${order.amount?.toFixed(2) || '0'}</td>
                     <td><span class="badge ${getStatusClass(order.status)}">${order.status}</span></td>
                     <td><small class="text-secondary">${timeAgo}</small></td>
                 `;
@@ -1175,84 +1424,96 @@
             });
         }
         
-        // Create Charts
+        // Create Charts - FIXED
         function createCharts(orders) {
             // Destroy existing charts
             if (ordersChart) ordersChart.destroy();
             if (networkChart) networkChart.destroy();
             
             // Orders Chart
-            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
-            const ordersData = getOrdersByDay(orders, 7);
-            
-            ordersChart = new Chart(ordersCtx, {
-                type: 'line',
-                data: {
-                    labels: ordersData.labels,
-                    datasets: [{
-                        label: 'Orders',
-                        data: ordersData.values,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
+            const ordersCtx = document.getElementById('ordersChart');
+            if (ordersCtx) {
+                const ordersData = getOrdersByDay(orders, 7);
+                ordersChart = new Chart(ordersCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ordersData.labels,
+                        datasets: [{
+                            label: 'Orders',
+                            data: ordersData.values,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { color: '#94a3b8' }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
                         },
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { color: '#94a3b8' }
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
             
             // Network Chart
-            const networkCtx = document.getElementById('networkChart').getContext('2d');
-            const networkData = getNetworkDistribution(orders);
-            
-            networkChart = new Chart(networkCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: networkData.labels,
-                    datasets: [{
-                        data: networkData.values,
-                        backgroundColor: [
-                            'rgba(255, 204, 0, 0.7)',
-                            'rgba(228, 0, 43, 0.7)',
-                            'rgba(0, 161, 224, 0.7)'
-                        ],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: '#94a3b8' }
+            const networkCtx = document.getElementById('networkChart');
+            if (networkCtx) {
+                const networkData = getNetworkDistribution(orders);
+                networkChart = new Chart(networkCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: networkData.labels,
+                        datasets: [{
+                            data: networkData.values,
+                            backgroundColor: [
+                                'rgba(255, 204, 0, 0.7)',
+                                'rgba(228, 0, 43, 0.7)',
+                                'rgba(0, 161, 224, 0.7)'
+                            ],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8' }
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+        }
+        
+        // Update Chart Period
+        function updateChartPeriod(period) {
+            // This would reload data with different period
+            showToast(`Chart period updated to ${period}`, 'info');
         }
         
         // Load Orders
         async function loadOrders() {
             try {
+                document.getElementById('ordersTableBody').innerHTML = `
+                    <tr><td colspan="8" class="text-center py-4"><div class="loading"></div></td></tr>
+                `;
+                
                 const result = await apiCall('/api/admin/orders');
                 if (result?.success) {
                     currentOrders = result.orders;
@@ -1262,6 +1523,7 @@
                 }
             } catch (error) {
                 console.error('Orders load error:', error);
+                showToast('Failed to load orders', 'error');
             }
         }
         
@@ -1279,7 +1541,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" class="text-center py-4">
-                            <i class="bi bi-inbox fs-1 text-secondary"></i>
+                            <i class="bi bi-inbox fs-4 text-secondary"></i>
                             <p class="mt-2 text-secondary">No orders found</p>
                         </td>
                     </tr>
@@ -1294,7 +1556,7 @@
                                  order.bundleId?.includes('beneficiary') ? 'Beneficiary' : 'Standard';
                 
                 row.innerHTML = `
-                    <td><small class="text-info">${order.orderId}</small></td>
+                    <td><small class="text-info">${order.orderId || 'N/A'}</small></td>
                     <td><small>${order.customerEmail?.split('@')[0] || 'Customer'}</small></td>
                     <td>${order.recipientPhone || ''}</td>
                     <td>
@@ -1302,15 +1564,15 @@
                         <small class="ms-1">${order.bundleSize || ''}</small>
                         <small class="badge bg-secondary ms-1">${bundleType}</small>
                     </td>
-                    <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                    <td class="text-success">₵${order.amount?.toFixed(2) || '0'}</td>
                     <td><span class="badge ${getStatusClass(order.status)}">${order.status}</span></td>
                     <td><small class="text-secondary">${formatDate(order.createdAt)}</small></td>
                     <td>
-                        <button class="btn-action" onclick="viewOrder('${order.orderId}')">
+                        <button class="btn-action" onclick="viewOrder('${order.orderId}')" title="View Details">
                             <i class="bi bi-eye"></i>
                         </button>
                         ${order.status === 'paid' ? `
-                            <button class="btn-action" onclick="retryOrder('${order.orderId}')">
+                            <button class="btn-action" onclick="retryOrder('${order.orderId}')" title="Send to Fulfillment">
                                 <i class="bi bi-send"></i>
                             </button>
                         ` : ''}
@@ -1321,7 +1583,7 @@
         }
         
         // Filter Orders
-        function filterOrders(filter) {
+        function filterOrders(filter, element) {
             currentFilter = filter;
             currentPage = 1;
             
@@ -1329,7 +1591,7 @@
             document.querySelectorAll('.filter-chip').forEach(chip => {
                 chip.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (element) element.classList.add('active');
             
             // Apply filter
             if (filter === 'all') {
@@ -1369,19 +1631,6 @@
             
             document.getElementById('prevPage').disabled = currentPage === 1;
             document.getElementById('nextPage').disabled = currentPage === totalPages;
-            
-            // Update page info
-            const start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-            const end = Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length);
-            document.querySelector('#ordersSection .table-header span')?.remove();
-            
-            const header = document.querySelector('#ordersSection .table-header');
-            if (header) {
-                const info = document.createElement('span');
-                info.className = 'text-secondary';
-                info.textContent = `Showing ${start}-${end} of ${filteredOrders.length}`;
-                header.appendChild(info);
-            }
         }
         
         // Change Page
@@ -1402,6 +1651,10 @@
         // Load Fulfillment
         async function loadFulfillment() {
             try {
+                document.getElementById('pendingFulfillmentBody').innerHTML = `
+                    <tr><td colspan="6" class="text-center py-4"><div class="loading"></div></td></tr>
+                `;
+                
                 const orders = await apiCall('/api/admin/orders');
                 if (orders?.success) {
                     updateFulfillmentStats(orders.orders);
@@ -1409,6 +1662,7 @@
                 }
             } catch (error) {
                 console.error('Fulfillment load error:', error);
+                showToast('Failed to load fulfillment data', 'error');
             }
         }
         
@@ -1441,7 +1695,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="text-center py-4">
-                            <i class="bi bi-check-circle fs-1 text-success"></i>
+                            <i class="bi bi-check-circle fs-4 text-success"></i>
                             <p class="mt-2 text-secondary">No pending fulfillment</p>
                         </td>
                     </tr>
@@ -1461,7 +1715,7 @@
                         ${networkBadge}
                         <small class="ms-1">${order.bundleSize || ''}</small>
                     </td>
-                    <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                    <td class="text-success">₵${order.amount?.toFixed(2) || '0'}</td>
                     <td><small class="text-secondary">${timeAgo}</small></td>
                     <td>
                         <button class="btn-action" onclick="retryOrder('${order.orderId}')">
@@ -1529,6 +1783,10 @@
         // Load Analytics
         async function loadAnalytics() {
             try {
+                document.getElementById('metricsBody').innerHTML = `
+                    <tr><td colspan="5" class="text-center py-4"><div class="loading"></div></td></tr>
+                `;
+                
                 const orders = await apiCall('/api/admin/orders');
                 if (orders?.success) {
                     createAnalyticsCharts(orders.orders);
@@ -1536,6 +1794,7 @@
                 }
             } catch (error) {
                 console.error('Analytics load error:', error);
+                showToast('Failed to load analytics', 'error');
             }
         }
         
@@ -1546,69 +1805,78 @@
             if (bundleChart) bundleChart.destroy();
             
             // Revenue Chart
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            const revenueData = getRevenueByDay(orders, 30);
-            
-            revenueChart = new Chart(revenueCtx, {
-                type: 'bar',
-                data: {
-                    labels: revenueData.labels,
-                    datasets: [{
-                        label: 'Revenue',
-                        data: revenueData.values,
-                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-                        borderColor: '#10b981',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { color: '#94a3b8' }
-                        },
-                        x: {
-                            grid: { color: 'rgba(255,255,255,0.1)' },
-                            ticks: { color: '#94a3b8', maxTicksLimit: 10 }
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                const revenueData = getRevenueByDay(orders, 30);
+                revenueChart = new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: revenueData.labels,
+                        datasets: [{
+                            label: 'Revenue',
+                            data: revenueData.values,
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: '#10b981',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#94a3b8' }
+                            },
+                            x: {
+                                grid: { color: 'rgba(255,255,255,0.1)' },
+                                ticks: { color: '#94a3b8', maxTicksLimit: 10 }
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
             
             // Bundle Chart
-            const bundleCtx = document.getElementById('bundleChart').getContext('2d');
-            const bundleData = getBundlePerformance(orders);
-            
-            bundleChart = new Chart(bundleCtx, {
-                type: 'polarArea',
-                data: {
-                    labels: bundleData.labels,
-                    datasets: [{
-                        data: bundleData.values,
-                        backgroundColor: [
-                            'rgba(59, 130, 246, 0.7)',
-                            'rgba(139, 92, 246, 0.7)',
-                            'rgba(16, 185, 129, 0.7)',
-                            'rgba(245, 158, 11, 0.7)',
-                            'rgba(239, 68, 68, 0.7)'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { color: '#94a3b8' }
+            const bundleCtx = document.getElementById('bundleChart');
+            if (bundleCtx) {
+                const bundleData = getBundlePerformance(orders);
+                bundleChart = new Chart(bundleCtx, {
+                    type: 'polarArea',
+                    data: {
+                        labels: bundleData.labels,
+                        datasets: [{
+                            data: bundleData.values,
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(139, 92, 246, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(245, 158, 11, 0.7)',
+                                'rgba(239, 68, 68, 0.7)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: { color: '#94a3b8' }
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+        }
+        
+        // Update Analytics
+        function updateAnalytics() {
+            const period = document.getElementById('analyticsPeriod').value;
+            showToast(`Analytics period updated to ${period}`, 'info');
+            // In a real app, you would reload data based on period
         }
         
         // Update Analytics Metrics
@@ -1685,27 +1953,27 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <small class="text-secondary d-block">Customer Email</small>
-                                        <strong>${order.customerEmail}</strong>
+                                        <strong>${order.customerEmail || 'N/A'}</strong>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <small class="text-secondary d-block">Phone Number</small>
-                                        <strong>${order.recipientPhone}</strong>
+                                        <strong>${order.recipientPhone || 'N/A'}</strong>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <small class="text-secondary d-block">Bundle Details</small>
                                         <div class="d-flex align-items-center gap-2 mt-1">
                                             ${networkBadge}
-                                            <strong>${order.bundleSize}</strong>
-                                            <span class="badge bg-secondary">${order.bundleId}</span>
+                                            <strong>${order.bundleSize || 'N/A'}</strong>
+                                            <span class="badge bg-secondary">${order.bundleId || 'N/A'}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <small class="text-secondary d-block">Status</small>
-                                        <span class="badge ${getStatusClass(order.status)}">${order.status}</span>
+                                        <span class="badge ${getStatusClass(order.status)}">${order.status || 'N/A'}</span>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <small class="text-secondary d-block">Amount</small>
-                                        <h4 class="text-success">₵${order.amount?.toFixed(2)}</h4>
+                                        <h4 class="text-success">₵${order.amount?.toFixed(2) || '0'}</h4>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <small class="text-secondary d-block">Cost</small>
@@ -1734,7 +2002,7 @@
                             <div class="modal-footer border-secondary">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 ${order.status === 'paid' ? `
-                                    <button type="button" class="btn btn-warning" onclick="retryOrder('${order.orderId}')">
+                                    <button type="button" class="btn btn-warning" onclick="retryOrder('${order.orderId}'); bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();">
                                         <i class="bi bi-send"></i> Send to Fulfillment
                                     </button>
                                 ` : ''}
@@ -1753,7 +2021,7 @@
             modal.show();
             
             // Clean up after modal closes
-            modalContainer.addEventListener('hidden.bs.modal', () => {
+            modal._element.addEventListener('hidden.bs.modal', () => {
                 modalContainer.remove();
             });
         }
@@ -1777,13 +2045,6 @@
                         data = convertToCSV(orders.orders);
                         filename = `orders-export-${Date.now()}.csv`;
                         mimeType = 'text/csv';
-                        break;
-                        
-                    case 'excel':
-                        // For Excel, we'll create a CSV (Excel can open CSV)
-                        data = convertToCSV(orders.orders);
-                        filename = `orders-export-${Date.now()}.csv`;
-                        mimeType = 'application/vnd.ms-excel';
                         break;
                 }
                 
@@ -1832,10 +2093,12 @@
         }
         
         function getStatusClass(status) {
-            return status?.replace(/_/g, '-') || 'pending';
+            if (!status) return 'pending';
+            return status.replace(/_/g, '-');
         }
         
         function getTimeAgo(dateString) {
+            if (!dateString) return 'Unknown';
             const date = new Date(dateString);
             const now = new Date();
             const diffMs = now - date;
@@ -1851,6 +2114,7 @@
         }
         
         function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
             return new Date(dateString).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
@@ -1962,64 +2226,11 @@
                     target: '₵25.00',
                     status: avgOrderValue >= 25 ? 'success' : 'warning',
                     statusText: avgOrderValue >= 25 ? 'Good' : 'Low'
-                },
-                {
-                    name: 'Customer Satisfaction',
-                    value: '98%',
-                    trend: 0.5,
-                    target: '95%',
-                    status: 'success',
-                    statusText: 'Excellent'
                 }
             ];
         }
         
-        // UI Functions
-        function showSection(section) {
-            // Hide all sections
-            document.querySelectorAll('section').forEach(sec => {
-                sec.classList.add('d-none');
-            });
-            
-            // Show selected section
-            document.getElementById(`${section}Section`).classList.remove('d-none');
-            
-            // Update active nav
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update current section
-            currentSection = section;
-            
-            // Load section data
-            switch(section) {
-                case 'dashboard':
-                    loadDashboard();
-                    break;
-                case 'orders':
-                    loadOrders();
-                    break;
-                case 'fulfillment':
-                    loadFulfillment();
-                    break;
-                case 'analytics':
-                    loadAnalytics();
-                    break;
-            }
-            
-            // Close sidebar on mobile
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').classList.add('collapsed');
-            }
-        }
-        
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
-        }
-        
+        // Public Functions
         function refreshDashboard() {
             loadDashboard();
             showToast('Dashboard refreshed', 'success');
@@ -2054,6 +2265,7 @@
         // Make functions globally available
         window.showSection = showSection;
         window.toggleSidebar = toggleSidebar;
+        window.toggleMobileSidebar = toggleMobileSidebar;
         window.refreshDashboard = refreshDashboard;
         window.refreshOrders = refreshOrders;
         window.refreshFulfillment = refreshFulfillment;
@@ -2066,14 +2278,9 @@
         window.manualFulfillment = manualFulfillment;
         window.testFulfillment = testFulfillment;
         window.exportData = exportData;
+        window.updateChartPeriod = updateChartPeriod;
+        window.updateAnalytics = updateAnalytics;
         window.logout = logout;
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').classList.add('collapsed');
-            }
-        });
     </script>
 </body>
 </html>
