@@ -6,6 +6,7 @@
     <title>Admin Dashboard - Mystery Bundle Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --admin-dark: #0f172a;
@@ -14,27 +15,45 @@
             --cost-red: #ef4444;
             --express-blue: #3b82f6;
             --beneficiary-purple: #8b5cf6;
+            --warning-orange: #f59e0b;
         }
         
         body {
             background: var(--admin-dark);
             color: #f8fafc;
             font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
         }
         
-        /* Compact Sidebar */
+        /* Improved Sidebar */
         .sidebar {
             background: var(--admin-panel);
             min-height: 100vh;
-            width: 240px;
+            width: 260px;
             position: fixed;
             border-right: 1px solid rgba(255,255,255,0.1);
             padding: 1.5rem 1rem;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+            padding: 1rem 0.5rem;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            display: none;
         }
         
         .main-content {
-            margin-left: 240px;
+            margin-left: 260px;
             padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .main-content.expanded {
+            margin-left: 70px;
         }
         
         /* Stats Cards */
@@ -45,6 +64,7 @@
             border-left: 4px solid;
             transition: all 0.3s;
             height: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .stat-card:hover {
@@ -57,25 +77,8 @@
         .stat-card.profit { border-left-color: #f59e0b; }
         .stat-card.express { border-left-color: var(--express-blue); }
         .stat-card.beneficiary { border-left-color: var(--beneficiary-purple); }
-        
-        /* Profit Indicators */
-        .profit-badge {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--profit-green);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .cost-badge {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--cost-red);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+        .stat-card.processing { border-left-color: #8b5cf6; }
+        .stat-card.pending { border-left-color: #94a3b8; }
         
         /* Network Tags */
         .network-tag {
@@ -114,6 +117,7 @@
             background: var(--admin-panel);
             border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .orders-table th {
@@ -121,18 +125,20 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
             font-weight: 600;
             padding: 1rem;
+            font-size: 0.9rem;
         }
         
         .orders-table td {
             padding: 0.85rem 1rem;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
         }
         
         /* Status Badges */
         .status-badge {
             padding: 0.3rem 0.7rem;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             display: inline-block;
         }
@@ -140,7 +146,7 @@
         .status-delivered { background: rgba(16, 185, 129, 0.2); color: #10b981; }
         .status-processing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
         .status-paid { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .status-pending { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
+        .status-pending_payment { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
         .status-failed { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
         
         /* Filters */
@@ -151,6 +157,7 @@
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.3s;
+            font-size: 0.85rem;
         }
         
         .filter-badge:hover {
@@ -170,6 +177,51 @@
             border-radius: 12px;
             padding: 1.5rem;
             height: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Profit Indicators */
+        .profit-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--profit-green);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .loss-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--cost-red);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Toast Notification */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
         }
         
         /* Responsive */
@@ -199,59 +251,70 @@
             
             .main-content {
                 margin-left: 0;
+                padding: 1rem;
             }
             
             .stat-card {
                 margin-bottom: 1rem;
             }
         }
+        
+        /* Action Buttons */
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+        
+        /* Search Box */
+        .search-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
     </style>
 </head>
 <body>
-    <!-- ✅ SECURE TOKEN VALIDATION -->
-    <script>
-        (function() {
-            const token = localStorage.getItem('adminToken');
-            const expiry = localStorage.getItem('tokenExpiry');
-            
-            if (!token || !expiry || Date.now() > parseInt(expiry)) {
-                localStorage.clear();
-                window.location.href = 'admin-login.html';
-                return;
-            }
-            
-            // Validate token format (basic check)
-            if (!token.startsWith('eyJ')) {
-                localStorage.clear();
-                window.location.href = 'admin-login.html';
-                return;
-            }
-            
-            // Verify token with backend on page load
-            fetch('https://mysterydatahub-api.onrender.com/api/admin/orders?limit=1', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.status === 401) {
-                    localStorage.clear();
-                    window.location.href = 'admin-login.html';
-                }
-            })
-            .catch(() => {
-                localStorage.clear();
-                window.location.href = 'admin-login.html';
-            });
-        })();
-    </script>
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="text-center mb-4">
             <h5 class="mb-1">⚡ Mystery Admin</h5>
             <small class="text-muted" id="adminEmailDisplay"></small>
+            <button class="btn btn-sm btn-outline-light mt-2" onclick="toggleSidebar()">
+                <i class="bi bi-arrow-left-right"></i>
+            </button>
         </div>
         
         <ul class="nav flex-column">
@@ -265,19 +328,20 @@
                 <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('orders')">
                     <i class="bi bi-receipt me-2"></i>
                     <span class="nav-text">Orders</span>
-                    <span class="badge bg-success ms-auto" id="pendingCount">0</span>
+                    <span class="badge bg-warning ms-auto" id="pendingCount">0</span>
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('fulfillment')">
+                    <i class="bi bi-truck me-2"></i>
+                    <span class="nav-text">Fulfillment</span>
+                    <span class="badge bg-info ms-auto" id="processingCount">0</span>
                 </a>
             </li>
             <li class="nav-item mb-2">
                 <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('analytics')">
                     <i class="bi bi-graph-up me-2"></i>
                     <span class="nav-text">Analytics</span>
-                </a>
-            </li>
-            <li class="nav-item mb-2">
-                <a class="nav-link d-flex align-items-center text-white" href="#" onclick="showSection('bundles')">
-                    <i class="bi bi-wifi me-2"></i>
-                    <span class="nav-text">Bundles</span>
                 </a>
             </li>
             <li class="nav-item mb-2">
@@ -288,7 +352,7 @@
             </li>
             <li class="nav-item mb-2">
                 <a class="nav-link d-flex align-items-center text-white" href="track-order.html" target="_blank">
-                    <i class="bi bi-truck me-2"></i>
+                    <i class="bi bi-search me-2"></i>
                     <span class="nav-text">Track Orders</span>
                 </a>
             </li>
@@ -310,56 +374,63 @@
                 <div class="me-2" id="dbStatus" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
                 <small>Database: <span id="dbStatusText">Connected</span></small>
             </div>
+            <div class="d-flex align-items-center mt-1">
+                <div class="me-2" id="fulfillmentStatus" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></div>
+                <small>Fulfillment: <span id="fulfillmentStatusText">Ready</span></small>
+            </div>
         </div>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content">
-        <!-- Dashboard Section -->
-        <div id="dashboardSection">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2>Dashboard Overview</h2>
-                    <p class="text-muted mb-0">Real-time analytics for Mystery Bundle Hub</p>
-                </div>
-                <div class="text-end">
-                    <button class="btn btn-sm btn-outline-light" onclick="refreshDashboard()">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+    <div class="main-content" id="mainContent">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 id="sectionTitle">Dashboard Overview</h2>
+                <p class="text-muted mb-0" id="sectionDescription">Real-time analytics for Mystery Bundle Hub</p>
+            </div>
+            <div class="text-end">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-gear me-1"></i> Quick Actions
                     </button>
-                    <button class="btn btn-sm btn-success ms-2" onclick="exportReport()">
-                        <i class="bi bi-download me-1"></i> Export
-                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item" href="#" onclick="refreshCurrentSection()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh Data</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportData()"><i class="bi bi-download me-2"></i>Export Data</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="showHelp()"><i class="bi bi-question-circle me-2"></i>Help & Support</a></li>
+                    </ul>
                 </div>
             </div>
-            
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection">
             <!-- Stats Row -->
             <div class="row mb-4">
-                <div class="col-md-3 col-6 mb-3">
+                <div class="col-xl-3 col-md-6 mb-3">
                     <div class="stat-card total">
                         <small class="text-muted d-block mb-1">Total Orders</small>
                         <h3 class="mb-1" id="totalOrders">0</h3>
                         <small class="text-success" id="orderChange">
-                            <i class="bi bi-arrow-up"></i> 0%
+                            <i class="bi bi-arrow-up"></i> 0 Today
                         </small>
                     </div>
                 </div>
-                <div class="col-md-3 col-6 mb-3">
+                <div class="col-xl-3 col-md-6 mb-3">
                     <div class="stat-card revenue">
                         <small class="text-muted d-block mb-1">Today's Revenue</small>
                         <h3 class="mb-1" id="todayRevenue">₵0</h3>
-                        <small class="text-success" id="revenueChange">
-                            <i class="bi bi-arrow-up"></i> 0%
-                        </small>
+                        <small class="text-muted" id="revenueChange">₵0 Profit</small>
                     </div>
                 </div>
-                <div class="col-md-3 col-6 mb-3">
-                    <div class="stat-card profit">
-                        <small class="text-muted d-block mb-1">Today's Profit</small>
-                        <h3 class="mb-1" id="todayProfit">₵0</h3>
-                        <small class="text-muted">Margin: <span id="profitMargin">0%</span></small>
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="stat-card processing">
+                        <small class="text-muted d-block mb-1">Processing</small>
+                        <h3 class="mb-1" id="processingOrders">0</h3>
+                        <small class="text-warning">Awaiting fulfillment</small>
                     </div>
                 </div>
-                <div class="col-md-3 col-6 mb-3">
+                <div class="col-xl-3 col-md-6 mb-3">
                     <div class="stat-card">
                         <small class="text-muted d-block mb-1">Success Rate</small>
                         <h3 class="mb-1" id="successRate">100%</h3>
@@ -368,53 +439,49 @@
                 </div>
             </div>
             
-            <!-- Bundle Type Stats -->
+            <!-- Charts Row -->
             <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <div class="stat-card express">
-                        <small class="text-muted d-block mb-1">Express Bundles</small>
-                        <h3 class="mb-1" id="expressOrders">0</h3>
-                        <small class="text-muted">Revenue: <span id="expressRevenue">₵0</span></small>
+                <div class="col-lg-8 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Order Analytics</h5>
+                        <canvas id="ordersChart" height="250"></canvas>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <div class="stat-card beneficiary">
-                        <small class="text-muted d-block mb-1">Beneficiary Bundles</small>
-                        <h3 class="mb-1" id="beneficiaryOrders">0</h3>
-                        <small class="text-muted">Revenue: <span id="beneficiaryRevenue">₵0</span></small>
+                <div class="col-lg-4 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Network Distribution</h5>
+                        <canvas id="networkChart" height="250"></canvas>
                     </div>
                 </div>
             </div>
             
-            <!-- Quick Stats -->
+            <!-- Recent Orders -->
             <div class="row">
-                <div class="col-md-8 mb-3">
+                <div class="col-12">
                     <div class="chart-container">
-                        <h5 class="mb-3">Recent Orders</h5>
-                        <div id="recentOrders" class="table-responsive">
-                            <table class="table table-sm table-borderless">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Recent Orders</h5>
+                            <button class="btn btn-sm btn-outline-light" onclick="showSection('orders')">
+                                View All <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
                                         <th>Order ID</th>
-                                        <th>Customer</th>
+                                        <th>Phone</th>
                                         <th>Bundle</th>
                                         <th>Amount</th>
+                                        <th>Profit</th>
                                         <th>Status</th>
                                         <th>Time</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recentOrdersBody">
-                                    <!-- Will be populated -->
+                                    <!-- Filled by JavaScript -->
                                 </tbody>
                             </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Top Selling Bundles</h5>
-                        <div id="topBundles">
-                            <!-- Will be populated -->
                         </div>
                     </div>
                 </div>
@@ -423,17 +490,16 @@
 
         <!-- Orders Section -->
         <div id="ordersSection" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
+            <!-- Orders Header -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+                <div class="mb-3 mb-md-0">
                     <h2>Order Management</h2>
                     <p class="text-muted mb-0">View and manage all customer orders</p>
                 </div>
-                <div class="d-flex">
-                    <div class="input-group input-group-sm me-2" style="width: 250px;">
-                        <input type="text" class="form-control" placeholder="Search orders..." id="orderSearch">
-                        <button class="btn btn-outline-secondary" type="button">
-                            <i class="bi bi-search"></i>
-                        </button>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="search-box">
+                        <i class="bi bi-search me-2"></i>
+                        <input type="text" placeholder="Search orders..." id="orderSearch" class="bg-transparent border-0 text-light" style="width: 200px;">
                     </div>
                     <button class="btn btn-sm btn-success" onclick="refreshOrders()">
                         <i class="bi bi-arrow-clockwise"></i>
@@ -443,14 +509,12 @@
             
             <!-- Filters -->
             <div class="d-flex flex-wrap gap-2 mb-4">
-                <span class="filter-badge" onclick="filterOrders('all')">All Orders</span>
-                <span class="filter-badge" onclick="filterOrders('pending')">Pending Payment</span>
+                <span class="filter-badge active" onclick="filterOrders('all')">All Orders</span>
+                <span class="filter-badge" onclick="filterOrders('pending_payment')">Pending Payment</span>
                 <span class="filter-badge" onclick="filterOrders('paid')">Paid</span>
                 <span class="filter-badge" onclick="filterOrders('processing')">Processing</span>
                 <span class="filter-badge" onclick="filterOrders('delivered')">Delivered</span>
                 <span class="filter-badge" onclick="filterOrders('failed')">Failed</span>
-                <span class="filter-badge" onclick="filterOrders('express')">Express Only</span>
-                <span class="filter-badge" onclick="filterOrders('beneficiary')">Beneficiary Only</span>
             </div>
             
             <!-- Orders Table -->
@@ -463,7 +527,6 @@
                                 <th>Customer</th>
                                 <th>Phone</th>
                                 <th>Bundle</th>
-                                <th>Type</th>
                                 <th>Amount</th>
                                 <th>Cost</th>
                                 <th>Profit</th>
@@ -485,10 +548,91 @@
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item"><a class="page-link" href="#" onclick="changePage(-1)">Previous</a></li>
-                        <li class="page-item active"><span class="page-link">1</span></li>
+                        <li class="page-item active"><span class="page-link" id="currentPage">1</span></li>
                         <li class="page-item"><a class="page-link" href="#" onclick="changePage(1)">Next</a></li>
                     </ul>
                 </nav>
+            </div>
+        </div>
+
+        <!-- Fulfillment Section -->
+        <div id="fulfillmentSection" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>Fulfillment Management</h2>
+                    <p class="text-muted mb-0">Manage bundle delivery and Success Biz Hub integration</p>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-success" onclick="testFulfillmentConnection()">
+                        <i class="bi bi-wifi me-1"></i> Test Connection
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Manual Fulfillment</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Order ID</label>
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="manualOrderId" placeholder="Enter order ID">
+                        </div>
+                        <button class="btn btn-warning w-100" onclick="manualFulfillment()">
+                            <i class="bi bi-send me-2"></i> Send to Success Biz Hub
+                        </button>
+                        <small class="text-muted mt-2 d-block">Use this for orders stuck in "paid" status</small>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Fulfillment Status</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>API Connection:</span>
+                            <span class="badge bg-success" id="apiConnectionStatus">Connected</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Last Sync:</span>
+                            <span id="lastSyncTime">Just now</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Pending Fulfillment:</span>
+                            <span class="badge bg-warning" id="pendingFulfillmentCount">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Today's Fulfilled:</span>
+                            <span class="badge bg-success" id="todayFulfilledCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pending Fulfillment -->
+            <div class="chart-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Orders Pending Fulfillment</h5>
+                    <button class="btn btn-sm btn-outline-light" onclick="refreshFulfillment()">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Phone</th>
+                                <th>Bundle</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Paid At</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingFulfillmentBody">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -497,106 +641,60 @@
             <h2 class="mb-4">Business Analytics</h2>
             
             <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Revenue Trends</h5>
+                        <canvas id="revenueChart" height="250"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Profit Analysis</h5>
+                        <canvas id="profitChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
                 <div class="col-md-4 mb-3">
                     <div class="chart-container">
-                        <h5 class="mb-3">Revenue by Network</h5>
-                        <div id="networkRevenue">
-                            <!-- Chart will be here -->
-                            <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
-                                <div class="text-center">
-                                    <div class="spinner-border spinner-border-sm text-light"></div>
-                                    <p class="mt-2 text-muted">Loading analytics...</p>
+                        <h5 class="mb-3">Top Performing Bundles</h5>
+                        <div id="topBundlesList">
+                            <!-- Filled by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8 mb-3">
+                    <div class="chart-container">
+                        <h5 class="mb-3">Performance Metrics</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Average Order Value:</span>
+                                    <span class="text-success" id="avgOrderValue">₵0</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Conversion Rate:</span>
+                                    <span class="text-success" id="conversionRate">0%</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Customer Satisfaction:</span>
+                                    <span class="text-success" id="satisfactionRate">100%</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Bundle Type Performance</h5>
-                        <div id="bundleTypePerformance">
-                            <!-- Chart will be here -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Daily Trends</h5>
-                        <div id="dailyTrends">
-                            <!-- Chart will be here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5>Profit Analysis</h5>
-                    <div>
-                        <select class="form-select form-select-sm" style="width: 150px;" id="timeFilter">
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                            <option value="all">All Time</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="profitChart">
-                    <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
-                        <div class="text-center">
-                            <div class="spinner-border spinner-border-sm text-light"></div>
-                            <p class="mt-2 text-muted">Loading profit data...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bundle Management Section -->
-        <div id="bundlesSection" style="display: none;">
-            <h2 class="mb-4">Bundle Management</h2>
-            
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Bundle Performance</h5>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Bundle</th>
-                                    <th>Sold</th>
-                                    <th>Revenue</th>
-                                    <th>Profit</th>
-                                    <th>Margin</th>
-                                </tr>
-                            </thead>
-                            <tbody id="bundlePerformance">
-                                <!-- Will be populated -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <h5 class="mb-3">Quick Stats</h5>
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <small class="text-muted d-block">Most Profitable</small>
-                                <h4 id="mostProfitable">₵0</h4>
-                                <small class="text-muted" id="mostProfitableBundle">-</small>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <small class="text-muted d-block">Best Seller</small>
-                                <h4 id="bestSeller">0</h4>
-                                <small class="text-muted" id="bestSellerBundle">-</small>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted d-block">Avg. Profit/Bundle</small>
-                                <h4 id="avgProfit">₵0</h4>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted d-block">Conversion Rate</small>
-                                <h4 id="conversionRate">0%</h4>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Revenue:</span>
+                                    <span class="text-success" id="totalRevenue">₵0</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Profit:</span>
+                                    <span class="text-warning" id="totalProfit">₵0</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Total Cost:</span>
+                                    <span class="text-muted" id="totalCost">₵0</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -605,11 +703,37 @@
         </div>
     </div>
 
-    <!-- ✅ UPDATED JAVASCRIPT WITH PROPER JWT HANDLING -->
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderModalBody">
+                    <!-- Filled by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const BACKEND_URL = 'https://mysterydatahub-api.onrender.com';
         
-        // ✅ Helper to get authentication headers
+        // Global variables
+        let currentOrders = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const ordersPerPage = 15;
+        let ordersChart = null;
+        let networkChart = null;
+        let revenueChart = null;
+        let profitChart = null;
+        
+        // Token validation and helper functions
         function getAuthHeaders() {
             const token = localStorage.getItem('adminToken');
             if (!token) {
@@ -622,188 +746,339 @@
             };
         }
         
-        // ✅ Check token expiry before each request
         function checkToken() {
+            const token = localStorage.getItem('adminToken');
             const expiry = localStorage.getItem('tokenExpiry');
-            if (!expiry || Date.now() > parseInt(expiry)) {
+            
+            if (!token || !expiry || Date.now() > parseInt(expiry)) {
                 logout();
                 return false;
             }
+            
+            // Basic JWT format validation
+            if (!token.startsWith('eyJ')) {
+                logout();
+                return false;
+            }
+            
             return true;
         }
         
-        // ✅ Enhanced logout function
-        function logout() {
-            localStorage.clear();
-            window.location.href = 'admin-login.html';
+        function showToast(message, type = 'info') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+            toastEl.id = toastId;
+            toastEl.setAttribute('role', 'alert');
+            
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toastEl);
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+            
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
         }
         
-        let currentOrders = [];
-        let currentFilter = 'all';
-        let currentPage = 1;
-        const ordersPerPage = 15;
+        async function apiRequest(endpoint, options = {}) {
+            if (!checkToken()) return null;
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+                    headers: getAuthHeaders(),
+                    ...options
+                });
+                
+                if (response.status === 401) {
+                    logout();
+                    return null;
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                showToast('Network error. Please try again.', 'error');
+                return null;
+            }
+        }
         
-        // ✅ Initialize
+        // Initialize
         document.addEventListener('DOMContentLoaded', async function() {
+            // Validate token on load
+            if (!checkToken()) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
             // Set admin email
-            document.getElementById('adminEmailDisplay').textContent = 
-                localStorage.getItem('adminEmail') || 'Admin';
+            const email = localStorage.getItem('adminEmail');
+            document.getElementById('adminEmailDisplay').textContent = email || 'Admin';
             
-            // Load initial data
-            loadDashboard();
-            loadOrders();
-            checkSystemStatus();
-            
-            // Show dashboard by default
+            // Initialize sections
             showSection('dashboard');
             
-            // Auto-refresh every 30 seconds
+            // Load initial data
+            await Promise.all([
+                loadDashboard(),
+                loadOrders(),
+                checkSystemStatus()
+            ]);
+            
+            // Set up auto-refresh
             setInterval(loadDashboard, 30000);
             setInterval(checkSystemStatus, 60000);
             
             // Search functionality
-            document.getElementById('orderSearch').addEventListener('input', function(e) {
-                searchOrders(e.target.value);
+            document.getElementById('orderSearch').addEventListener('input', debounce(searchOrders, 300));
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
         
-        // Show sections
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // Section management
         function showSection(section) {
             // Hide all sections
-            document.getElementById('dashboardSection').style.display = 'none';
-            document.getElementById('ordersSection').style.display = 'none';
-            document.getElementById('analyticsSection').style.display = 'none';
-            document.getElementById('bundlesSection').style.display = 'none';
+            ['dashboard', 'orders', 'fulfillment', 'analytics'].forEach(s => {
+                document.getElementById(`${s}Section`).style.display = 'none';
+            });
             
             // Show selected section
-            document.getElementById(section + 'Section').style.display = 'block';
+            document.getElementById(`${section}Section`).style.display = 'block';
             
-            // Update sidebar active state
+            // Update titles
+            const titles = {
+                dashboard: 'Dashboard Overview',
+                orders: 'Order Management',
+                fulfillment: 'Fulfillment Management',
+                analytics: 'Business Analytics'
+            };
+            
+            const descriptions = {
+                dashboard: 'Real-time analytics for Mystery Bundle Hub',
+                orders: 'View and manage all customer orders',
+                fulfillment: 'Manage bundle delivery and Success Biz Hub integration',
+                analytics: 'Detailed business insights and performance metrics'
+            };
+            
+            document.getElementById('sectionTitle').textContent = titles[section];
+            document.getElementById('sectionDescription').textContent = descriptions[section];
+            
+            // Update active nav link
             document.querySelectorAll('.sidebar .nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             event.target.closest('.nav-link').classList.add('active');
             
-            // Load section data
-            if (section === 'orders') {
-                loadOrders();
-            } else if (section === 'analytics') {
-                loadAnalytics();
-            } else if (section === 'bundles') {
-                loadBundleStats();
+            // Load section-specific data
+            switch(section) {
+                case 'orders':
+                    loadOrders();
+                    break;
+                case 'fulfillment':
+                    loadFulfillment();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
             }
         }
         
-        // ✅ UPDATED: Load dashboard data with JWT
+        // Dashboard functions
         async function loadDashboard() {
-            if (!checkToken()) return;
-            
             try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/stats`, {
-                    headers: getAuthHeaders()
-                });
-                
-                if (response.status === 401) {
-                    logout();
-                    return;
+                const stats = await apiRequest('/api/admin/stats');
+                if (stats && stats.success) {
+                    updateDashboardStats(stats.stats);
                 }
                 
-                if (!response.ok) throw new Error('Failed to fetch stats');
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    updateDashboardStats(result.stats);
+                const orders = await apiRequest('/api/admin/orders?limit=50');
+                if (orders && orders.success) {
+                    updateRecentOrders(orders.orders);
+                    createCharts(orders.orders);
                 }
             } catch (error) {
-                console.error('Dashboard error:', error);
+                console.error('Dashboard load error:', error);
             }
         }
         
-        // Update dashboard statistics
         function updateDashboardStats(stats) {
-            // Update DOM with stats from backend
             document.getElementById('totalOrders').textContent = stats.totalOrders || 0;
             document.getElementById('todayRevenue').textContent = `₵${(stats.todayRevenue || 0).toFixed(2)}`;
-            document.getElementById('todayProfit').textContent = `₵${(stats.todayProfit || 0).toFixed(2)}`;
-            document.getElementById('profitMargin').textContent = stats.todayRevenue > 0 ? 
-                `${Math.round((stats.todayProfit / stats.todayRevenue) * 100)}%` : '0%';
+            document.getElementById('processingOrders').textContent = stats.processingOrders || 0;
             document.getElementById('successRate').textContent = `${stats.successRate || 100}%`;
             document.getElementById('failedOrders').textContent = `${stats.failedOrders || 0} failed`;
-        }
-        
-        // ✅ UPDATED: Load orders with JWT
-        async function loadOrders() {
-            if (!checkToken()) return;
             
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/orders`, {
-                    headers: getAuthHeaders()
-                });
-                
-                if (response.status === 401) {
-                    logout();
-                    return;
-                }
-                
-                if (!response.ok) throw new Error('Failed to fetch orders');
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    currentOrders = result.orders;
-                    filterOrders(currentFilter);
-                    updateRecentOrders(result.orders);
-                    updatePendingCount(result.orders);
-                }
-            } catch (error) {
-                console.error('Orders error:', error);
-                showError('Failed to load orders. Please check your connection.');
-            }
+            // Update pending count in sidebar
+            document.getElementById('pendingCount').textContent = stats.pendingOrders || 0;
+            document.getElementById('processingCount').textContent = stats.processingOrders || 0;
         }
         
-        // Update recent orders
         function updateRecentOrders(orders) {
-            const recent = orders.slice(0, 5);
             const tbody = document.getElementById('recentOrdersBody');
             tbody.innerHTML = '';
             
+            const recent = orders.slice(0, 8);
+            
             recent.forEach(order => {
+                const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
+                
                 const row = document.createElement('tr');
-                
-                // Format time
-                const orderTime = new Date(order.createdAt);
-                const now = new Date();
-                const diffHours = Math.floor((now - orderTime) / (1000 * 60 * 60));
-                let timeAgo;
-                
-                if (diffHours < 1) {
-                    timeAgo = 'Just now';
-                } else if (diffHours < 24) {
-                    timeAgo = `${diffHours}h ago`;
-                } else {
-                    timeAgo = orderTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                }
-                
                 row.innerHTML = `
-                    <td><small class="text-muted">${order.orderId?.substring(0, 10) || ''}...</small></td>
-                    <td><small>${order.recipientPhone || ''}</small></td>
+                    <td><small class="text-info">${order.orderId?.substring(0, 10)}...</small></td>
+                    <td>${order.recipientPhone || ''}</td>
                     <td>
-                        <small>${order.network?.toUpperCase() || ''} ${order.bundleSize || ''}</small>
-                        ${order.bundleType === 'express' ? 
-                            '<span class="express-badge ms-1">E</span>' : 
-                          order.bundleType === 'beneficiary' ? 
-                            '<span class="beneficiary-badge ms-1">B</span>' : ''}
+                        ${getNetworkBadge(order.network)}
+                        <small>${order.bundleSize || ''}</small>
                     </td>
-                    <td><small class="text-success">₵${order.amount?.toFixed(2) || '0'}</small></td>
+                    <td class="text-success">₵${order.amount?.toFixed(2) || '0'}</td>
+                    <td>
+                        <span class="${profit >= 0 ? 'profit-badge' : 'loss-badge'}">
+                            ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
+                        </span>
+                    </td>
                     <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                    <td><small class="text-muted">${timeAgo}</small></td>
+                    <td><small class="text-muted">${formatTimeAgo(order.createdAt)}</small></td>
                 `;
                 tbody.appendChild(row);
             });
         }
         
-        // Filter orders
+        function createCharts(orders) {
+            // Destroy existing charts
+            if (ordersChart) ordersChart.destroy();
+            if (networkChart) networkChart.destroy();
+            
+            // Orders over time (last 7 days)
+            const last7Days = [...Array(7)].map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                return d.toLocaleDateString('en-US', { weekday: 'short' });
+            }).reverse();
+            
+            const ordersByDay = last7Days.map(day => {
+                return orders.filter(o => {
+                    const orderDate = new Date(o.createdAt).toLocaleDateString('en-US', { weekday: 'short' });
+                    return orderDate === day;
+                }).length;
+            });
+            
+            const ctx1 = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: last7Days,
+                    datasets: [{
+                        label: 'Orders',
+                        data: ordersByDay,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+            
+            // Network distribution
+            const networks = {};
+            orders.forEach(o => {
+                const net = o.network?.toLowerCase() || 'unknown';
+                networks[net] = (networks[net] || 0) + 1;
+            });
+            
+            const ctx2 = document.getElementById('networkChart').getContext('2d');
+            networkChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(networks).map(n => n.toUpperCase()),
+                    datasets: [{
+                        data: Object.values(networks),
+                        backgroundColor: [
+                            'rgba(255, 204, 0, 0.7)',
+                            'rgba(228, 0, 43, 0.7)',
+                            'rgba(0, 161, 224, 0.7)',
+                            'rgba(148, 163, 184, 0.7)'
+                        ],
+                        borderColor: [
+                            '#ffcc00',
+                            '#e4002b',
+                            '#00a1e0',
+                            '#94a3b8'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Order management
+        async function loadOrders() {
+            try {
+                const result = await apiRequest('/api/admin/orders');
+                if (result && result.success) {
+                    currentOrders = result.orders;
+                    filterOrders(currentFilter);
+                    updateOrdersCount();
+                }
+            } catch (error) {
+                console.error('Orders load error:', error);
+            }
+        }
+        
         function filterOrders(filter) {
             currentFilter = filter;
             currentPage = 1;
@@ -816,34 +1091,13 @@
             
             let filteredOrders = currentOrders;
             
-            switch(filter) {
-                case 'pending':
-                    filteredOrders = currentOrders.filter(o => o.status === 'pending_payment');
-                    break;
-                case 'paid':
-                    filteredOrders = currentOrders.filter(o => o.status === 'paid');
-                    break;
-                case 'processing':
-                    filteredOrders = currentOrders.filter(o => o.status === 'processing_api');
-                    break;
-                case 'delivered':
-                    filteredOrders = currentOrders.filter(o => o.status === 'delivered');
-                    break;
-                case 'failed':
-                    filteredOrders = currentOrders.filter(o => o.status === 'failed');
-                    break;
-                case 'express':
-                    filteredOrders = currentOrders.filter(o => o.bundleType === 'express');
-                    break;
-                case 'beneficiary':
-                    filteredOrders = currentOrders.filter(o => o.bundleType === 'beneficiary');
-                    break;
+            if (filter !== 'all') {
+                filteredOrders = currentOrders.filter(o => o.status === filter);
             }
             
             displayOrders(filteredOrders);
         }
         
-        // Search orders
         function searchOrders(query) {
             if (!query.trim()) {
                 filterOrders(currentFilter);
@@ -854,13 +1108,13 @@
                 order.orderId?.toLowerCase().includes(query.toLowerCase()) ||
                 order.recipientPhone?.includes(query) ||
                 order.customerEmail?.toLowerCase().includes(query.toLowerCase()) ||
-                order.bundleSize?.toLowerCase().includes(query.toLowerCase())
+                order.bundleSize?.toLowerCase().includes(query.toLowerCase()) ||
+                order.network?.toLowerCase().includes(query.toLowerCase())
             );
             
             displayOrders(filtered);
         }
         
-        // Display orders in table
         function displayOrders(orders) {
             const tbody = document.getElementById('ordersTableBody');
             tbody.innerHTML = '';
@@ -869,12 +1123,11 @@
             const startIndex = (currentPage - 1) * ordersPerPage;
             const endIndex = startIndex + ordersPerPage;
             const paginatedOrders = orders.slice(startIndex, endIndex);
-            const totalPages = Math.ceil(orders.length / ordersPerPage);
             
             if (paginatedOrders.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="11" class="text-center py-4">
+                        <td colspan="10" class="text-center py-5">
                             <i class="bi bi-inbox fs-1 text-muted"></i>
                             <p class="mt-2 text-muted">No orders found</p>
                         </td>
@@ -882,75 +1135,53 @@
                 `;
             } else {
                 paginatedOrders.forEach(order => {
+                    const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
+                    
                     const row = document.createElement('tr');
-                    
-                    // Network tag
-                    let networkTag = '';
-                    if (order.network === 'mtn') networkTag = '<span class="network-tag mtn-tag">MTN</span>';
-                    if (order.network === 'at') networkTag = '<span class="network-tag airtel-tag">Airtel</span>';
-                    if (order.network === 'telecel') networkTag = '<span class="network-tag telecel-tag">Telecel</span>';
-                    
-                    // Bundle type badge
-                    let typeBadge = '';
-                    if (order.bundleType === 'express') typeBadge = '<span class="express-badge ms-1">Express</span>';
-                    if (order.bundleType === 'beneficiary') typeBadge = '<span class="beneficiary-badge ms-1">Beneficiary</span>';
-                    
-                    // Status badge
-                    const statusClass = `status-${order.status}`;
-                    const statusText = order.status?.charAt(0).toUpperCase() + order.status?.slice(1) || '';
-                    
-                    // Profit badge
-                    const profit = order.profit || 0;
-                    const profitBadge = profit > 0 ? 
-                        `<span class="profit-badge">+₵${profit.toFixed(2)}</span>` : 
-                        `<span class="cost-badge">₵${profit.toFixed(2)}</span>`;
-                    
                     row.innerHTML = `
+                        <td><small class="text-info">${order.orderId}</small></td>
+                        <td><small>${order.customerEmail?.split('@')[0] || 'Customer'}</small></td>
+                        <td>${order.recipientPhone || ''}</td>
                         <td>
-                            <small class="text-muted d-block">${order.orderId}</small>
+                            ${getNetworkBadge(order.network)}
+                            <small class="ms-1">${order.bundleSize || ''}</small>
+                            ${getBundleTypeBadge(order.bundleId)}
                         </td>
+                        <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                        <td><small class="text-muted">₵${(order.metadata?.costPrice || 0).toFixed(2)}</small></td>
                         <td>
-                            <small>${order.customerEmail?.split('@')[0] || 'Customer'}</small>
+                            <span class="${profit >= 0 ? 'profit-badge' : 'loss-badge'}">
+                                ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
+                            </span>
                         </td>
-                        <td><small>${order.recipientPhone || ''}</small></td>
+                        <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                        <td><small class="text-muted">${formatDate(order.createdAt)}</small></td>
                         <td>
-                            <div class="d-flex align-items-center">
-                                ${networkTag}
-                                <small class="ms-1">${order.bundleSize || ''}</small>
-                                ${typeBadge}
-                            </div>
-                        </td>
-                        <td>${typeBadge}</td>
-                        <td><strong class="text-success">₵${order.amount?.toFixed(2) || '0'}</strong></td>
-                        <td><small class="text-muted">₵${order.costPrice?.toFixed(2) || '0'}</small></td>
-                        <td>${profitBadge}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td><small class="text-muted">${new Date(order.createdAt).toLocaleDateString()}</small></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-light" onclick="viewOrder('${order.orderId}')">
+                            <button class="btn btn-sm btn-outline-light action-btn" onclick="viewOrderDetails('${order.orderId}')" title="View Details">
                                 <i class="bi bi-eye"></i>
                             </button>
+                            ${order.status === 'paid' ? `
+                                <button class="btn btn-sm btn-warning action-btn" onclick="manualFulfillmentOrder('${order.orderId}')" title="Send to Fulfillment">
+                                    <i class="bi bi-send"></i>
+                                </button>
+                            ` : ''}
                         </td>
                     `;
                     tbody.appendChild(row);
                 });
             }
             
-            // Update pagination info
-            document.getElementById('ordersCount').textContent = 
-                `Showing ${startIndex + 1}-${Math.min(endIndex, orders.length)} of ${orders.length} orders`;
+            // Update pagination
+            updateOrdersCount(orders.length);
+            document.getElementById('currentPage').textContent = currentPage;
         }
         
-        // Change page
         function changePage(direction) {
-            const totalOrders = currentOrders.filter(o => {
-                if (currentFilter === 'all') return true;
-                if (currentFilter === 'express') return o.bundleType === 'express';
-                if (currentFilter === 'beneficiary') return o.bundleType === 'beneficiary';
-                return o.status === currentFilter;
-            }).length;
+            const filteredOrders = currentFilter === 'all' 
+                ? currentOrders 
+                : currentOrders.filter(o => o.status === currentFilter);
             
-            const totalPages = Math.ceil(totalOrders / ordersPerPage);
+            const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
             
             currentPage += direction;
             if (currentPage < 1) currentPage = 1;
@@ -959,211 +1190,479 @@
             filterOrders(currentFilter);
         }
         
-        // View order details
-        function viewOrder(orderId) {
-            const order = currentOrders.find(o => o.orderId === orderId);
-            if (!order) return;
+        function updateOrdersCount(total = 0) {
+            const filteredOrders = currentFilter === 'all' 
+                ? currentOrders 
+                : currentOrders.filter(o => o.status === currentFilter);
             
-            const modalContent = `
-                <div class="modal-content bg-dark">
-                    <div class="modal-header border-0">
-                        <h5 class="modal-title">Order Details</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Order ID</small>
-                                <strong>${order.orderId}</strong>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Date</small>
-                                <strong>${new Date(order.createdAt).toLocaleString()}</strong>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Customer Email</small>
-                                <strong>${order.customerEmail || 'Not provided'}</strong>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Phone Number</small>
-                                <strong>${order.recipientPhone || ''}</strong>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Bundle</small>
-                                <div class="d-flex align-items-center">
-                                    ${order.network === 'mtn' ? '<span class="network-tag mtn-tag me-1">MTN</span>' : 
-                                      order.network === 'at' ? '<span class="network-tag airtel-tag me-1">Airtel</span>' : 
-                                      '<span class="network-tag telecel-tag me-1">Telecel</span>'}
-                                    <strong>${order.bundleSize || ''}</strong>
-                                    ${order.bundleType === 'express' ? 
-                                        '<span class="express-badge ms-1">Express</span>' : 
-                                      order.bundleType === 'beneficiary' ? 
-                                        '<span class="beneficiary-badge ms-1">Beneficiary</span>' : ''}
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Provider Slug</small>
-                                <strong>${order.bundleId || ''}</strong>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <small class="text-muted d-block">Selling Price</small>
-                                <h4 class="text-success">₵${order.amount?.toFixed(2) || '0'}</h4>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <small class="text-muted d-block">Your Cost</small>
-                                <h5 class="text-muted">₵${order.costPrice?.toFixed(2) || '0'}</h5>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <small class="text-muted d-block">Your Profit</small>
-                                <h5 class="text-warning">₵${order.profit?.toFixed(2) || '0'}</h5>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">Payment Reference</small>
-                                <strong class="text-info">${order.paystackReference || 'N/A'}</strong>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <small class="text-muted d-block">API Reference</small>
-                                <strong class="text-info">${order.apiReference || 'N/A'}</strong>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <small class="text-muted d-block">Status</small>
-                                <span class="status-badge status-${order.status}">${order.status}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        ${order.status === 'failed' ? 
-                            '<button type="button" class="btn btn-warning">Retry Delivery</button>' : ''}
-                    </div>
-                </div>
-            `;
+            const start = (currentPage - 1) * ordersPerPage + 1;
+            const end = Math.min(currentPage * ordersPerPage, filteredOrders.length);
             
-            // Create and show modal
-            const modalContainer = document.createElement('div');
-            modalContainer.className = 'modal fade';
-            modalContainer.innerHTML = modalContent;
-            document.body.appendChild(modalContainer);
+            document.getElementById('ordersCount').textContent = 
+                `Showing ${start}-${end} of ${filteredOrders.length} orders`;
+        }
+        
+        // Fulfillment management
+        async function loadFulfillment() {
+            try {
+                const orders = await apiRequest('/api/admin/orders');
+                if (orders && orders.success) {
+                    updateFulfillmentTable(orders.orders);
+                }
+            } catch (error) {
+                console.error('Fulfillment load error:', error);
+            }
+        }
+        
+        function updateFulfillmentTable(orders) {
+            const pendingOrders = orders.filter(o => o.status === 'paid');
+            const tbody = document.getElementById('pendingFulfillmentBody');
             
-            const modal = new bootstrap.Modal(modalContainer);
-            modal.show();
+            document.getElementById('pendingFulfillmentCount').textContent = pendingOrders.length;
             
-            // Remove modal from DOM after hiding
-            modalContainer.addEventListener('hidden.bs.modal', function () {
-                document.body.removeChild(modalContainer);
+            tbody.innerHTML = '';
+            
+            pendingOrders.slice(0, 10).forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><small class="text-info">${order.orderId}</small></td>
+                    <td>${order.recipientPhone || ''}</td>
+                    <td>
+                        ${getNetworkBadge(order.network)}
+                        <small>${order.bundleSize || ''}</small>
+                    </td>
+                    <td class="text-success">₵${order.amount?.toFixed(2)}</td>
+                    <td><span class="status-badge status-paid">${order.status}</span></td>
+                    <td><small class="text-muted">${formatTimeAgo(order.createdAt)}</small></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="manualFulfillmentOrder('${order.orderId}')">
+                            <i class="bi bi-send me-1"></i> Fulfill
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            if (pendingOrders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="bi bi-check-circle fs-1 text-success"></i>
+                            <p class="mt-2 text-muted">No pending fulfillment orders</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        async function manualFulfillmentOrder(orderId) {
+            if (!confirm('Send this order to Success Biz Hub for fulfillment?')) return;
+            
+            try {
+                const response = await apiRequest(`/api/admin/orders/${orderId}/fulfill`, {
+                    method: 'POST'
+                });
+                
+                if (response && response.success) {
+                    showToast(`Order ${orderId} sent for fulfillment!`, 'success');
+                    refreshCurrentSection();
+                } else {
+                    showToast(response?.error || 'Fulfillment failed', 'error');
+                }
+            } catch (error) {
+                console.error('Manual fulfillment error:', error);
+                showToast('Failed to fulfill order', 'error');
+            }
+        }
+        
+        async function testFulfillmentConnection() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                if (response.ok) {
+                    showToast('Success Biz Hub connection is working!', 'success');
+                    document.getElementById('fulfillmentStatus').style.background = '#10b981';
+                    document.getElementById('fulfillmentStatusText').textContent = 'Connected';
+                } else {
+                    throw new Error('Connection failed');
+                }
+            } catch (error) {
+                showToast('Failed to connect to fulfillment service', 'error');
+                document.getElementById('fulfillmentStatus').style.background = '#ef4444';
+                document.getElementById('fulfillmentStatusText').textContent = 'Failed';
+            }
+        }
+        
+        // Analytics
+        async function loadAnalytics() {
+            try {
+                const orders = await apiRequest('/api/admin/orders');
+                if (orders && orders.success) {
+                    createAnalyticsCharts(orders.orders);
+                    updateAnalyticsStats(orders.orders);
+                }
+            } catch (error) {
+                console.error('Analytics load error:', error);
+            }
+        }
+        
+        function createAnalyticsCharts(orders) {
+            // Destroy existing charts
+            if (revenueChart) revenueChart.destroy();
+            if (profitChart) profitChart.destroy();
+            
+            // Revenue by day (last 30 days)
+            const last30Days = [...Array(30)].map((_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (29 - i));
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            
+            const revenueByDay = last30Days.map(date => {
+                return orders.filter(o => {
+                    const orderDate = new Date(o.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    return orderDate === date;
+                }).reduce((sum, o) => sum + (o.amount || 0), 0);
+            });
+            
+            const ctx1 = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: last30Days,
+                    datasets: [{
+                        label: 'Revenue (₵)',
+                        data: revenueByDay,
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: '#10b981',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { 
+                                color: '#94a3b8',
+                                maxTicksLimit: 10 
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Profit by bundle type
+            const bundleTypes = {};
+            orders.forEach(o => {
+                const profit = o.metadata?.profit || (o.amount - (o.metadata?.costPrice || 0));
+                const type = o.bundleId?.includes('express') ? 'Express' : 
+                            o.bundleId?.includes('beneficiary') ? 'Beneficiary' : 'Other';
+                
+                if (!bundleTypes[type]) bundleTypes[type] = 0;
+                bundleTypes[type] += profit;
+            });
+            
+            const ctx2 = document.getElementById('profitChart').getContext('2d');
+            profitChart = new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(bundleTypes),
+                    datasets: [{
+                        data: Object.values(bundleTypes),
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(148, 163, 184, 0.7)'
+                        ],
+                        borderColor: [
+                            '#3b82f6',
+                            '#8b5cf6',
+                            '#94a3b8'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8' }
+                        }
+                    }
+                }
             });
         }
         
-        // Check system status
+        function updateAnalyticsStats(orders) {
+            const totalRevenue = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+            const totalCost = orders.reduce((sum, o) => sum + (o.metadata?.costPrice || 0), 0);
+            const totalProfit = totalRevenue - totalCost;
+            const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+            const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+            const conversionRate = orders.length > 0 ? (deliveredOrders / orders.length * 100) : 0;
+            
+            document.getElementById('totalRevenue').textContent = `₵${totalRevenue.toFixed(2)}`;
+            document.getElementById('totalCost').textContent = `₵${totalCost.toFixed(2)}`;
+            document.getElementById('totalProfit').textContent = `₵${totalProfit.toFixed(2)}`;
+            document.getElementById('avgOrderValue').textContent = `₵${avgOrderValue.toFixed(2)}`;
+            document.getElementById('conversionRate').textContent = `${conversionRate.toFixed(1)}%`;
+            document.getElementById('satisfactionRate').textContent = '100%';
+            
+            // Update top bundles
+            const bundleCounts = {};
+            orders.forEach(o => {
+                const bundle = o.bundleId || 'Unknown';
+                bundleCounts[bundle] = (bundleCounts[bundle] || 0) + 1;
+            });
+            
+            const topBundles = Object.entries(bundleCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const topBundlesList = document.getElementById('topBundlesList');
+            topBundlesList.innerHTML = '';
+            
+            topBundles.forEach(([bundle, count]) => {
+                const item = document.createElement('div');
+                item.className = 'd-flex justify-content-between align-items-center mb-2';
+                item.innerHTML = `
+                    <span>${bundle}</span>
+                    <span class="badge bg-primary">${count}</span>
+                `;
+                topBundlesList.appendChild(item);
+            });
+        }
+        
+        // Helper functions
+        function getNetworkBadge(network) {
+            if (!network) return '';
+            const net = network.toLowerCase();
+            if (net.includes('mtn')) return '<span class="network-tag mtn-tag">MTN</span>';
+            if (net.includes('airtel') || net.includes('at')) return '<span class="network-tag airtel-tag">Airtel</span>';
+            if (net.includes('telecel')) return '<span class="network-tag telecel-tag">Telecel</span>';
+            return '<span class="network-tag">' + network + '</span>';
+        }
+        
+        function getBundleTypeBadge(bundleId) {
+            if (!bundleId) return '';
+            if (bundleId.includes('express')) return '<span class="express-badge ms-1">Express</span>';
+            if (bundleId.includes('beneficiary')) return '<span class="beneficiary-badge ms-1">Beneficiary</span>';
+            return '';
+        }
+        
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString();
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        async function viewOrderDetails(orderId) {
+            try {
+                const order = currentOrders.find(o => o.orderId === orderId);
+                if (!order) {
+                    showToast('Order not found', 'error');
+                    return;
+                }
+                
+                const profit = order.metadata?.profit || (order.amount - (order.metadata?.costPrice || 0));
+                const margin = order.amount > 0 ? (profit / order.amount * 100).toFixed(1) : 0;
+                
+                const modalBody = document.getElementById('orderModalBody');
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Order ID</small>
+                            <strong>${order.orderId}</strong>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Date</small>
+                            <strong>${formatDate(order.createdAt)}</strong>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Customer Email</small>
+                            <strong>${order.customerEmail || 'Not provided'}</strong>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Phone Number</small>
+                            <strong>${order.recipientPhone || ''}</strong>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Bundle Details</small>
+                            <div class="d-flex align-items-center mt-1">
+                                ${getNetworkBadge(order.network)}
+                                <strong class="ms-2">${order.bundleSize || ''}</strong>
+                                ${getBundleTypeBadge(order.bundleId)}
+                            </div>
+                            <small class="text-muted">${order.bundleId || ''}</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Provider Reference</small>
+                            <strong class="text-info">${order.apiReference || 'Not sent yet'}</strong>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <small class="text-muted d-block">Selling Price</small>
+                            <h4 class="text-success">₵${order.amount?.toFixed(2)}</h4>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <small class="text-muted d-block">Your Cost</small>
+                            <h5 class="text-muted">₵${(order.metadata?.costPrice || 0).toFixed(2)}</h5>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <small class="text-muted d-block">Your Profit</small>
+                            <h5 class="${profit >= 0 ? 'text-warning' : 'text-danger'}">
+                                ${profit >= 0 ? '+' : ''}₵${Math.abs(profit).toFixed(2)}
+                            </h5>
+                            <small class="text-muted">Margin: ${margin}%</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">Payment Reference</small>
+                            <strong class="text-info">${order.paystackReference || 'N/A'}</strong>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <small class="text-muted d-block">API Order ID</small>
+                            <strong class="text-info">${order.apiOrderId || 'N/A'}</strong>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <small class="text-muted d-block">Status</small>
+                            <span class="status-badge status-${order.status}">${order.status}</span>
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block">Metadata</small>
+                            <pre class="bg-dark text-light p-2 rounded" style="font-size: 0.8rem; max-height: 150px; overflow: auto;">
+${JSON.stringify(order.metadata || {}, null, 2)}
+                            </pre>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        ${order.status === 'paid' ? `
+                            <button class="btn btn-warning" onclick="manualFulfillmentOrder('${order.orderId}'); bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();">
+                                <i class="bi bi-send me-1"></i> Send to Fulfillment
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-secondary ms-2" data-bs-dismiss="modal">Close</button>
+                    </div>
+                `;
+                
+                const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+                modal.show();
+            } catch (error) {
+                console.error('View order error:', error);
+                showToast('Failed to load order details', 'error');
+            }
+        }
+        
         async function checkSystemStatus() {
             try {
-                // Check API
-                const apiResponse = await fetch(`${BACKEND_URL}/api/health`);
-                const apiStatus = apiResponse.ok;
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
                 
-                // Update API status
-                const apiStatusEl = document.getElementById('apiStatus');
-                const apiStatusText = document.getElementById('apiStatusText');
-                
-                if (apiStatus) {
-                    apiStatusEl.style.background = '#10b981';
-                    apiStatusText.textContent = 'Online';
+                if (response.ok) {
+                    document.getElementById('apiStatus').style.background = '#10b981';
+                    document.getElementById('apiStatusText').textContent = 'Online';
+                    document.getElementById('dbStatus').style.background = data.database === 'connected' ? '#10b981' : '#ef4444';
+                    document.getElementById('dbStatusText').textContent = data.database === 'connected' ? 'Connected' : 'Error';
                 } else {
-                    apiStatusEl.style.background = '#ef4444';
-                    apiStatusText.textContent = 'Offline';
+                    throw new Error('API error');
                 }
-                
-                // Database status
-                const dbStatusEl = document.getElementById('dbStatus');
-                const dbStatusText = document.getElementById('dbStatusText');
-                
-                if (apiStatus) {
-                    dbStatusEl.style.background = '#10b981';
-                    dbStatusText.textContent = 'Connected';
-                } else {
-                    dbStatusEl.style.background = '#ef4444';
-                    dbStatusText.textContent = 'Error';
-                }
-                
             } catch (error) {
-                console.error('Status check error:', error);
                 document.getElementById('apiStatus').style.background = '#ef4444';
                 document.getElementById('apiStatusText').textContent = 'Offline';
             }
         }
         
-        // Update pending count
-        function updatePendingCount(orders) {
-            const pending = orders.filter(o => 
-                o.status === 'pending_payment' || o.status === 'paid' || o.status === 'processing_api'
-            ).length;
+        function refreshCurrentSection() {
+            const activeSection = document.querySelector('[id$="Section"]:not([style*="display: none"])').id;
+            switch(activeSection) {
+                case 'dashboardSection':
+                    loadDashboard();
+                    showToast('Dashboard refreshed', 'success');
+                    break;
+                case 'ordersSection':
+                    loadOrders();
+                    showToast('Orders refreshed', 'success');
+                    break;
+                case 'fulfillmentSection':
+                    loadFulfillment();
+                    showToast('Fulfillment refreshed', 'success');
+                    break;
+                case 'analyticsSection':
+                    loadAnalytics();
+                    showToast('Analytics refreshed', 'success');
+                    break;
+            }
+        }
+        
+        function exportData() {
+            const activeSection = document.querySelector('[id$="Section"]:not([style*="display: none"])').id;
+            let data, filename;
             
-            document.getElementById('pendingCount').textContent = pending;
-        }
-        
-        // Refresh dashboard
-        function refreshDashboard() {
-            loadDashboard();
-            showToast('Dashboard refreshed', 'success');
-        }
-        
-        // Refresh orders
-        function refreshOrders() {
-            loadOrders();
-            showToast('Orders refreshed', 'success');
-        }
-        
-        // Export report
-        function exportReport() {
-            const data = {
-                timestamp: new Date().toISOString(),
-                totalOrders: currentOrders.length,
-                totalRevenue: currentOrders.reduce((sum, o) => sum + (o.amount || 0), 0),
-                totalProfit: currentOrders.reduce((sum, o) => sum + (o.profit || 0), 0),
-                orders: currentOrders
-            };
+            switch(activeSection) {
+                case 'ordersSection':
+                    data = currentOrders;
+                    filename = `orders-export-${Date.now()}.json`;
+                    break;
+                default:
+                    data = {
+                        timestamp: new Date().toISOString(),
+                        totalOrders: currentOrders.length,
+                        stats: {}
+                    };
+                    filename = `export-${Date.now()}.json`;
+            }
             
             const dataStr = JSON.stringify(data, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            const exportName = `mystery-report-${Date.now()}.json`;
             
             const link = document.createElement('a');
             link.setAttribute('href', dataUri);
-            link.setAttribute('download', exportName);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
             
-            showToast('Report exported successfully', 'success');
+            showToast(`Data exported as ${filename}`, 'success');
         }
         
-        // Show toast notification
-        function showToast(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0`;
-            toast.setAttribute('role', 'alert');
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">
-                        ${message}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
-            `;
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
             
-            document.body.appendChild(toast);
-            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
-            bsToast.show();
-            
-            toast.addEventListener('hidden.bs.toast', function () {
-                document.body.removeChild(toast);
-            });
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
         }
         
-        // Show error message
-        function showError(message) {
-            showToast(message, 'error');
+        function showHelp() {
+            showToast('For support, contact: aryeeteyemmanuel852@gmail.com or call 059 206 6298', 'info');
         }
         
-        // ✅ UPDATED Logout function
         function logout() {
             if (confirm('Are you sure you want to log out?')) {
                 localStorage.clear();
@@ -1171,31 +1670,23 @@
             }
         }
         
-        // Load analytics
-        async function loadAnalytics() {
-            // Placeholder for analytics
-            document.getElementById('networkRevenue').innerHTML = `
-                <div class="text-center text-muted">
-                    <i class="bi bi-bar-chart fs-1"></i>
-                    <p>Analytics coming soon</p>
-                </div>
-            `;
-        }
-        
-        // Load bundle stats
-        async function loadBundleStats() {
-            // Placeholder for bundle stats
-            document.getElementById('bundlePerformance').innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                        <i class="bi bi-wifi fs-1"></i>
-                        <p>Bundle statistics coming soon</p>
-                    </td>
-                </tr>
-            `;
-        }
+        // Expose functions to global scope for onclick handlers
+        window.showSection = showSection;
+        window.refreshDashboard = () => { loadDashboard(); showToast('Dashboard refreshed', 'success'); };
+        window.refreshOrders = () => { loadOrders(); showToast('Orders refreshed', 'success'); };
+        window.refreshFulfillment = () => { loadFulfillment(); showToast('Fulfillment refreshed', 'success'); };
+        window.filterOrders = filterOrders;
+        window.searchOrders = searchOrders;
+        window.changePage = changePage;
+        window.viewOrderDetails = viewOrderDetails;
+        window.manualFulfillment = manualFulfillmentOrder;
+        window.testFulfillmentConnection = testFulfillmentConnection;
+        window.manualFulfillmentOrder = manualFulfillmentOrder;
+        window.refreshCurrentSection = refreshCurrentSection;
+        window.exportData = exportData;
+        window.toggleSidebar = toggleSidebar;
+        window.showHelp = showHelp;
+        window.logout = logout;
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
