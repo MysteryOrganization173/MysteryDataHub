@@ -5,218 +5,777 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order - Mystery Bundle Hub</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #10b981;
+            --secondary: #3b82f6;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --success: #10b981;
+            --processing: #3b82f6;
+            --pending: #f59e0b;
+            --failed: #ef4444;
+        }
+        
         body {
-            background: #0f172a;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
             color: white;
             min-height: 100vh;
-            padding-top: 50px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
-        .track-box {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 500px;
-            margin: auto;
-            border: 1px solid #334155;
+        
+        .track-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
+        
+        .track-header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .track-form {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
         .order-card {
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #00ff88;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .order-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .status-delivered { border-left-color: var(--success); }
+        .status-processing { border-left-color: var(--processing); }
+        .status-paid { border-left-color: var(--pending); }
+        .status-pending { border-left-color: #94a3b8; }
+        .status-failed { border-left-color: var(--failed); }
+        
         .status-badge {
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            font-weight: bold;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        .status-delivered { background: #00ff88; color: black; }
-        .status-processing { background: #3498db; color: white; }
-        .status-paid { background: #f39c12; color: black; }
-        .status-pending { background: #95a5a6; color: white; }
-        .status-failed { background: #e74c3c; color: white; }
+        
+        .badge-delivered { 
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.3));
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-processing { 
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.3));
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .badge-paid { 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.3));
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .badge-pending { 
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.15), rgba(148, 163, 184, 0.3));
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+        .badge-failed { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.3));
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .network-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        
+        .mtn-tag { 
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.1));
+            color: #ffcc00;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+        }
+        .airtel-tag { 
+            background: linear-gradient(135deg, rgba(228, 0, 43, 0.2), rgba(228, 0, 43, 0.1));
+            color: #e4002b;
+            border: 1px solid rgba(228, 0, 43, 0.3);
+        }
+        .telecel-tag { 
+            background: linear-gradient(135deg, rgba(0, 161, 224, 0.2), rgba(0, 161, 224, 0.1));
+            color: #00a1e0;
+            border: 1px solid rgba(0, 161, 224, 0.3);
+        }
+        
+        .info-box {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .sync-btn {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .sync-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .status-timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .status-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+        
+        .delivered-item::before { background: var(--success); }
+        .processing-item::before { background: var(--processing); }
+        .paid-item::before { background: var(--pending); }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .track-header, .track-form {
+                padding: 1.5rem;
+            }
+            .order-card {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="track-box">
-            <h2 class="text-center mb-4">Track Your Order</h2>
-            
-            <div class="mb-4">
-                <label>Enter Order ID or Phone Number</label>
-                <input type="text" class="form-control" 
-                       id="trackInput" placeholder="ORD-12345 or 0550123456">
-                <small class="text-muted">Order ID was shown after payment</small>
+    <div class="track-container">
+        <!-- Header -->
+        <div class="track-header text-center">
+            <h1 class="mb-3">📦 Track Your Order</h1>
+            <p class="lead mb-0">Enter your Order ID <strong>OR</strong> Phone Number to check your bundle status</p>
+            <div class="mt-3">
+                <span class="badge bg-success me-2">Real-time Updates</span>
+                <span class="badge bg-info me-2">Auto Sync</span>
+                <span class="badge bg-warning">24/7 Support</span>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <div class="track-form">
+            <div class="input-group input-group-lg mb-3">
+                <input type="text" 
+                       class="form-control bg-dark text-white border-dark" 
+                       id="trackInput" 
+                       placeholder="Enter Order ID (e.g., MYST-1767346581777-7V4VV3L3) OR Phone (e.g., 0244161008)"
+                       autocomplete="off">
+                <button class="btn btn-primary" type="button" onclick="trackOrder()" id="trackBtn">
+                    <i class="bi bi-search me-2"></i>Track Order
+                </button>
             </div>
             
-            <button class="btn btn-success w-100" onclick="trackOrder()">
-                Track Order
-            </button>
-            
-            <div class="mt-4">
-                <a href="index.html" class="text-muted">← Back to Store</a>
+            <div class="info-box">
+                <i class="bi bi-info-circle me-2 text-info"></i>
+                <strong>Quick Tips:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Order ID is shown after payment confirmation</li>
+                    <li>Phone number must be the recipient's number</li>
+                    <li>Orders usually process within 1-5 minutes</li>
+                    <li>Stuck orders? Use the <strong>Sync Now</strong> button</li>
+                </ul>
             </div>
-            
-            <!-- Results will show here -->
-            <div id="trackResult" class="mt-4"></div>
+
+            <div class="row g-2 mt-3">
+                <div class="col-md-6">
+                    <a href="index.html" class="btn btn-outline-light w-100">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Store
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <button class="btn btn-outline-primary w-100" onclick="checkRecentOrders()">
+                        <i class="bi bi-clock-history me-2"></i>Check Recent
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="trackResult"></div>
+
+        <!-- Support Section -->
+        <div class="track-form mt-4">
+            <h4 class="mb-3"><i class="bi bi-headset me-2"></i>Need Help?</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="https://wa.me/233592066298" target="_blank" class="text-decoration-none">
+                        <div class="info-box hover-effect">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="bi bi-whatsapp fs-3" style="color: #25D366;"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">WhatsApp Support</h5>
+                                    <p class="mb-0 text-muted">Instant response, 24/7</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="mailto:aryeeteyemmanuel852@gmail.com" class="text-decoration-none">
+                        <div class="info-box hover-effect">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="bi bi-envelope fs-3 text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">Email Support</h5>
+                                    <p class="mb-0 text-muted">aryeeteyemmanuel852@gmail.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-3 text-center">
+                <small class="text-muted">
+                    <i class="bi bi-telephone me-1"></i>Support Line: 
+                    <a href="tel:+233592066298" class="text-decoration-none">059 206 6298</a>
+                </small>
+            </div>
         </div>
     </div>
 
     <script>
-async function trackOrder() {
-    const input = document.getElementById('trackInput').value.trim();
-    
-    if (!input) {
-        alert('Please enter order ID or phone number');
-        return;
-    }
-    
-    // Show loading
-    document.getElementById('trackResult').innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-success"></div>
-            <p class="mt-2">Searching for order...</p>
-        </div>
-    `;
-    
-    try {
-        // SMART DETECTION: Is it a phone number (starts with 0) or an Order ID?
-        let apiUrl;
-        let isPhoneSearch = false;
-        
-        if (input.startsWith('0')) {
-            // It's a phone number -> use the new search endpoint
-            apiUrl = `https://mysterydatahub-api.onrender.com/api/orders/search/${input}`;
-            isPhoneSearch = true;
-        } else {
-            // It's an Order ID -> use the original endpoint
-            apiUrl = `https://mysterydatahub-api.onrender.com/api/orders/${input}`;
-        }
-        
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-            throw new Error('Order not found');
-        }
-        
-        const result = await response.json();
-        
-        // Handle the response based on the endpoint used
-        if (result.success) {
-            let ordersToDisplay = [];
-            let resultHtml = '';
-            
-            if (isPhoneSearch) {
-                // Phone search returns multiple orders
-                ordersToDisplay = result.orders;
-                resultHtml += `<h5>📞 Found ${result.count} order(s) for ${input}</h5><hr>`;
-            } else {
-                // Order ID search returns a single order
-                ordersToDisplay = [result.order];
+        const API_BASE = 'https://mysterydatahub-api.onrender.com/api';
+        let currentOrderId = null;
+        let syncInterval = null;
+
+        // Format phone number
+        function formatPhone(phone) {
+            if (!phone) return '';
+            if (phone.startsWith('233')) {
+                return '0' + phone.substring(3);
             }
-            
-            // Display each order found
-            ordersToDisplay.forEach(order => {
-                if (!order) return;
-                const statusClass = getStatusClass(order.status);
-                const statusText = getStatusText(order.status);
-                
-                resultHtml += `
-                    <div class="order-card mb-3">
-                        <p><strong>Order ID:</strong> ${order.orderId}</p>
-                        <p><strong>Phone:</strong> ${order.recipientPhone}</p>
-                        <p><strong>Bundle:</strong> ${order.network?.toUpperCase() || ''} ${order.bundleSize || ''}</p>
-                        <p><strong>Amount:</strong> ₵${order.amount?.toFixed(2)}</p>
-                        <p><strong>Status:</strong> 
-                            <span class="status-badge ${statusClass}">${statusText}</span>
-                        </p>
-                        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
-                        ${order.paystackReference ? `<p><small class="text-muted">Ref: ${order.paystackReference}</small></p>` : ''}
-                    </div>
-                `;
-            });
-            
-            document.getElementById('trackResult').innerHTML = resultHtml;
-            
-        } else {
-            throw new Error(result.error || 'Order not found');
+            return phone;
         }
-        
-    } catch (error) {
-        document.getElementById('trackResult').innerHTML = `
-            <div class="alert alert-danger">
-                <h5>❌ Order Not Found</h5>
-                <p>${error.message}</p>
-                <ul>
-                    <li>Check the order ID (e.g., MYST-...)</li>
-                    <li>Ensure phone number is correct (0242836323)</li>
-                    <li>Orders might take 1-2 minutes to appear after payment</li>
-                    <li>Contact support if the issue persists</li>
-                </ul>
-            </div>
-        `;
-    }
-}
-        
-        function getStatusClass(status) {
+
+        // Get status details
+        function getStatusDetails(status) {
             const statusMap = {
-                'delivered': 'status-delivered',
-                'processing': 'status-processing',
-                'processing_api': 'status-processing',
-                'paid': 'status-paid',
-                'pending': 'status-pending',
-                'failed': 'status-failed',
-                'error': 'status-failed'
+                'pending_payment': { 
+                    class: 'pending', 
+                    badge: 'pending', 
+                    text: '⏳ Pending Payment',
+                    message: 'Awaiting payment confirmation',
+                    icon: 'bi-clock'
+                },
+                'paid': { 
+                    class: 'paid', 
+                    badge: 'paid', 
+                    text: '💰 Payment Confirmed',
+                    message: 'Payment verified, processing bundle',
+                    icon: 'bi-check-circle'
+                },
+                'processing': { 
+                    class: 'processing', 
+                    badge: 'processing', 
+                    text: '⚙️ Processing',
+                    message: 'Bundle being processed by provider',
+                    icon: 'bi-gear'
+                },
+                'sent_to_provider': { 
+                    class: 'processing', 
+                    badge: 'processing', 
+                    text: '📤 Sent to Provider',
+                    message: 'Order sent to network provider',
+                    icon: 'bi-send'
+                },
+                'delivered': { 
+                    class: 'delivered', 
+                    badge: 'delivered', 
+                    text: '✅ Bundle Delivered',
+                    message: 'Bundle successfully delivered to phone',
+                    icon: 'bi-check-circle-fill'
+                },
+                'failed': { 
+                    class: 'failed', 
+                    badge: 'failed', 
+                    text: '❌ Failed',
+                    message: 'Order failed. Please contact support',
+                    icon: 'bi-x-circle'
+                },
+                'cancelled': { 
+                    class: 'failed', 
+                    badge: 'failed', 
+                    text: '🚫 Cancelled',
+                    message: 'Order was cancelled',
+                    icon: 'bi-x-octagon'
+                }
             };
-            return statusMap[status] || 'status-pending';
-        }
-        
-        function getStatusText(status) {
-            const textMap = {
-                'delivered': '✅ Delivered',
-                'processing': '⚙️ Processing',
-                'processing_api': '⚙️ Processing API',
-                'paid': '💰 Payment Confirmed',
-                'pending': '⏳ Pending',
-                'failed': '❌ Failed',
-                'error': '❌ Error'
+            
+            return statusMap[status] || { 
+                class: 'pending', 
+                badge: 'pending', 
+                text: status,
+                message: 'Status unknown',
+                icon: 'bi-question-circle'
             };
-            return textMap[status] || status;
         }
-        
-        async function refreshOrder(orderId) {
-            document.getElementById('trackResult').innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border spinner-border-sm text-success"></div>
-                    <p class="mt-2">Refreshing status...</p>
+
+        // Get network tag
+        function getNetworkTag(network) {
+            const networkMap = {
+                'MTN': { class: 'mtn-tag', text: 'MTN' },
+                'mtn': { class: 'mtn-tag', text: 'MTN' },
+                'AirtelTigo': { class: 'airtel-tag', text: 'AirtelTigo' },
+                'at': { class: 'airtel-tag', text: 'AirtelTigo' },
+                'Telecel': { class: 'telecel-tag', text: 'Telecel' },
+                'telecel': { class: 'telecel-tag', text: 'Telecel' }
+            };
+            
+            const tag = networkMap[network] || { class: 'mtn-tag', text: network || 'Unknown' };
+            return `<span class="network-tag ${tag.class}">${tag.text}</span>`;
+        }
+
+        // Show loading
+        function showLoading(message = 'Searching for your order...') {
+            return `
+                <div class="text-center py-5">
+                    <div class="loading mb-3"></div>
+                    <p class="text-muted">${message}</p>
                 </div>
             `;
-            
-            setTimeout(() => {
-                document.getElementById('trackInput').value = orderId;
-                trackOrder();
-            }, 1000);
         }
-        
-        // Allow Enter key to trigger search
-        document.getElementById('trackInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                trackOrder();
+
+        // Show error
+        function showError(message, details = '') {
+            return `
+                <div class="alert alert-danger">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                        <div>
+                            <h5 class="mb-1">Order Not Found</h5>
+                            <p class="mb-1">${message}</p>
+                            ${details ? `<small class="d-block mt-2">${details}</small>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render order card
+        function renderOrderCard(order, index = 0, total = 1) {
+            const status = getStatusDetails(order.status);
+            const networkTag = getNetworkTag(order.network);
+            const phone = formatPhone(order.recipientPhone);
+            const createdAt = new Date(order.createdAt).toLocaleString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const updatedAt = new Date(order.updatedAt).toLocaleString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Status timeline
+            let timelineHtml = '';
+            if (order.statusHistory && order.statusHistory.length > 0) {
+                timelineHtml = `
+                    <div class="status-timeline mt-3">
+                        <small class="text-muted d-block mb-2">Order Timeline:</small>
+                        ${order.statusHistory.slice(-5).reverse().map(item => {
+                            const itemStatus = getStatusDetails(item.status);
+                            const time = new Date(item.timestamp).toLocaleTimeString('en-GB', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+                            return `
+                                <div class="timeline-item ${itemStatus.class}-item">
+                                    <small class="text-muted">${time}</small>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi ${itemStatus.icon} me-2"></i>
+                                        <span>${itemStatus.text}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
             }
-        });
-        
-        // Check if there's a reference in URL
+            
+            // Sync button for processing orders
+            const syncButton = (order.status === 'processing' || order.status === 'sent_to_provider') ? `
+                <button class="sync-btn mt-2" onclick="syncOrder('${order.orderId}')" id="syncBtn-${order.orderId}">
+                    <i class="bi bi-arrow-repeat me-1"></i>Sync Now
+                </button>
+            ` : '';
+            
+            // Auto-refresh for processing orders
+            if ((order.status === 'processing' || order.status === 'sent_to_provider') && !syncInterval) {
+                setTimeout(() => {
+                    if (document.getElementById(`syncBtn-${order.orderId}`)) {
+                        syncOrder(order.orderId);
+                    }
+                }, 30000); // Auto-sync after 30 seconds
+            }
+            
+            return `
+                <div class="order-card status-${status.class}">
+                    ${total > 1 ? `<small class="text-muted mb-2 d-block">Order ${index + 1} of ${total}</small>` : ''}
+                    
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="mb-1">${order.orderId}</h5>
+                            <small class="text-muted">Ordered: ${createdAt}</small>
+                        </div>
+                        <span class="status-badge badge-${status.badge}">
+                            <i class="bi ${status.icon} me-1"></i>${status.text}
+                        </span>
+                    </div>
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted d-block">Phone Number</small>
+                            <strong class="fs-5">${phone}</strong>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted d-block">Bundle</small>
+                            <div class="d-flex align-items-center">
+                                ${networkTag}
+                                <strong class="ms-2">${order.bundleSize || 'N/A'}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted d-block">Amount</small>
+                            <strong class="text-success fs-5">₵${order.amount?.toFixed(2) || '0'}</strong>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted d-block">Last Updated</small>
+                            <small>${updatedAt}</small>
+                        </div>
+                    </div>
+                    
+                    ${order.apiReference ? `
+                        <div class="mb-2">
+                            <small class="text-muted">Provider Reference:</small>
+                            <code class="ms-2">${order.apiReference}</code>
+                        </div>
+                    ` : ''}
+                    
+                    ${order.paystackReference ? `
+                        <div class="mb-3">
+                            <small class="text-muted">Payment Reference:</small>
+                            <code class="ms-2">${order.paystackReference}</code>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="alert alert-${status.class === 'delivered' ? 'success' : status.class === 'failed' ? 'danger' : 'info'}">
+                        <div class="d-flex align-items-center">
+                            <i class="bi ${status.icon} me-2"></i>
+                            <div>
+                                <strong>${status.message}</strong>
+                                ${order.status === 'delivered' ? `
+                                    <div class="mt-1">
+                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                        Your ${order.bundleSize} bundle has been delivered to ${phone}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${syncButton}
+                    ${timelineHtml}
+                </div>
+            `;
+        }
+
+        // Sync order with provider
+        async function syncOrder(orderId) {
+            const syncBtn = document.getElementById(`syncBtn-${orderId}`);
+            if (syncBtn) {
+                syncBtn.innerHTML = '<span class="loading"></span> Syncing...';
+                syncBtn.disabled = true;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}/sync`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success message
+                    if (syncBtn) {
+                        syncBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Synced';
+                        setTimeout(() => {
+                            syncBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Sync Again';
+                            syncBtn.disabled = false;
+                        }, 2000);
+                    }
+                    
+                    // Refresh the order display
+                    setTimeout(() => trackOrderById(orderId), 1000);
+                    
+                } else {
+                    throw new Error(result.error || 'Sync failed');
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                if (syncBtn) {
+                    syncBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i>Sync Failed';
+                    syncBtn.disabled = false;
+                }
+            }
+        }
+
+        // Track by order ID
+        async function trackOrderById(orderId) {
+            document.getElementById('trackResult').innerHTML = showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}?sync=true`);
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Order not found');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('trackResult').innerHTML = renderOrderCard(result.order);
+                    currentOrderId = orderId;
+                } else {
+                    throw new Error(result.error || 'Failed to fetch order');
+                }
+            } catch (error) {
+                document.getElementById('trackResult').innerHTML = showError(
+                    error.message,
+                    'Please check the Order ID and try again.'
+                );
+            }
+        }
+
+        // Track by phone
+        async function trackOrderByPhone(phone) {
+            document.getElementById('trackResult').innerHTML = showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/search/${phone}`);
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Search failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.orders.length > 0) {
+                    let html = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-phone me-2"></i>
+                            Found ${result.count} order(s) for ${formatPhone(phone)}
+                            ${result.syncedOrders > 0 ? `<span class="ms-2 text-success">(${result.syncedOrders} synced)</span>` : ''}
+                        </div>
+                    `;
+                    
+                    result.orders.forEach((order, index) => {
+                        html += renderOrderCard(order, index, result.orders.length);
+                    });
+                    
+                    document.getElementById('trackResult').innerHTML = html;
+                } else {
+                    throw new Error('No orders found for this phone number');
+                }
+            } catch (error) {
+                document.getElementById('trackResult').innerHTML = showError(
+                    error.message,
+                    'Try using your Order ID instead, or contact support.'
+                );
+            }
+        }
+
+        // Main track function
+        async function trackOrder() {
+            const input = document.getElementById('trackInput').value.trim();
+            const trackBtn = document.getElementById('trackBtn');
+            
+            if (!input) {
+                document.getElementById('trackResult').innerHTML = showError(
+                    'Please enter an Order ID or Phone Number',
+                    'Example Order ID: MYST-1767346581777-7V4VV3L3<br>Example Phone: 0244161008'
+                );
+                return;
+            }
+            
+            // Save button state
+            const originalText = trackBtn.innerHTML;
+            trackBtn.innerHTML = '<span class="loading"></span> Tracking...';
+            trackBtn.disabled = true;
+            
+            // Detect if input is phone number
+            const phoneRegex = /^(0[2-9][0-9]{8}|233[2-9][0-9]{8})$/;
+            
+            if (phoneRegex.test(input)) {
+                await trackOrderByPhone(input);
+            } else if (input.startsWith('MYST-') || input.length > 10) {
+                await trackOrderById(input);
+            } else {
+                document.getElementById('trackResult').innerHTML = showError(
+                    'Invalid input format',
+                    'Please enter a valid Order ID (starts with MYST-) or Ghana phone number (10 digits)'
+                );
+            }
+            
+            // Restore button
+            trackBtn.innerHTML = originalText;
+            trackBtn.disabled = false;
+        }
+
+        // Check recent orders from localStorage
+        async function checkRecentOrders() {
+            const recentPhone = localStorage.getItem('lastOrderPhone');
+            if (recentPhone) {
+                document.getElementById('trackInput').value = recentPhone;
+                await trackOrderByPhone(recentPhone);
+            } else {
+                document.getElementById('trackResult').innerHTML = showError(
+                    'No recent orders found',
+                    'Please enter your phone number or Order ID manually'
+                );
+            }
+        }
+
+        // Auto-track from URL
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const orderId = urlParams.get('orderId') || urlParams.get('ref');
+            const orderId = urlParams.get('orderId') || urlParams.get('ref') || urlParams.get('order');
+            
             if (orderId) {
                 document.getElementById('trackInput').value = orderId;
                 setTimeout(() => trackOrder(), 500);
             }
+            
+            // Enter key support
+            document.getElementById('trackInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    trackOrder();
+                }
+            });
+            
+            // Focus input
+            document.getElementById('trackInput').focus();
         });
     </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
