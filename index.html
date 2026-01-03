@@ -444,7 +444,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
         
-        /* FIXED: Form input styles for better visibility */
+        /* Form input styles */
         .form-control {
             background: rgba(255,255,255,0.08) !important;
             border: 1px solid rgba(255,255,255,0.15) !important;
@@ -461,28 +461,23 @@
             color: #ffffff !important;
         }
         
-        /* Fix placeholder text color */
         .form-control::placeholder {
             color: rgba(255, 255, 255, 0.5) !important;
         }
         
-        /* Fix autofill background in Chrome */
-        .form-control:-webkit-autofill,
-        .form-control:-webkit-autofill:hover,
-        .form-control:-webkit-autofill:focus,
-        .form-control:-webkit-autofill:active {
-            -webkit-text-fill-color: #ffffff !important;
-            -webkit-box-shadow: 0 0 0px 1000px rgba(30, 41, 59, 0.8) inset !important;
-            transition: background-color 5000s ease-in-out 0s;
-            border-color: var(--accent-green) !important;
+        /* Working Hours Styling - Discreet */
+        .working-hours {
+            color: #6b7280 !important;
+            font-size: 0.75rem !important;
+            opacity: 0.7;
+            font-style: italic;
+            margin-top: 0.5rem;
+            padding: 0.25rem;
+            border-top: 1px dashed rgba(255,255,255,0.1);
         }
         
-        /* Fix for Firefox */
-        .form-control:-moz-autofill,
-        .form-control:-moz-autofill:hover,
-        .form-control:-moz-autofill:focus {
-            background-color: rgba(30, 41, 59, 0.8) !important;
-            color: #ffffff !important;
+        .working-hours:hover {
+            opacity: 1;
         }
         
         /* Loading Spinner */
@@ -498,6 +493,26 @@
         
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 576px) {
+            .hero-section .display-6 {
+                font-size: 1.75rem;
+            }
+            
+            .bundle-size {
+                font-size: 1.75rem;
+            }
+            
+            .bundle-price {
+                font-size: 1.75rem;
+            }
+            
+            .info-badge {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
@@ -654,6 +669,14 @@
             <p class="text-center footer-text mb-0">
                 © 2026 Mystery Bundle Hub • All rights reserved • Fastest data delivery in Ghana
             </p>
+            
+            <!-- DISCREET WORKING HOURS SECTION - For legal protection -->
+            <div class="text-center mt-2">
+                <div class="working-hours">
+                    <i class="bi bi-clock-history me-1"></i>
+                    Service Operating Hours: Monday - Sunday, 7:30 AM - 10:00 PM
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -672,7 +695,7 @@
                         <!-- Bundle info will be loaded here -->
                     </div>
                     
-                    <!-- Customer Form - FIXED: Better input visibility -->
+                    <!-- Customer Form -->
                     <div class="mb-3">
                         <label class="form-label text-white">Email Address</label>
                         <input type="email" id="emailInput" class="form-control" 
@@ -847,6 +870,21 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             displayBundles('all');
+            
+            // Set today's date for reference
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const isWithinWorkingHours = currentHour >= 7 && currentHour < 22;
+            const isWeekend = currentDay === 0 || currentDay === 6;
+            
+            // You can use this information for internal logic if needed
+            console.log('Current operating status:', {
+                isWithinWorkingHours,
+                currentHour,
+                currentDay,
+                isWeekend
+            });
         });
 
         // Display bundles with filtering
@@ -990,6 +1028,8 @@
             
             document.getElementById('modalPrice').textContent = `₵${selectedBundle.price.toFixed(2)}`;
             document.getElementById('paymentStatus').innerHTML = '';
+            
+            // Clear previous inputs
             document.getElementById('phoneInput').value = '';
             document.getElementById('emailInput').value = '';
             
