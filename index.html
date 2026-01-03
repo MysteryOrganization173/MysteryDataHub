@@ -444,18 +444,45 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
         
+        /* FIXED: Form input styles for better visibility */
         .form-control {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #ffffff;
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            color: #ffffff !important;
             border-radius: 10px;
             padding: 0.8rem 1rem;
+            transition: all 0.3s ease;
         }
         
         .form-control:focus {
-            background: rgba(255,255,255,0.08);
-            border-color: var(--accent-green);
-            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15);
+            background: rgba(255,255,255,0.12) !important;
+            border-color: var(--accent-green) !important;
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.25) !important;
+            color: #ffffff !important;
+        }
+        
+        /* Fix placeholder text color */
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        /* Fix autofill background in Chrome */
+        .form-control:-webkit-autofill,
+        .form-control:-webkit-autofill:hover,
+        .form-control:-webkit-autofill:focus,
+        .form-control:-webkit-autofill:active {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(30, 41, 59, 0.8) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
+            border-color: var(--accent-green) !important;
+        }
+        
+        /* Fix for Firefox */
+        .form-control:-moz-autofill,
+        .form-control:-moz-autofill:hover,
+        .form-control:-moz-autofill:focus {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            color: #ffffff !important;
         }
         
         /* Loading Spinner */
@@ -645,7 +672,7 @@
                         <!-- Bundle info will be loaded here -->
                     </div>
                     
-                    <!-- Customer Form -->
+                    <!-- Customer Form - FIXED: Better input visibility -->
                     <div class="mb-3">
                         <label class="form-label text-white">Email Address</label>
                         <input type="email" id="emailInput" class="form-control" 
