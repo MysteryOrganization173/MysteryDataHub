@@ -9,6 +9,7 @@
 // 5. MongoDB database
 // 6. Webhook handling for both PayStack and Success Biz Hub
 // 7. CORS for custom domain
+// 8. FIXED STATUS UPDATE ISSUE WITH BETTER WEBHOOK HANDLING
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -911,52 +912,238 @@ app.post('/api/paystack-webhook', express.json(), async (req, res) => {
     }
 });
 
-// ========== SUCCESS BIZ HUB WEBHOOK ==========
+// ========== SUCCESS BIZ HUB WEBHOOK - FIXED VERSION ==========
 app.post('/api/successbizhub-webhook', express.json(), async (req, res) => {
-    console.log('📩 Success Biz Hub Webhook:', req.body);
+    console.log('📩 Success Biz Hub Webhook:', JSON.stringify(req.body, null, 2));
     
-    const { event, orderId, reference, status } = req.body;
+    const webhookData = req.body;
     
     // Immediately respond to prevent retries
     res.status(200).send('OK');
     
     try {
-        const order = await Order.findOne({
-            $or: [
-                { apiReference: reference },
-                { apiOrderId: orderId }
-            ]
-        });
-
+        // Try multiple ways to find the order
+        let order = null;
+        
+        // Method 1: Search by reference
+        if (webhookData.reference) {
+            order = await Order.findOne({ apiReference: webhookData.reference });
+            console.log(`🔍 Searching by reference: ${webhookData.reference} - Found: ${order ? 'YES' : 'NO'}`);
+        }
+        
+        // Method 2: Search by order ID from provider
+        if (!order && webhookData.orderId) {
+            order = await Order.findOne({ apiOrderId: webhookData.orderId });
+            console.log(`🔍 Searching by provider orderId: ${webhookData.orderId} - Found: ${order ? 'YES' : 'NO'}`);
+        }
+        
+        // Method 3: If phone is provided, find the most recent order for that phone
+        if (!order && webhookData.phone) {
+            // Convert phone to local format if needed
+            let searchPhone = webhookData.phone;
+            if (searchPhone.startsWith('233')) {
+                searchPhone = '0' + searchPhone.substring(3);
+            }
+            
+            const orders = await Order.find({ recipientPhone: searchPhone })
+                .sort({ createdAt: -1 })
+                .limit(1);
+            
+            if (orders.length > 0) {
+                order = orders[0];
+                console.log(`🔍 Searching by phone: ${searchPhone} - Found: ${order ? 'YES' : 'NO'}`);
+            }
+        }
+        
         if (order) {
-            // Map provider status to your system
+            // Enhanced status mapping with better logging
             const statusMap = {
                 'completed': 'delivered',
-                'failed': 'failed',
+                'delivered': 'delivered',
+                'success': 'delivered',
+                'successful': 'delivered',
+                'fulfilled': 'delivered',
                 'processing': 'processing',
-                'pending': 'processing'
+                'pending': 'processing',
+                'sent': 'processing',
+                'in progress': 'processing',
+                'failed': 'failed',
+                'failure': 'failed',
+                'error': 'failed',
+                'cancelled': 'cancelled',
+                'refunded': 'cancelled'
             };
             
-            const newStatus = statusMap[status] || status;
+            // Get provider status (convert to lowercase)
+            const providerStatus = (webhookData.status || '').toLowerCase();
+            let newStatus = order.status;
             
-            // Only update if status changed
-            if (order.status !== newStatus) {
-                order.status = newStatus;
-                order.updatedAt = new Date();
-                await order.save();
-                
-                console.log(`🔄 Order ${order.orderId} updated from ${order.status} to: ${newStatus} (Provider: ${status})`);
-                
-                // If delivered, log success
-                if (newStatus === 'delivered') {
-                    console.log(`🎉 Bundle delivered to ${order.recipientPhone}! Order: ${order.orderId}`);
+            // Check if we should update status
+            if (providerStatus && statusMap[providerStatus]) {
+                newStatus = statusMap[providerStatus];
+            } else if (providerStatus) {
+                console.log(`⚠️ Unknown provider status: ${providerStatus}`);
+                // If provider says delivered but with different wording
+                if (providerStatus.includes('deliver') || providerStatus.includes('complete')) {
+                    newStatus = 'delivered';
                 }
             }
+            
+            // Check if status actually changed
+            if (order.status !== newStatus) {
+                console.log(`🔄 Updating order ${order.orderId} from ${order.status} to ${newStatus} (Provider: ${providerStatus})`);
+                
+                order.status = newStatus;
+                order.updatedAt = new Date();
+                
+                // Save provider response for debugging
+                if (!order.metadata) order.metadata = {};
+                order.metadata.lastWebhook = {
+                    data: webhookData,
+                    receivedAt: new Date(),
+                    providerStatus: providerStatus
+                };
+                
+                await order.save();
+                
+                // Log delivery celebration
+                if (newStatus === 'delivered') {
+                    console.log(`🎉🎉🎉 BUNDLE DELIVERED! Order: ${order.orderId}, Phone: ${order.recipientPhone}, Bundle: ${order.bundleSize}`);
+                    console.log(`⏰ Delivery time: ${new Date().toLocaleString()}`);
+                }
+            } else {
+                console.log(`ℹ️ Order ${order.orderId} already has status: ${order.status}, no update needed`);
+            }
+            
         } else {
-            console.log(`⚠️ Webhook received for unknown order. Ref: ${reference}, Provider Order: ${orderId}`);
+            console.log(`⚠️ Webhook received for unknown order. Data:`, {
+                reference: webhookData.reference,
+                orderId: webhookData.orderId,
+                phone: webhookData.phone,
+                status: webhookData.status
+            });
+            
+            // Save orphan webhook for later investigation
+            try {
+                const OrphanWebhook = mongoose.model('OrphanWebhook', new mongoose.Schema({
+                    data: Object,
+                    receivedAt: { type: Date, default: Date.now }
+                }));
+                
+                await new OrphanWebhook({ 
+                    data: webhookData 
+                }).save();
+                
+                console.log('📝 Saved orphan webhook for investigation');
+            } catch (saveError) {
+                console.error('Failed to save orphan webhook:', saveError);
+            }
         }
     } catch (error) {
         console.error('❌ Success Biz Hub webhook error:', error);
+        console.error('Error details:', error.stack);
+    }
+});
+
+// ========== NEW SYNC ENDPOINT FOR MANUAL STATUS CHECK ==========
+app.get('/api/orders/:orderId/sync', async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        
+        const order = await Order.findOne({ orderId });
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                error: 'Order not found'
+            });
+        }
+        
+        if (!order.apiReference) {
+            return res.status(400).json({
+                success: false,
+                error: 'No provider reference available for sync'
+            });
+        }
+        
+        console.log(`🔄 Manual sync requested for order: ${orderId}`);
+        
+        // Try to check status with provider
+        try {
+            const response = await axios.get(
+                `${SUCCESSBIZHUB_BASE_URL}/order/status/${order.apiReference}`,
+                {
+                    headers: {
+                        'x-api-key': SUCCESSBIZHUB_API_KEY
+                    },
+                    timeout: 15000
+                }
+            );
+            
+            if (response.data && response.data.status) {
+                // Process the status update similar to webhook
+                const statusMap = {
+                    'completed': 'delivered',
+                    'delivered': 'delivered',
+                    'success': 'delivered',
+                    'processing': 'processing',
+                    'failed': 'failed'
+                };
+                
+                const providerStatus = response.data.status.toLowerCase();
+                let newStatus = order.status;
+                
+                if (statusMap[providerStatus]) {
+                    newStatus = statusMap[providerStatus];
+                }
+                
+                if (order.status !== newStatus) {
+                    order.status = newStatus;
+                    order.updatedAt = new Date();
+                    await order.save();
+                    
+                    console.log(`✅ Sync updated order ${orderId} to: ${newStatus}`);
+                }
+                
+                res.json({
+                    success: true,
+                    message: 'Order synchronized',
+                    order: {
+                        orderId: order.orderId,
+                        status: order.status,
+                        providerStatus: providerStatus,
+                        apiReference: order.apiReference
+                    },
+                    providerResponse: response.data
+                });
+            } else {
+                res.json({
+                    success: false,
+                    message: 'No status information from provider',
+                    order: {
+                        orderId: order.orderId,
+                        status: order.status
+                    }
+                });
+            }
+            
+        } catch (apiError) {
+            console.error('Provider API error during sync:', apiError.message);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to sync with provider: ' + apiError.message,
+                order: {
+                    orderId: order.orderId,
+                    status: order.status
+                }
+            });
+        }
+        
+    } catch (error) {
+        console.error('Sync endpoint error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Sync failed: ' + error.message
+        });
     }
 });
 
@@ -990,6 +1177,7 @@ app.use('*', (req, res) => {
             'POST /api/admin/login',
             'POST /api/orders/create',
             'GET  /api/orders/:orderId',
+            'GET  /api/orders/:orderId/sync',
             'GET  /api/orders/search/:phone',
             'GET  /api/admin/orders',
             'GET  /api/admin/stats',
@@ -1006,6 +1194,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔══════════════════════════════════════════════════════╗
 ║       MYSTERY BUNDLE HUB API - PRODUCTION v4.1      ║
+║            WITH FIXED WEBHOOK HANDLING              ║
 ╚══════════════════════════════════════════════════════╝
     
 ✅ Server running on port: ${PORT}
@@ -1019,6 +1208,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 🗄️ Database: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'}
 💰 PayStack: ${PAYSTACK_PUBLIC_KEY ? 'Configured' : 'NOT CONFIGURED'}
 🚚 Success Biz Hub: ${SUCCESSBIZHUB_API_KEY ? 'Fulfillment Ready' : 'NOT CONFIGURED'}
+🔄 Manual Sync: Available at /api/orders/:orderId/sync
     
 🚀 Ready to accept and fulfill orders!
     `);
