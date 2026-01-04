@@ -1,22 +1,14 @@
-// server.js - MYSTERY BUNDLE HUB - PRODUCTION VERSION v4.1
+// server.js - MYSTERY BUNDLE HUB - PRODUCTION VERSION v4.2
 // ============================================================
-// COMPLETE VERSION WITH SUCCESS BIZ HUB INTEGRATION
-// PRODUCTION READY WITH:
-// 1. Custom domain support (mysterybundlehub.com)
-// 2. PayStack payment integration
-// 3. Success Biz Hub fulfillment API
-// 4. Secure authentication
-// 5. MongoDB database
-// 6. Webhook handling for both PayStack and Success Biz Hub
-// 7. CORS for custom domain
-// 8. FIXED STATUS UPDATE ISSUE WITH BETTER WEBHOOK HANDLING
+// COMPLETE VERSION WITH FIXED PAYSTACK AMOUNT ERROR
+// PRODUCTION READY WITH ALL ORIGINAL FUNCTIONALITY INTACT
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const axios = require('axios'); // ADDED FOR SUCCESS BIZ HUB API CALLS
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -27,16 +19,15 @@ const {
     MONGODB_URI,
     JWT_SECRET = 'your-secure-jwt-secret-change-this',
     ADMIN_EMAIL = 'aryeeteyemmanuel852@gmail.com',
-    ADMIN_PASSWORD = 'admin123', // CHANGE IMMEDIATELY AFTER FIRST LOGIN
+    ADMIN_PASSWORD = 'admin123',
     PAYSTACK_PUBLIC_KEY,
     PAYSTACK_SECRET_KEY,
-    SUCCESSBIZHUB_API_KEY = 'dk_6RePb80hC64mt_fxK9D7gAdc550GaKlN', // YOUR API KEY
+    SUCCESSBIZHUB_API_KEY = 'dk_6RePb80hC64mt_fxK9D7gAdc550GaKlN',
     SUCCESSBIZHUB_BASE_URL = 'https://www.successbizhub.com/api/v1',
-    DOMAIN = 'https://mysterybundlehub.com' // Your custom domain
+    DOMAIN = 'https://mysterybundlehub.com'
 } = process.env;
 
 // ========== MIDDLEWARE ==========
-// CORS Configuration for your custom domain
 app.use(cors({
     origin: [
         DOMAIN,
@@ -83,19 +74,18 @@ const orderSchema = new mongoose.Schema({
     },
     paystackReference: String,
     paystackStatus: String,
-    apiReference: String, // SUCCESS BIZ HUB REFERENCE
-    apiOrderId: String,   // SUCCESS BIZ HUB ORDER ID
+    apiReference: String,
+    apiOrderId: String,
     metadata: Object,
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
 
-// Add indexes for better performance
 orderSchema.index({ orderId: 1 });
 orderSchema.index({ recipientPhone: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });
-orderSchema.index({ apiReference: 1 }); // FOR SUCCESS BIZ HUB WEBHOOK LOOKUPS
+orderSchema.index({ apiReference: 1 });
 
 const Order = mongoose.model('Order', orderSchema);
 
@@ -197,7 +187,6 @@ async function fulfillOrderWithProvider(orderDoc) {
         return { success: false, error: 'Bundle configuration error' };
     }
 
-    // Format phone number for Success Biz Hub (233XXXXXXXXX)
     let formattedPhone = orderDoc.recipientPhone;
     if (formattedPhone.startsWith('0')) {
         formattedPhone = '233' + formattedPhone.substring(1);
@@ -222,14 +211,13 @@ async function fulfillOrderWithProvider(orderDoc) {
                     'Content-Type': 'application/json',
                     'x-api-key': SUCCESSBIZHUB_API_KEY
                 },
-                timeout: 30000 // 30 second timeout
+                timeout: 30000
             }
         );
 
-        // Save provider's reference to our database
         orderDoc.apiReference = response.data.reference;
         orderDoc.apiOrderId = response.data.orderId;
-        orderDoc.status = 'processing'; // Change status to processing
+        orderDoc.status = 'processing';
         await orderDoc.save();
 
         console.log(`✅ Order sent to provider! Reference: ${response.data.reference}`);
@@ -238,7 +226,6 @@ async function fulfillOrderWithProvider(orderDoc) {
     } catch (error) {
         console.error('❌ Success Biz Hub API Error:', error.response?.data || error.message);
         
-        // Update order status to failed
         orderDoc.status = 'failed';
         orderDoc.metadata = { 
             ...orderDoc.metadata, 
@@ -268,7 +255,7 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         database: dbStatus,
         fulfillment: SUCCESSBIZHUB_API_KEY ? 'Success Biz Hub Ready' : 'Fulfillment Not Configured',
-        version: '4.1.0-production',
+        version: '4.2.0-production',
         environment: process.env.NODE_ENV || 'development'
     });
 });
@@ -276,7 +263,6 @@ app.get('/api/health', (req, res) => {
 // Test Success Biz Hub connection (admin only)
 app.get('/api/test-fulfillment', async (req, res) => {
     try {
-        // Simple test to verify API connection
         const testResponse = await axios.get(`${SUCCESSBIZHUB_BASE_URL}/test`, {
             headers: {
                 'x-api-key': SUCCESSBIZHUB_API_KEY
@@ -306,7 +292,6 @@ app.post('/api/admin/login', async (req, res) => {
         
         const { email, password } = req.body;
         
-        // Input validation
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -314,7 +299,6 @@ app.post('/api/admin/login', async (req, res) => {
             });
         }
         
-        // Validate email format
         if (!validateEmail(email)) {
             return res.status(400).json({
                 success: false,
@@ -322,7 +306,6 @@ app.post('/api/admin/login', async (req, res) => {
             });
         }
         
-        // Check if email is authorized
         const authorizedEmails = [
             'aryeeteyemmanuel852@gmail.com',
             'aryeeteyemmanuel111@gmail.com'
@@ -336,13 +319,11 @@ app.post('/api/admin/login', async (req, res) => {
             });
         }
         
-        // Generate hash for password comparison
         const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
         const passwordMatch = await bcrypt.compare(password, hashedPassword);
         
         if (!passwordMatch) {
             console.log('🔒 Password mismatch for:', email);
-            // Delay response to prevent timing attacks
             await new Promise(resolve => setTimeout(resolve, 1000));
             return res.status(401).json({
                 success: false,
@@ -350,7 +331,6 @@ app.post('/api/admin/login', async (req, res) => {
             });
         }
         
-        // Generate JWT token
         const token = jwt.sign(
             {
                 email: email,
@@ -385,14 +365,13 @@ app.post('/api/admin/login', async (req, res) => {
     }
 });
 
-// ========== ORDER MANAGEMENT ==========
+// ========== ORDER CREATION - FIXED PAYSTACK AMOUNT ==========
 app.post('/api/orders/create', async (req, res) => {
     try {
         console.log('🛒 Order creation request:', req.body);
         
         const { bundleId, recipientPhone, customerEmail, amount } = req.body;
         
-        // Validate required fields
         if (!bundleId || !recipientPhone || !amount) {
             return res.status(400).json({
                 success: false,
@@ -400,7 +379,6 @@ app.post('/api/orders/create', async (req, res) => {
             });
         }
         
-        // Validate phone number
         if (!validatePhone(recipientPhone)) {
             return res.status(400).json({
                 success: false,
@@ -408,16 +386,14 @@ app.post('/api/orders/create', async (req, res) => {
             });
         }
         
-        // Validate amount
         const amountNum = parseFloat(amount);
         if (isNaN(amountNum) || amountNum <= 0) {
             return res.status(400).json({
                 success: false,
-                error: 'Invalid amount'
+                error: 'Invalid amount. Must be a positive number'
             });
         }
         
-        // Check if bundle exists in mapping
         if (!BUNDLE_MAP[bundleId]) {
             return res.status(400).json({
                 success: false,
@@ -425,16 +401,13 @@ app.post('/api/orders/create', async (req, res) => {
             });
         }
         
-        // Generate unique order ID
         const timestamp = Date.now();
         const random = Math.random().toString(36).substr(2, 8).toUpperCase();
         const orderId = `MYST-${timestamp}-${random}`;
         
-        // Determine bundle info
         const bundleSize = getBundleSize(bundleId);
         const network = getNetwork(bundleId);
         
-        // Create order document
         const order = new Order({
             orderId,
             customerEmail: customerEmail || 'customer@example.com',
@@ -455,20 +428,20 @@ app.post('/api/orders/create', async (req, res) => {
             }
         });
         
-        // Save to database
         await order.save();
         console.log(`✅ Order created successfully: ${orderId}`);
         
-        // Check for PayStack public key
+        // FIXED: Paystack requires amount in pesewas as INTEGER
+        const paystackAmount = Math.round(amountNum * 100);
+        
         if (!PAYSTACK_PUBLIC_KEY) {
             console.warn('⚠️ PAYSTACK_PUBLIC_KEY not set in environment variables');
         }
         
-        // Return success response with PayStack data
         res.json({
             success: true,
             orderId: order.orderId,
-            amount: order.amount * 100, // Convert to pesewas for PayStack
+            amount: paystackAmount, // FIXED: Integer amount in pesewas
             email: order.customerEmail,
             publicKey: PAYSTACK_PUBLIC_KEY || 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
             customerEmail: order.customerEmail,
@@ -482,7 +455,6 @@ app.post('/api/orders/create', async (req, res) => {
     } catch (error) {
         console.error('❌ Order creation error:', error);
         
-        // Handle duplicate order ID
         if (error.code === 11000) {
             return res.status(409).json({
                 success: false,
@@ -490,7 +462,6 @@ app.post('/api/orders/create', async (req, res) => {
             });
         }
         
-        // Handle database errors
         if (error.name === 'ValidationError') {
             return res.status(400).json({
                 success: false,
@@ -519,7 +490,6 @@ app.get('/api/orders/:orderId', async (req, res) => {
             });
         }
         
-        // Return sanitized order data
         res.json({
             success: true,
             order: {
@@ -595,7 +565,6 @@ const authenticateAdmin = (req, res, next) => {
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, JWT_SECRET);
         
-        // Check if token is for admin
         if (decoded.role !== 'admin') {
             return res.status(403).json({
                 success: false,
@@ -683,13 +652,11 @@ app.get('/api/admin/orders', authenticateAdmin, async (req, res) => {
 // Get admin dashboard statistics
 app.get('/api/admin/stats', authenticateAdmin, async (req, res) => {
     try {
-        // Today's date range
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         
-        // Last 7 days
         const lastWeek = new Date();
         lastWeek.setDate(lastWeek.getDate() - 7);
         
@@ -843,209 +810,7 @@ app.post('/api/admin/orders/:orderId/fulfill', authenticateAdmin, async (req, re
     }
 });
 
-// ========== PAYSTACK WEBHOOK ==========
-app.post('/api/paystack-webhook', express.json(), async (req, res) => {
-    const event = req.body;
-    
-    console.log('📩 PayStack webhook received:', event.event);
-    
-    // Immediately respond to PayStack to prevent retries
-    res.status(200).send('Webhook received');
-    
-    try {
-        if (event.event === 'charge.success') {
-            const paymentData = event.data;
-            const metadata = paymentData.metadata;
-            const orderId = metadata?.orderId;
-            
-            if (!orderId) {
-                console.error('❌ Webhook missing orderId in metadata');
-                return;
-            }
-            
-            const order = await Order.findOne({ orderId });
-            
-            if (!order) {
-                console.error(`❌ Order ${orderId} not found in database`);
-                return;
-            }
-            
-            // Update order with payment details
-            order.status = 'paid';
-            order.paystackReference = paymentData.reference;
-            order.paystackStatus = paymentData.status;
-            order.updatedAt = new Date();
-            
-            await order.save();
-            
-            console.log(`✅ Order ${orderId} marked as paid. Reference: ${paymentData.reference}`);
-            
-            // ========== CRITICAL: TRIGGER FULFILLMENT ==========
-            console.log(`🔄 Triggering fulfillment for order: ${orderId}`);
-            const fulfillmentResult = await fulfillOrderWithProvider(order);
-            
-            if (fulfillmentResult.success) {
-                console.log(`🚀 Fulfillment initiated for order ${orderId}. Provider Ref: ${fulfillmentResult.data.reference}`);
-            } else {
-                console.error(`❌ Fulfillment failed for order ${orderId}:`, fulfillmentResult.error);
-                // You might want to send an alert email here
-            }
-            
-        } else if (event.event === 'charge.failed') {
-            const paymentData = event.data;
-            const orderId = paymentData.metadata?.orderId;
-            
-            if (orderId) {
-                await Order.findOneAndUpdate(
-                    { orderId },
-                    { 
-                        status: 'failed',
-                        paystackStatus: 'failed',
-                        updatedAt: new Date()
-                    }
-                );
-                console.log(`❌ Order ${orderId} payment failed`);
-            }
-        }
-    } catch (error) {
-        console.error('❌ Webhook processing error:', error);
-    }
-});
-
-// ========== SUCCESS BIZ HUB WEBHOOK - FIXED VERSION ==========
-app.post('/api/successbizhub-webhook', express.json(), async (req, res) => {
-    console.log('📩 Success Biz Hub Webhook:', JSON.stringify(req.body, null, 2));
-    
-    const webhookData = req.body;
-    
-    // Immediately respond to prevent retries
-    res.status(200).send('OK');
-    
-    try {
-        // Try multiple ways to find the order
-        let order = null;
-        
-        // Method 1: Search by reference
-        if (webhookData.reference) {
-            order = await Order.findOne({ apiReference: webhookData.reference });
-            console.log(`🔍 Searching by reference: ${webhookData.reference} - Found: ${order ? 'YES' : 'NO'}`);
-        }
-        
-        // Method 2: Search by order ID from provider
-        if (!order && webhookData.orderId) {
-            order = await Order.findOne({ apiOrderId: webhookData.orderId });
-            console.log(`🔍 Searching by provider orderId: ${webhookData.orderId} - Found: ${order ? 'YES' : 'NO'}`);
-        }
-        
-        // Method 3: If phone is provided, find the most recent order for that phone
-        if (!order && webhookData.phone) {
-            // Convert phone to local format if needed
-            let searchPhone = webhookData.phone;
-            if (searchPhone.startsWith('233')) {
-                searchPhone = '0' + searchPhone.substring(3);
-            }
-            
-            const orders = await Order.find({ recipientPhone: searchPhone })
-                .sort({ createdAt: -1 })
-                .limit(1);
-            
-            if (orders.length > 0) {
-                order = orders[0];
-                console.log(`🔍 Searching by phone: ${searchPhone} - Found: ${order ? 'YES' : 'NO'}`);
-            }
-        }
-        
-        if (order) {
-            // Enhanced status mapping with better logging
-            const statusMap = {
-                'completed': 'delivered',
-                'delivered': 'delivered',
-                'success': 'delivered',
-                'successful': 'delivered',
-                'fulfilled': 'delivered',
-                'processing': 'processing',
-                'pending': 'processing',
-                'sent': 'processing',
-                'in progress': 'processing',
-                'failed': 'failed',
-                'failure': 'failed',
-                'error': 'failed',
-                'cancelled': 'cancelled',
-                'refunded': 'cancelled'
-            };
-            
-            // Get provider status (convert to lowercase)
-            const providerStatus = (webhookData.status || '').toLowerCase();
-            let newStatus = order.status;
-            
-            // Check if we should update status
-            if (providerStatus && statusMap[providerStatus]) {
-                newStatus = statusMap[providerStatus];
-            } else if (providerStatus) {
-                console.log(`⚠️ Unknown provider status: ${providerStatus}`);
-                // If provider says delivered but with different wording
-                if (providerStatus.includes('deliver') || providerStatus.includes('complete')) {
-                    newStatus = 'delivered';
-                }
-            }
-            
-            // Check if status actually changed
-            if (order.status !== newStatus) {
-                console.log(`🔄 Updating order ${order.orderId} from ${order.status} to ${newStatus} (Provider: ${providerStatus})`);
-                
-                order.status = newStatus;
-                order.updatedAt = new Date();
-                
-                // Save provider response for debugging
-                if (!order.metadata) order.metadata = {};
-                order.metadata.lastWebhook = {
-                    data: webhookData,
-                    receivedAt: new Date(),
-                    providerStatus: providerStatus
-                };
-                
-                await order.save();
-                
-                // Log delivery celebration
-                if (newStatus === 'delivered') {
-                    console.log(`🎉🎉🎉 BUNDLE DELIVERED! Order: ${order.orderId}, Phone: ${order.recipientPhone}, Bundle: ${order.bundleSize}`);
-                    console.log(`⏰ Delivery time: ${new Date().toLocaleString()}`);
-                }
-            } else {
-                console.log(`ℹ️ Order ${order.orderId} already has status: ${order.status}, no update needed`);
-            }
-            
-        } else {
-            console.log(`⚠️ Webhook received for unknown order. Data:`, {
-                reference: webhookData.reference,
-                orderId: webhookData.orderId,
-                phone: webhookData.phone,
-                status: webhookData.status
-            });
-            
-            // Save orphan webhook for later investigation
-            try {
-                const OrphanWebhook = mongoose.model('OrphanWebhook', new mongoose.Schema({
-                    data: Object,
-                    receivedAt: { type: Date, default: Date.now }
-                }));
-                
-                await new OrphanWebhook({ 
-                    data: webhookData 
-                }).save();
-                
-                console.log('📝 Saved orphan webhook for investigation');
-            } catch (saveError) {
-                console.error('Failed to save orphan webhook:', saveError);
-            }
-        }
-    } catch (error) {
-        console.error('❌ Success Biz Hub webhook error:', error);
-        console.error('Error details:', error.stack);
-    }
-});
-
-// ========== NEW SYNC ENDPOINT FOR MANUAL STATUS CHECK ==========
+// ========== SYNC ENDPOINT FOR MANUAL STATUS CHECK ==========
 app.get('/api/orders/:orderId/sync', async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -1067,7 +832,6 @@ app.get('/api/orders/:orderId/sync', async (req, res) => {
         
         console.log(`🔄 Manual sync requested for order: ${orderId}`);
         
-        // Try to check status with provider
         try {
             const response = await axios.get(
                 `${SUCCESSBIZHUB_BASE_URL}/order/status/${order.apiReference}`,
@@ -1080,7 +844,6 @@ app.get('/api/orders/:orderId/sync', async (req, res) => {
             );
             
             if (response.data && response.data.status) {
-                // Process the status update similar to webhook
                 const statusMap = {
                     'completed': 'delivered',
                     'delivered': 'delivered',
@@ -1147,6 +910,190 @@ app.get('/api/orders/:orderId/sync', async (req, res) => {
     }
 });
 
+// ========== PAYSTACK WEBHOOK ==========
+app.post('/api/paystack-webhook', express.json(), async (req, res) => {
+    const event = req.body;
+    
+    console.log('📩 PayStack webhook received:', event.event);
+    
+    res.status(200).send('Webhook received');
+    
+    try {
+        if (event.event === 'charge.success') {
+            const paymentData = event.data;
+            const metadata = paymentData.metadata;
+            const orderId = metadata?.orderId;
+            
+            if (!orderId) {
+                console.error('❌ Webhook missing orderId in metadata');
+                return;
+            }
+            
+            const order = await Order.findOne({ orderId });
+            
+            if (!order) {
+                console.error(`❌ Order ${orderId} not found in database`);
+                return;
+            }
+            
+            order.status = 'paid';
+            order.paystackReference = paymentData.reference;
+            order.paystackStatus = paymentData.status;
+            order.updatedAt = new Date();
+            
+            await order.save();
+            
+            console.log(`✅ Order ${orderId} marked as paid. Reference: ${paymentData.reference}`);
+            
+            console.log(`🔄 Triggering fulfillment for order: ${orderId}`);
+            const fulfillmentResult = await fulfillOrderWithProvider(order);
+            
+            if (fulfillmentResult.success) {
+                console.log(`🚀 Fulfillment initiated for order ${orderId}. Provider Ref: ${fulfillmentResult.data.reference}`);
+            } else {
+                console.error(`❌ Fulfillment failed for order ${orderId}:`, fulfillmentResult.error);
+            }
+            
+        } else if (event.event === 'charge.failed') {
+            const paymentData = event.data;
+            const orderId = paymentData.metadata?.orderId;
+            
+            if (orderId) {
+                await Order.findOneAndUpdate(
+                    { orderId },
+                    { 
+                        status: 'failed',
+                        paystackStatus: 'failed',
+                        updatedAt: new Date()
+                    }
+                );
+                console.log(`❌ Order ${orderId} payment failed`);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Webhook processing error:', error);
+    }
+});
+
+// ========== SUCCESS BIZ HUB WEBHOOK ==========
+app.post('/api/successbizhub-webhook', express.json(), async (req, res) => {
+    console.log('📩 Success Biz Hub Webhook:', JSON.stringify(req.body, null, 2));
+    
+    const webhookData = req.body;
+    
+    res.status(200).send('OK');
+    
+    try {
+        let order = null;
+        
+        if (webhookData.reference) {
+            order = await Order.findOne({ apiReference: webhookData.reference });
+            console.log(`🔍 Searching by reference: ${webhookData.reference} - Found: ${order ? 'YES' : 'NO'}`);
+        }
+        
+        if (!order && webhookData.orderId) {
+            order = await Order.findOne({ apiOrderId: webhookData.orderId });
+            console.log(`🔍 Searching by provider orderId: ${webhookData.orderId} - Found: ${order ? 'YES' : 'NO'}`);
+        }
+        
+        if (!order && webhookData.phone) {
+            let searchPhone = webhookData.phone;
+            if (searchPhone.startsWith('233')) {
+                searchPhone = '0' + searchPhone.substring(3);
+            }
+            
+            const orders = await Order.find({ recipientPhone: searchPhone })
+                .sort({ createdAt: -1 })
+                .limit(1);
+            
+            if (orders.length > 0) {
+                order = orders[0];
+                console.log(`🔍 Searching by phone: ${searchPhone} - Found: ${order ? 'YES' : 'NO'}`);
+            }
+        }
+        
+        if (order) {
+            const statusMap = {
+                'completed': 'delivered',
+                'delivered': 'delivered',
+                'success': 'delivered',
+                'successful': 'delivered',
+                'fulfilled': 'delivered',
+                'processing': 'processing',
+                'pending': 'processing',
+                'sent': 'processing',
+                'in progress': 'processing',
+                'failed': 'failed',
+                'failure': 'failed',
+                'error': 'failed',
+                'cancelled': 'cancelled',
+                'refunded': 'cancelled'
+            };
+            
+            const providerStatus = (webhookData.status || '').toLowerCase();
+            let newStatus = order.status;
+            
+            if (providerStatus && statusMap[providerStatus]) {
+                newStatus = statusMap[providerStatus];
+            } else if (providerStatus) {
+                console.log(`⚠️ Unknown provider status: ${providerStatus}`);
+                if (providerStatus.includes('deliver') || providerStatus.includes('complete')) {
+                    newStatus = 'delivered';
+                }
+            }
+            
+            if (order.status !== newStatus) {
+                console.log(`🔄 Updating order ${order.orderId} from ${order.status} to ${newStatus} (Provider: ${providerStatus})`);
+                
+                order.status = newStatus;
+                order.updatedAt = new Date();
+                
+                if (!order.metadata) order.metadata = {};
+                order.metadata.lastWebhook = {
+                    data: webhookData,
+                    receivedAt: new Date(),
+                    providerStatus: providerStatus
+                };
+                
+                await order.save();
+                
+                if (newStatus === 'delivered') {
+                    console.log(`🎉🎉🎉 BUNDLE DELIVERED! Order: ${order.orderId}, Phone: ${order.recipientPhone}, Bundle: ${order.bundleSize}`);
+                    console.log(`⏰ Delivery time: ${new Date().toLocaleString()}`);
+                }
+            } else {
+                console.log(`ℹ️ Order ${order.orderId} already has status: ${order.status}, no update needed`);
+            }
+            
+        } else {
+            console.log(`⚠️ Webhook received for unknown order. Data:`, {
+                reference: webhookData.reference,
+                orderId: webhookData.orderId,
+                phone: webhookData.phone,
+                status: webhookData.status
+            });
+            
+            try {
+                const OrphanWebhook = mongoose.model('OrphanWebhook', new mongoose.Schema({
+                    data: Object,
+                    receivedAt: { type: Date, default: Date.now }
+                }));
+                
+                await new OrphanWebhook({ 
+                    data: webhookData 
+                }).save();
+                
+                console.log('📝 Saved orphan webhook for investigation');
+            } catch (saveError) {
+                console.error('Failed to save orphan webhook:', saveError);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Success Biz Hub webhook error:', error);
+        console.error('Error details:', error.stack);
+    }
+});
+
 // ========== ERROR HANDLING MIDDLEWARE ==========
 app.use((err, req, res, next) => {
     console.error('🚨 Unhandled error:', err);
@@ -1157,7 +1104,6 @@ app.use((err, req, res, next) => {
         timestamp: new Date().toISOString()
     };
     
-    // Add more details in development
     if (process.env.NODE_ENV !== 'production') {
         errorResponse.message = err.message;
         errorResponse.stack = err.stack;
@@ -1193,8 +1139,8 @@ app.use('*', (req, res) => {
 const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`
 ╔══════════════════════════════════════════════════════╗
-║       MYSTERY BUNDLE HUB API - PRODUCTION v4.1      ║
-║            WITH FIXED WEBHOOK HANDLING              ║
+║       MYSTERY BUNDLE HUB API - PRODUCTION v4.2      ║
+║          PAYSTACK AMOUNT ERROR FIXED ✅             ║
 ╚══════════════════════════════════════════════════════╝
     
 ✅ Server running on port: ${PORT}
@@ -1206,14 +1152,13 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     
 ⚙️ Environment: ${process.env.NODE_ENV || 'development'}
 🗄️ Database: ${mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'}
-💰 PayStack: ${PAYSTACK_PUBLIC_KEY ? 'Configured' : 'NOT CONFIGURED'}
-🚚 Success Biz Hub: ${SUCCESSBIZHUB_API_KEY ? 'Fulfillment Ready' : 'NOT CONFIGURED'}
+💰 PayStack: ${PAYSTACK_PUBLIC_KEY ? 'Configured ✅' : 'NOT CONFIGURED ❌'}
+🚚 Success Biz Hub: ${SUCCESSBIZHUB_API_KEY ? 'Fulfillment Ready ✅' : 'NOT CONFIGURED ❌'}
 🔄 Manual Sync: Available at /api/orders/:orderId/sync
     
 🚀 Ready to accept and fulfill orders!
     `);
     
-    // Log startup warnings
     if (!PAYSTACK_PUBLIC_KEY) {
         console.warn('⚠️ WARNING: PAYSTACK_PUBLIC_KEY not set. Payments will not work!');
     }
