@@ -17,52 +17,90 @@
             --processing: #3b82f6;
             --pending: #f59e0b;
             --failed: #ef4444;
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.8);
+            --input-border: rgba(255, 255, 255, 0.15);
+            --input-focus: rgba(16, 185, 129, 0.5);
         }
         
         body {
             background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
-            color: white;
+            color: var(--text-primary);
             min-height: 100vh;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
         
         .track-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
         
         .track-header {
-            background: rgba(30, 41, 59, 0.8);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
             backdrop-filter: blur(10px);
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: 20px;
             margin-bottom: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
         }
         
         .track-form {
-            background: rgba(30, 41, 59, 0.6);
+            background: rgba(30, 41, 59, 0.8);
             padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* FIXED: Input Field Styles - Improved Visibility */
+        .form-control {
+            background: var(--input-bg) !important;
+            border: 2px solid var(--input-border) !important;
+            color: var(--text-primary) !important;
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            background: var(--input-bg) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 0.7;
+        }
+        
+        /* Fix for autofill */
+        .form-control:-webkit-autofill,
+        .form-control:-webkit-autofill:hover,
+        .form-control:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--text-primary) !important;
+            -webkit-box-shadow: 0 0 0px 1000px rgba(15, 23, 42, 0.9) inset !important;
+            border-color: var(--primary) !important;
         }
         
         .order-card {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-left: 5px solid;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.7));
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            border-left: 6px solid;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
         
         .order-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
         
         .order-card::before {
@@ -71,115 +109,120 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         
         .status-delivered { border-left-color: var(--success); }
         .status-processing { border-left-color: var(--processing); }
         .status-paid { border-left-color: var(--pending); }
-        .status-pending { border-left-color: #94a3b8; }
+        .status-pending { border-left-color: #64748b; }
         .status-failed { border-left-color: var(--failed); }
         
         .status-badge {
-            padding: 0.4rem 1rem;
-            border-radius: 25px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            padding: 0.5rem 1.25rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 700;
             letter-spacing: 0.5px;
         }
         
         .badge-delivered { 
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.3));
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.4));
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
         }
         .badge-processing { 
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.3));
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.4));
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
         }
         .badge-paid { 
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.3));
-            color: #f59e0b;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.4));
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
         }
         .badge-pending { 
-            background: linear-gradient(135deg, rgba(148, 163, 184, 0.15), rgba(148, 163, 184, 0.3));
-            color: #94a3b8;
-            border: 1px solid rgba(148, 163, 184, 0.3);
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.2), rgba(148, 163, 184, 0.4));
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.4);
         }
         .badge-failed { 
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.3));
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.4));
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
         }
         
         .network-tag {
-            padding: 0.25rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            padding: 0.3rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 800;
             display: inline-block;
         }
         
         .mtn-tag { 
-            background: linear-gradient(135deg, rgba(255, 204, 0, 0.2), rgba(255, 204, 0, 0.1));
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.25), rgba(255, 204, 0, 0.15));
             color: #ffcc00;
-            border: 1px solid rgba(255, 204, 0, 0.3);
+            border: 1px solid rgba(255, 204, 0, 0.4);
         }
         .airtel-tag { 
-            background: linear-gradient(135deg, rgba(228, 0, 43, 0.2), rgba(228, 0, 43, 0.1));
-            color: #e4002b;
-            border: 1px solid rgba(228, 0, 43, 0.3);
+            background: linear-gradient(135deg, rgba(228, 0, 43, 0.25), rgba(228, 0, 43, 0.15));
+            color: #ff2a54;
+            border: 1px solid rgba(228, 0, 43, 0.4);
         }
         .telecel-tag { 
-            background: linear-gradient(135deg, rgba(0, 161, 224, 0.2), rgba(0, 161, 224, 0.1));
+            background: linear-gradient(135deg, rgba(0, 161, 224, 0.25), rgba(0, 161, 224, 0.15));
             color: #00a1e0;
-            border: 1px solid rgba(0, 161, 224, 0.3);
+            border: 1px solid rgba(0, 161, 224, 0.4);
         }
         
         .info-box {
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
         }
         
         .btn-primary {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s;
+            padding: 0.875rem 1.75rem;
+            font-weight: 700;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            color: white;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
+            color: white;
         }
         
         .sync-btn {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #3b82f6;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            transition: all 0.2s;
+            background: rgba(59, 130, 246, 0.15);
+            border: 2px solid rgba(59, 130, 246, 0.4);
+            color: #60a5fa;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         
         .sync-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: scale(1.05);
+            background: rgba(59, 130, 246, 0.25);
+            transform: translateY(-2px);
+            color: #93c5fd;
         }
         
         .status-timeline {
             position: relative;
-            padding-left: 2rem;
-            margin-top: 1rem;
+            padding-left: 2.5rem;
+            margin-top: 1.5rem;
         }
         
         .status-timeline::before {
@@ -188,26 +231,29 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 3px;
         }
         
         .timeline-item {
             position: relative;
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: -2.35rem;
-            top: 0.25rem;
-            width: 12px;
-            height: 12px;
+            left: -2.65rem;
+            top: 0.35rem;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: var(--primary);
+            border: 3px solid var(--dark);
+            z-index: 2;
         }
         
         .delivered-item::before { background: var(--success); }
@@ -216,9 +262,9 @@
         
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 22px;
+            height: 22px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             border-top-color: var(--primary);
             animation: spin 1s ease-in-out infinite;
@@ -234,17 +280,104 @@
         
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.6; }
+            50% { opacity: 0.7; }
             100% { opacity: 1; }
         }
         
+        /* Alert Styles */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.25));
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.25));
+            color: #a7f3d0;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.25));
+            color: #bfdbfe;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.25));
+            color: #fde68a;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        /* Hover Effects */
+        .hover-effect {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .hover-effect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Text Colors */
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            color: #fbbf24;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
             .track-header, .track-form {
                 padding: 1.5rem;
             }
             .order-card {
-                padding: 1rem;
+                padding: 1.25rem;
             }
+            .track-container {
+                margin: 1rem auto;
+            }
+            .status-badge {
+                padding: 0.4rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .track-header h1 {
+                font-size: 1.75rem;
+            }
+            .btn-primary, .btn-outline-light, .btn-outline-primary {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Focus styles for accessibility */
+        *:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        /* Selection color */
+        ::selection {
+            background-color: rgba(16, 185, 129, 0.5);
+            color: white;
         }
     </style>
 </head>
@@ -252,48 +385,53 @@
     <div class="track-container">
         <!-- Header -->
         <div class="track-header text-center">
-            <h1 class="mb-3">📦 Track Your Order</h1>
-            <p class="lead mb-0">Enter your Order ID <strong>OR</strong> Phone Number to check your bundle status</p>
-            <div class="mt-3">
-                <span class="badge bg-success me-2">Real-time Updates</span>
-                <span class="badge bg-info me-2">Auto Sync</span>
-                <span class="badge bg-warning">24/7 Support</span>
+            <h1 class="mb-3 fw-bold">📦 Track Your Order</h1>
+            <p class="lead mb-3" style="color: var(--text-secondary);">Enter your Order ID <strong class="text-warning">OR</strong> Phone Number to check your bundle status</p>
+            <div class="mt-4">
+                <span class="badge bg-success me-2 p-2" style="background: linear-gradient(135deg, #10b981, #059669);">Real-time Updates</span>
+                <span class="badge bg-info me-2 p-2" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">Auto Sync</span>
+                <span class="badge bg-warning p-2" style="background: linear-gradient(135deg, #f59e0b, #d97706);">24/7 Support</span>
             </div>
         </div>
 
         <!-- Search Form -->
         <div class="track-form">
-            <div class="input-group input-group-lg mb-3">
+            <div class="input-group input-group-lg mb-4">
                 <input type="text" 
-                       class="form-control bg-dark text-white border-dark" 
+                       class="form-control" 
                        id="trackInput" 
                        placeholder="Enter Order ID (e.g., MYST-1767346581777-7V4VV3L3) OR Phone (e.g., 0244161008)"
-                       autocomplete="off">
+                       autocomplete="off"
+                       aria-label="Order ID or Phone Number">
                 <button class="btn btn-primary" type="button" onclick="trackOrder()" id="trackBtn">
                     <i class="bi bi-search me-2"></i>Track Order
                 </button>
             </div>
             
             <div class="info-box">
-                <i class="bi bi-info-circle me-2 text-info"></i>
-                <strong>Quick Tips:</strong>
-                <ul class="mb-0 mt-2">
-                    <li>Order ID is shown after payment confirmation</li>
-                    <li>Phone number must be the recipient's number</li>
-                    <li>Orders usually process within 1-5 minutes</li>
-                    <li>Stuck orders? Use the <strong>Sync Now</strong> button</li>
-                </ul>
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-info-circle me-3 text-info" style="font-size: 1.2rem;"></i>
+                    <div>
+                        <strong class="text-white mb-2 d-block">Quick Tips:</strong>
+                        <ul class="mb-0 mt-2" style="padding-left: 1.2rem; color: var(--text-secondary);">
+                            <li>Order ID is shown after payment confirmation</li>
+                            <li>Phone number must be the recipient's number</li>
+                            <li>Orders usually process within 1-5 minutes</li>
+                            <li>Stuck orders? Use the <strong class="text-primary">Sync Now</strong> button</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
 
-            <div class="row g-2 mt-3">
+            <div class="row g-3 mt-4">
                 <div class="col-md-6">
-                    <a href="index.html" class="btn btn-outline-light w-100">
+                    <a href="index.html" class="btn btn-outline-light w-100 py-3" style="border: 2px solid rgba(255,255,255,0.2);">
                         <i class="bi bi-arrow-left me-2"></i>Back to Store
                     </a>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-outline-primary w-100" onclick="checkRecentOrders()">
-                        <i class="bi bi-clock-history me-2"></i>Check Recent
+                    <button class="btn btn-outline-primary w-100 py-3" onclick="checkRecentOrders()" style="border: 2px solid rgba(59, 130, 246, 0.3);">
+                        <i class="bi bi-clock-history me-2"></i>Check Recent Orders
                     </button>
                 </div>
             </div>
@@ -304,18 +442,21 @@
 
         <!-- Support Section -->
         <div class="track-form mt-4">
-            <h4 class="mb-3"><i class="bi bi-headset me-2"></i>Need Help?</h4>
+            <h4 class="mb-4" style="color: var(--text-primary);"><i class="bi bi-headset me-2 text-primary"></i>Need Help?</h4>
             <div class="row g-3">
                 <div class="col-md-6">
                     <a href="https://wa.me/233592066298" target="_blank" class="text-decoration-none">
                         <div class="info-box hover-effect">
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
-                                    <i class="bi bi-whatsapp fs-3" style="color: #25D366;"></i>
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #25D366, #128C7E); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-whatsapp fs-4 text-white"></i>
+                                    </div>
                                 </div>
                                 <div>
-                                    <h5 class="mb-1">WhatsApp Support</h5>
-                                    <p class="mb-0 text-muted">Instant response, 24/7</p>
+                                    <h5 class="mb-1 text-white">WhatsApp Support</h5>
+                                    <p class="mb-0" style="color: var(--text-secondary);">Instant response, 24/7</p>
+                                    <span class="text-success mt-1 d-block">059 206 6298</span>
                                 </div>
                             </div>
                         </div>
@@ -326,23 +467,35 @@
                         <div class="info-box hover-effect">
                             <div class="d-flex align-items-center">
                                 <div class="me-3">
-                                    <i class="bi bi-envelope fs-3 text-primary"></i>
+                                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-envelope fs-4 text-white"></i>
+                                    </div>
                                 </div>
                                 <div>
-                                    <h5 class="mb-1">Email Support</h5>
-                                    <p class="mb-0 text-muted">aryeeteyemmanuel852@gmail.com</p>
+                                    <h5 class="mb-1 text-white">Email Support</h5>
+                                    <p class="mb-0" style="color: var(--text-secondary);">Send us an email anytime</p>
+                                    <span class="text-info mt-1 d-block">aryeeteyemmanuel852@gmail.com</span>
                                 </div>
                             </div>
                         </div>
                     </a>
                 </div>
             </div>
-            <div class="mt-3 text-center">
-                <small class="text-muted">
-                    <i class="bi bi-telephone me-1"></i>Support Line: 
-                    <a href="tel:+233592066298" class="text-decoration-none">059 206 6298</a>
+            <div class="mt-4 text-center">
+                <small style="color: var(--text-muted);">
+                    <i class="bi bi-telephone me-1"></i>Direct Support Line: 
+                    <a href="tel:+233592066298" class="text-decoration-none text-warning fw-bold">059 206 6298</a>
                 </small>
             </div>
+        </div>
+        
+        <!-- Footer Note -->
+        <div class="text-center mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.1);">
+            <small style="color: var(--text-muted);">
+                <i class="bi bi-shield-check me-1"></i>Secure Tracking • 
+                <i class="bi bi-lightning-charge ms-2 me-1"></i>Real-time Updates • 
+                <i class="bi bi-lock ms-2 me-1"></i>Data Protected
+            </small>
         </div>
     </div>
 
@@ -431,7 +584,8 @@
                 'AirtelTigo': { class: 'airtel-tag', text: 'AirtelTigo' },
                 'at': { class: 'airtel-tag', text: 'AirtelTigo' },
                 'Telecel': { class: 'telecel-tag', text: 'Telecel' },
-                'telecel': { class: 'telecel-tag', text: 'Telecel' }
+                'telecel': { class: 'telecel-tag', text: 'Telecel' },
+                'airtel': { class: 'airtel-tag', text: 'AirtelTigo' }
             };
             
             const tag = networkMap[network] || { class: 'mtn-tag', text: network || 'Unknown' };
@@ -442,7 +596,8 @@
         function showLoading(message = 'Searching for your order...') {
             return `
                 <div class="text-center py-5">
-                    <div class="loading mb-3"></div>
+                    <div class="loading mb-4" style="width: 40px; height: 40px;"></div>
+                    <h5 class="text-white mb-2">Searching Order</h5>
                     <p class="text-muted">${message}</p>
                 </div>
             `;
@@ -452,12 +607,20 @@
         function showError(message, details = '') {
             return `
                 <div class="alert alert-danger">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+                    <div class="d-flex align-items-start">
+                        <i class="bi bi-exclamation-triangle-fill fs-3 me-3" style="color: #f87171;"></i>
                         <div>
-                            <h5 class="mb-1">Order Not Found</h5>
-                            <p class="mb-1">${message}</p>
-                            ${details ? `<small class="d-block mt-2">${details}</small>` : ''}
+                            <h5 class="mb-2" style="color: #fca5a5;">Order Not Found</h5>
+                            <p class="mb-2" style="color: #fca5a5;">${message}</p>
+                            ${details ? `<small class="d-block mt-3" style="color: #fca5a5;">${details}</small>` : ''}
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-warning me-2" onclick="document.getElementById('trackInput').focus()">
+                                    <i class="bi bi-pencil me-1"></i>Try Again
+                                </button>
+                                <a href="https://wa.me/233592066298" target="_blank" class="btn btn-sm btn-success">
+                                    <i class="bi bi-whatsapp me-1"></i>Contact Support
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -479,15 +642,16 @@
             
             const updatedAt = new Date(order.updatedAt).toLocaleString('en-GB', {
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                second: '2-digit'
             });
             
             // Status timeline
             let timelineHtml = '';
             if (order.statusHistory && order.statusHistory.length > 0) {
                 timelineHtml = `
-                    <div class="status-timeline mt-3">
-                        <small class="text-muted d-block mb-2">Order Timeline:</small>
+                    <div class="status-timeline mt-4">
+                        <small class="text-muted d-block mb-3 fw-bold">Order Timeline:</small>
                         ${order.statusHistory.slice(-5).reverse().map(item => {
                             const itemStatus = getStatusDetails(item.status);
                             const time = new Date(item.timestamp).toLocaleTimeString('en-GB', {
@@ -496,10 +660,13 @@
                             });
                             return `
                                 <div class="timeline-item ${itemStatus.class}-item">
-                                    <small class="text-muted">${time}</small>
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi ${itemStatus.icon} me-2"></i>
-                                        <span>${itemStatus.text}</span>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <small class="text-muted">${time}</small>
+                                        <small class="text-primary fw-bold">${itemStatus.text}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center mt-1">
+                                        <i class="bi ${itemStatus.icon} me-2" style="color: var(--${itemStatus.class});"></i>
+                                        <span style="color: var(--text-secondary);">${itemStatus.message}</span>
                                     </div>
                                 </div>
                             `;
@@ -509,14 +676,14 @@
             }
             
             // Sync button for processing orders
-            const syncButton = (order.status === 'processing' || order.status === 'sent_to_provider') ? `
-                <button class="sync-btn mt-2" onclick="syncOrder('${order.orderId}')" id="syncBtn-${order.orderId}">
-                    <i class="bi bi-arrow-repeat me-1"></i>Sync Now
+            const syncButton = (order.status === 'processing' || order.status === 'sent_to_provider' || order.status === 'paid') ? `
+                <button class="sync-btn mt-3" onclick="syncOrder('${order.orderId}')" id="syncBtn-${order.orderId}">
+                    <i class="bi bi-arrow-repeat me-2"></i>Sync Status
                 </button>
             ` : '';
             
             // Auto-refresh for processing orders
-            if ((order.status === 'processing' || order.status === 'sent_to_provider') && !syncInterval) {
+            if ((order.status === 'processing' || order.status === 'sent_to_provider' || order.status === 'paid') && !syncInterval) {
                 setTimeout(() => {
                     if (document.getElementById(`syncBtn-${order.orderId}`)) {
                         syncOrder(order.orderId);
@@ -526,49 +693,57 @@
             
             return `
                 <div class="order-card status-${status.class}">
-                    ${total > 1 ? `<small class="text-muted mb-2 d-block">Order ${index + 1} of ${total}</small>` : ''}
+                    ${total > 1 ? `<small class="text-muted mb-3 d-block fw-bold">Order ${index + 1} of ${total}</small>` : ''}
                     
-                    <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
                         <div>
-                            <h5 class="mb-1">${order.orderId}</h5>
+                            <h5 class="mb-2 text-white">${order.orderId}</h5>
                             <small class="text-muted">Ordered: ${createdAt}</small>
                         </div>
                         <span class="status-badge badge-${status.badge}">
-                            <i class="bi ${status.icon} me-1"></i>${status.text}
+                            <i class="bi ${status.icon} me-2"></i>${status.text}
                         </span>
                     </div>
                     
-                    <div class="row g-3 mb-3">
+                    <div class="row g-4 mb-4">
                         <div class="col-md-3 col-6">
-                            <small class="text-muted d-block">Phone Number</small>
-                            <strong class="fs-5">${phone}</strong>
-                        </div>
-                        <div class="col-md-3 col-6">
-                            <small class="text-muted d-block">Bundle</small>
-                            <div class="d-flex align-items-center">
-                                ${networkTag}
-                                <strong class="ms-2">${order.bundleSize || 'N/A'}</strong>
+                            <div class="bg-dark p-3 rounded" style="background: rgba(0,0,0,0.2) !important;">
+                                <small class="text-muted d-block mb-1">Phone Number</small>
+                                <strong class="fs-5 text-white">${phone}</strong>
                             </div>
                         </div>
                         <div class="col-md-3 col-6">
-                            <small class="text-muted d-block">Amount</small>
-                            <strong class="text-success fs-5">₵${order.amount?.toFixed(2) || '0'}</strong>
+                            <div class="bg-dark p-3 rounded" style="background: rgba(0,0,0,0.2) !important;">
+                                <small class="text-muted d-block mb-1">Bundle</small>
+                                <div class="d-flex align-items-center">
+                                    ${networkTag}
+                                    <strong class="ms-2 text-white">${order.bundleSize || 'N/A'}</strong>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-3 col-6">
-                            <small class="text-muted d-block">Last Updated</small>
-                            <small>${updatedAt}</small>
+                            <div class="bg-dark p-3 rounded" style="background: rgba(0,0,0,0.2) !important;">
+                                <small class="text-muted d-block mb-1">Amount</small>
+                                <strong class="text-success fs-5">₵${order.amount?.toFixed(2) || '0'}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="bg-dark p-3 rounded" style="background: rgba(0,0,0,0.2) !important;">
+                                <small class="text-muted d-block mb-1">Last Updated</small>
+                                <small class="text-white">${updatedAt}</small>
+                            </div>
                         </div>
                     </div>
                     
                     ${order.apiReference ? `
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <small class="text-muted">Provider Reference:</small>
                             <code class="ms-2">${order.apiReference}</code>
                         </div>
                     ` : ''}
                     
                     ${order.paystackReference ? `
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <small class="text-muted">Payment Reference:</small>
                             <code class="ms-2">${order.paystackReference}</code>
                         </div>
@@ -576,13 +751,20 @@
                     
                     <div class="alert alert-${status.class === 'delivered' ? 'success' : status.class === 'failed' ? 'danger' : 'info'}">
                         <div class="d-flex align-items-center">
-                            <i class="bi ${status.icon} me-2"></i>
+                            <i class="bi ${status.icon} me-3 fs-4"></i>
                             <div>
-                                <strong>${status.message}</strong>
+                                <strong class="d-block mb-1">${status.message}</strong>
                                 ${order.status === 'delivered' ? `
-                                    <div class="mt-1">
-                                        <i class="bi bi-check-circle-fill text-success me-1"></i>
-                                        Your ${order.bundleSize} bundle has been delivered to ${phone}
+                                    <div class="mt-2">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <span style="color: var(--text-secondary);">Your ${order.bundleSize} bundle has been delivered to ${phone}</span>
+                                    </div>
+                                ` : ''}
+                                ${order.status === 'failed' || order.status === 'cancelled' ? `
+                                    <div class="mt-2">
+                                        <a href="https://wa.me/233592066298" target="_blank" class="btn btn-sm btn-success">
+                                            <i class="bi bi-whatsapp me-1"></i>Contact Support
+                                        </a>
                                     </div>
                                 ` : ''}
                             </div>
@@ -614,15 +796,19 @@
                 if (result.success) {
                     // Show success message
                     if (syncBtn) {
-                        syncBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Synced';
+                        syncBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Synced Successfully';
+                        syncBtn.classList.add('btn-success');
+                        syncBtn.classList.remove('sync-btn');
                         setTimeout(() => {
-                            syncBtn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Sync Again';
+                            syncBtn.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i>Sync Again';
                             syncBtn.disabled = false;
-                        }, 2000);
+                            syncBtn.classList.remove('btn-success');
+                            syncBtn.classList.add('sync-btn');
+                        }, 3000);
                     }
                     
                     // Refresh the order display
-                    setTimeout(() => trackOrderById(orderId), 1000);
+                    setTimeout(() => trackOrderById(orderId), 1500);
                     
                 } else {
                     throw new Error(result.error || 'Sync failed');
@@ -630,8 +816,11 @@
             } catch (error) {
                 console.error('Sync error:', error);
                 if (syncBtn) {
-                    syncBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i>Sync Failed';
+                    syncBtn.innerHTML = '<i class="bi bi-x-circle me-2"></i>Sync Failed';
                     syncBtn.disabled = false;
+                    syncBtn.style.background = 'rgba(239, 68, 68, 0.15)';
+                    syncBtn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                    syncBtn.style.color = '#f87171';
                 }
             }
         }
@@ -653,6 +842,8 @@
                 if (result.success) {
                     document.getElementById('trackResult').innerHTML = renderOrderCard(result.order);
                     currentOrderId = orderId;
+                    // Save to localStorage for recent orders
+                    localStorage.setItem('lastOrderPhone', result.order.recipientPhone);
                 } else {
                     throw new Error(result.error || 'Failed to fetch order');
                 }
@@ -681,9 +872,13 @@
                 if (result.success && result.orders.length > 0) {
                     let html = `
                         <div class="alert alert-info">
-                            <i class="bi bi-phone me-2"></i>
-                            Found ${result.count} order(s) for ${formatPhone(phone)}
-                            ${result.syncedOrders > 0 ? `<span class="ms-2 text-success">(${result.syncedOrders} synced)</span>` : ''}
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-phone me-3 fs-3"></i>
+                                <div>
+                                    <strong class="d-block">Found ${result.count} order(s) for ${formatPhone(phone)}</strong>
+                                    ${result.syncedOrders > 0 ? `<span class="text-success mt-1 d-block">(${result.syncedOrders} orders updated)</span>` : ''}
+                                </div>
+                            </div>
                         </div>
                     `;
                     
@@ -692,6 +887,8 @@
                     });
                     
                     document.getElementById('trackResult').innerHTML = html;
+                    // Save to localStorage for recent orders
+                    localStorage.setItem('lastOrderPhone', phone);
                 } else {
                     throw new Error('No orders found for this phone number');
                 }
@@ -718,7 +915,9 @@
             
             // Save button state
             const originalText = trackBtn.innerHTML;
+            const originalClass = trackBtn.className;
             trackBtn.innerHTML = '<span class="loading"></span> Tracking...';
+            trackBtn.className = 'btn btn-primary disabled';
             trackBtn.disabled = true;
             
             // Detect if input is phone number
@@ -731,12 +930,13 @@
             } else {
                 document.getElementById('trackResult').innerHTML = showError(
                     'Invalid input format',
-                    'Please enter a valid Order ID (starts with MYST-) or Ghana phone number (10 digits)'
+                    'Please enter a valid Order ID (starts with MYST-) or Ghana phone number (10 digits starting with 02, 05, etc.)'
                 );
             }
             
             // Restore button
             trackBtn.innerHTML = originalText;
+            trackBtn.className = originalClass;
             trackBtn.disabled = false;
         }
 
@@ -761,7 +961,7 @@
             
             if (orderId) {
                 document.getElementById('trackInput').value = orderId;
-                setTimeout(() => trackOrder(), 500);
+                setTimeout(() => trackOrder(), 1000);
             }
             
             // Enter key support
@@ -773,6 +973,15 @@
             
             // Focus input
             document.getElementById('trackInput').focus();
+            
+            // Add input event for better UX
+            document.getElementById('trackInput').addEventListener('input', function(e) {
+                if (e.target.value.trim()) {
+                    e.target.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+                } else {
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                }
+            });
         });
     </script>
     
