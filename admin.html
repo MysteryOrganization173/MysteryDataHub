@@ -1255,8 +1255,13 @@
                         </div>
                     </div>
                     <div class="mt-3">
-                        <input type="text" class="form-control mb-2" id="retryOrderId" placeholder="Enter Order ID">
-                        <button class="btn btn-primary w-100" onclick="manualFulfillment()">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="retryOrderId" placeholder="Enter Order ID">
+                            <button class="btn btn-outline-secondary" type="button" onclick="useSampleOrder()">
+                                Test
+                            </button>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="manualFulfillment()" id="manualRetryBtn">
                             <i class="bi bi-send"></i> Retry Delivery
                         </button>
                     </div>
@@ -1277,13 +1282,14 @@
                                 <th>Phone</th>
                                 <th>Bundle</th>
                                 <th>Amount</th>
+                                <th>Status</th>
                                 <th>Paid At</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="pendingFulfillmentBody">
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="7" class="text-center py-5">
                                     <div class="loading"></div>
                                 </td>
                             </tr>
@@ -1371,6 +1377,8 @@
         // ===== CONFIGURATION =====
         const CONFIG = {
             BACKEND_URL: 'https://mysterydatahub-api.onrender.com',
+            SUCCESSBIZHUB_BASE_URL: 'https://www.successbizhub.com/api/v1',
+            SUCCESSBIZHUB_API_KEY: 'dk_6RePb80hC64mt_fxK9D7gAdc550GaKlN',
             REFRESH_INTERVALS: {
                 DASHBOARD: 30000,   // 30 seconds
                 ORDERS: 60000,      // 1 minute
@@ -1378,6 +1386,70 @@
             },
             ITEMS_PER_PAGE: 15,
             TOAST_TIMEOUT: 5000
+        };
+        
+        // ===== BUNDLE MAPPING =====
+        const BUNDLE_MAP = {
+            'mtn-1-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 1, costPrice: 4.70 },
+            'mtn-2-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 2, costPrice: 9.15 },
+            'mtn-3-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 3, costPrice: 13.35 },
+            'mtn-4-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 4, costPrice: 18.00 },
+            'mtn-5-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 5, costPrice: 21.80 },
+            'mtn-6-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 6, costPrice: 26.50 },
+            'mtn-7-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 7, costPrice: 31.00 },
+            'mtn-8-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 8, costPrice: 35.80 },
+            'mtn-10-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 10, costPrice: 41.50 },
+            'mtn-15-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 15, costPrice: 61.00 },
+            'mtn-20-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 20, costPrice: 82.00 },
+            'mtn-25-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 25, costPrice: 102.00 },
+            'mtn-30-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 30, costPrice: 122.50 },
+            'mtn-40-express': { network: 'mtn', offerSlug: 'mtn_express_bundle', volume: 40, costPrice: 162.00 },
+            
+            // MTN BENEFICIARY BUNDLES
+            'mtn-1-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 1, costPrice: 4.25 },
+            'mtn-2-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 2, costPrice: 8.50 },
+            'mtn-3-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 3, costPrice: 12.55 },
+            'mtn-4-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 4, costPrice: 17.00 },
+            'mtn-5-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 5, costPrice: 21.00 },
+            'mtn-6-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 6, costPrice: 25.20 },
+            'mtn-7-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 7, costPrice: 29.50 },
+            'mtn-8-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 8, costPrice: 34.00 },
+            'mtn-10-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 10, costPrice: 39.90 },
+            'mtn-15-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 15, costPrice: 59.00 },
+            'mtn-20-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 20, costPrice: 78.60 },
+            'mtn-25-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 25, costPrice: 98.00 },
+            'mtn-30-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 30, costPrice: 117.60 },
+            'mtn-40-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 40, costPrice: 157.00 },
+            'mtn-50-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 50, costPrice: 193.50 },
+            'mtn-100-beneficiary': { network: 'mtn', offerSlug: 'master_beneficiary_bundle', volume: 100, costPrice: 367.80 },
+            
+            // AIRTELTIGO BUNDLES
+            'airtel-1': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 1, costPrice: 3.85 },
+            'airtel-2': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 2, costPrice: 7.80 },
+            'airtel-3': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 3, costPrice: 11.60 },
+            'airtel-4': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 4, costPrice: 15.40 },
+            'airtel-5': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 5, costPrice: 19.10 },
+            'airtel-6': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 6, costPrice: 23.00 },
+            'airtel-7': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 7, costPrice: 27.00 },
+            'airtel-8': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 8, costPrice: 31.00 },
+            'airtel-9': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 9, costPrice: 35.00 },
+            'airtel-10': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 10, costPrice: 39.00 },
+            'airtel-12': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 12, costPrice: 46.50 },
+            'airtel-15': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 15, costPrice: 58.00 },
+            'airtel-20': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 20, costPrice: 77.00 },
+            'airtel-25': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 25, costPrice: 95.80 },
+            'airtel-30': { network: 'at', offerSlug: 'ishare_data_bundle', volume: 30, costPrice: 115.00 },
+            
+            // TELECEL BUNDLES
+            'telecel-5': { network: 'telecel', offerSlug: 'telecel_express', volume: 5, costPrice: 20.50 },
+            'telecel-10': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 10, costPrice: 39.00 },
+            'telecel-15': { network: 'telecel', offerSlug: 'telecel_express', volume: 15, costPrice: 56.00 },
+            'telecel-20': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 20, costPrice: 74.00 },
+            'telecel-25': { network: 'telecel', offerSlug: 'telecel_express', volume: 25, costPrice: 92.50 },
+            'telecel-30': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 30, costPrice: 109.40 },
+            'telecel-40': { network: 'telecel', offerSlug: 'telecel_express', volume: 40, costPrice: 147.00 },
+            'telecel-50': { network: 'telecel', offerSlug: 'telecel_expiry_bundle', volume: 50, costPrice: 182.00 },
+            'telecel-100': { network: 'telecel', offerSlug: 'telecel_express', volume: 100, costPrice: 365.00 }
         };
         
         // ===== GLOBAL STATE =====
@@ -1572,11 +1644,11 @@
                 console.error('Orders data error:', error);
                 // Use mock data on error
                 const mockOrders = generateMockOrders(66);
-                state.data.orders = mockOrders;
-                state.data.filteredOrders = mockOrders;
-                renderOrdersTable();
-                updatePagination();
-            }
+                    state.data.orders = mockOrders;
+                    state.data.filteredOrders = mockOrders;
+                    renderOrdersTable();
+                    updatePagination();
+                }
         }
         
         async function loadFulfillmentData() {
@@ -1667,11 +1739,19 @@
                 return null;
             }
             
+            // Use proper authentication headers
             const headers = {
-                'Authorization': state.token ? `Bearer ${state.token}` : 'Basic ' + btoa(state.user.email),
                 'Content-Type': 'application/json',
                 ...options.headers
             };
+            
+            // Add Bearer token if available, otherwise use Basic auth
+            if (state.token) {
+                headers['Authorization'] = `Bearer ${state.token}`;
+            } else if (state.user.email.includes('@')) {
+                // For demo/testing, use Basic auth
+                headers['Authorization'] = 'Basic ' + btoa(`${state.user.email}:admin123`);
+            }
             
             try {
                 const response = await fetch(`${CONFIG.BACKEND_URL}${endpoint}`, {
@@ -1686,14 +1766,24 @@
                 }
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    console.error(`API Error ${endpoint}:`, response.status, response.statusText);
+                    const errorText = await response.text();
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        return { success: false, error: errorJson.error || errorJson.message };
+                    } catch {
+                        return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+                    }
                 }
                 
                 return await response.json();
             } catch (error) {
                 console.error(`API Error ${endpoint}:`, error);
-                // Return null to trigger fallback to mock data
-                return null;
+                return { 
+                    success: false, 
+                    error: error.message,
+                    networkError: true 
+                };
             }
         }
         
@@ -1712,7 +1802,7 @@
             // Update sidebar badges
             document.getElementById('pendingBadge').textContent = stats.pendingOrders || 0;
             document.getElementById('ordersBadge').textContent = stats.todayOrders || 0;
-            document.getElementById('fulfilledBadge').textContent = stats.deliveredOrders || 3; // Fixed to show actual fulfilled count
+            document.getElementById('fulfilledBadge').textContent = stats.deliveredOrders || 3;
         }
         
         function updateRecentOrders(orders) {
@@ -2175,7 +2265,7 @@
             if (pending.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="text-center py-4">
+                        <td colspan="7" class="text-center py-4">
                             <div class="empty-state">
                                 <i class="bi bi-check-circle empty-state-icon"></i>
                                 <h5 class="empty-state-title">No pending orders</h5>
@@ -2198,6 +2288,7 @@
                         </div>
                     </td>
                     <td class="text-success fw-bold">₵${order.amount?.toFixed(2) || '0'}</td>
+                    <td><span class="badge ${getStatusClass(order.status)}">${formatStatus(order.status)}</span></td>
                     <td><small class="text-secondary">${getTimeAgo(order.createdAt)}</small></td>
                     <td>
                         <button class="btn btn-sm btn-warning" onclick="retryOrder('${order.orderId}')">
@@ -2219,8 +2310,15 @@
                 });
                 
                 if (response?.success) {
-                    showToast(`Order ${orderId} sent for fulfillment!`, 'success');
-                    refreshCurrentSection();
+                    showToast(`✅ Order ${orderId} sent for fulfillment!`, 'success');
+                    
+                    // Update the specific row if visible
+                    updateOrderRowStatus(orderId, 'processing');
+                    
+                    // Refresh data after delay
+                    setTimeout(() => {
+                        refreshCurrentSection();
+                    }, 1500);
                 } else {
                     showToast(response?.error || 'Fulfillment failed', 'error');
                 }
@@ -2229,21 +2327,164 @@
             }
         }
         
-        function manualFulfillment() {
+        // ===== FIXED MANUAL FULFILLMENT =====
+        async function manualFulfillment() {
             const orderId = document.getElementById('retryOrderId').value.trim();
+            
             if (!orderId) {
-                showToast('Please enter an Order ID', 'warning');
+                showToast('Please enter a valid Order ID', 'warning');
                 return;
             }
             
-            retryOrder(orderId);
+            if (!confirm(`Manually send order ${orderId} to Success Biz Hub?`)) {
+                return;
+            }
+            
+            const retryBtn = document.getElementById('manualRetryBtn');
+            const originalText = retryBtn.innerHTML;
+            
+            try {
+                // Show loading state
+                retryBtn.innerHTML = '<div class="loading"></div> Processing...';
+                retryBtn.disabled = true;
+                
+                showToast(`Processing manual fulfillment for ${orderId}...`, 'info');
+                
+                // First, check if order exists
+                const orderResponse = await apiCall(`/api/admin/orders`);
+                
+                if (!orderResponse?.success) {
+                    showToast('Failed to fetch orders', 'error');
+                    return;
+                }
+                
+                const order = orderResponse.orders?.find(o => o.orderId === orderId);
+                
+                if (!order) {
+                    showToast(`Order ${orderId} not found`, 'error');
+                    return;
+                }
+                
+                // Check order status
+                if (order.status === 'delivered') {
+                    showToast(`Order ${orderId} is already delivered`, 'warning');
+                    return;
+                }
+                
+                if (order.status === 'pending_payment') {
+                    showToast(`Order ${orderId} is not paid yet`, 'error');
+                    return;
+                }
+                
+                // Send fulfillment request
+                const response = await apiCall(`/api/admin/orders/${orderId}/fulfill`, {
+                    method: 'POST'
+                });
+                
+                if (response?.success) {
+                    showToast(`✅ Order ${orderId} sent to Success Biz Hub!`, 'success');
+                    
+                    // Clear input
+                    document.getElementById('retryOrderId').value = '';
+                    
+                    // Refresh data
+                    setTimeout(() => {
+                        refreshCurrentSection();
+                    }, 2000);
+                } else {
+                    const errorMsg = response?.error || response?.message || 'Fulfillment failed';
+                    showToast(`Failed: ${errorMsg}`, 'error');
+                    
+                    // Try direct API call if server fails
+                    if (errorMsg.includes('not found') || errorMsg.includes('404')) {
+                        await retryDirectFulfillment(order);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Manual fulfillment error:', error);
+                showToast(`Error: ${error.message}`, 'error');
+            } finally {
+                // Restore button
+                retryBtn.innerHTML = '<i class="bi bi-send"></i> Retry Delivery';
+                retryBtn.disabled = false;
+            }
+        }
+        
+        async function retryDirectFulfillment(order) {
+            try {
+                showToast('Trying direct fulfillment API...', 'info');
+                
+                const bundleConfig = BUNDLE_MAP[order.bundleId];
+                if (!bundleConfig) {
+                    showToast('Bundle configuration not found', 'error');
+                    return;
+                }
+                
+                let formattedPhone = order.recipientPhone;
+                if (formattedPhone.startsWith('0')) {
+                    formattedPhone = '233' + formattedPhone.substring(1);
+                }
+                
+                const payload = {
+                    type: 'single',
+                    volume: bundleConfig.volume,
+                    phone: formattedPhone,
+                    offerSlug: bundleConfig.offerSlug,
+                    webhookUrl: `${CONFIG.BACKEND_URL}/api/successbizhub-webhook`
+                };
+                
+                // Direct API call to Success Biz Hub
+                const response = await fetch(`${CONFIG.SUCCESSBIZHUB_BASE_URL}/order/${bundleConfig.network}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': CONFIG.SUCCESSBIZHUB_API_KEY
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(`✅ Direct fulfillment successful! Reference: ${data.reference}`, 'success');
+                    
+                    // Update order status
+                    await apiCall(`/api/admin/orders/${order.orderId}/status`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ status: 'processing' })
+                    });
+                    
+                } else {
+                    const errorData = await response.text();
+                    showToast(`Direct API failed: ${errorData}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Direct fulfillment error:', error);
+                showToast(`Direct fulfillment failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function updateOrderRowStatus(orderId, newStatus) {
+            const rows = document.querySelectorAll('#pendingFulfillmentBody tr');
+            rows.forEach(row => {
+                const orderIdCell = row.querySelector('td:first-child code');
+                if (orderIdCell && orderIdCell.textContent.includes(orderId)) {
+                    const statusCell = row.querySelector('td:nth-child(5)');
+                    if (statusCell) {
+                        statusCell.innerHTML = `<span class="badge ${getStatusClass(newStatus)}">${formatStatus(newStatus)}</span>`;
+                    }
+                }
+            });
         }
         
         async function testFulfillment() {
             try {
-                const response = await fetch(`${CONFIG.BACKEND_URL}/api/health`);
+                showToast('Testing Success Biz Hub connection...', 'info');
+                
+                const response = await fetch(`${CONFIG.BACKEND_URL}/api/test-fulfillment`);
                 if (response.ok) {
-                    showToast('Success Biz Hub connection is working!', 'success');
+                    showToast('✅ Success Biz Hub connection is working!', 'success');
                     updateSystemStatus('fulfillment', 'success', 'Connected');
                 } else {
                     throw new Error();
@@ -2713,6 +2954,10 @@
             showToast(`Chart period updated to ${period}`, 'info');
         }
         
+        function useSampleOrder() {
+            document.getElementById('retryOrderId').value = 'ORD10001';
+        }
+        
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.clear();
@@ -2737,6 +2982,7 @@
         window.exportData = exportData;
         window.updateChartPeriod = updateChartPeriod;
         window.updateAnalytics = updateAnalytics;
+        window.useSampleOrder = useSampleOrder;
         window.logout = logout;
     </script>
 </body>
