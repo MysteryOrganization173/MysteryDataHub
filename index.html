@@ -3,1257 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mystery Bundle Hub - Ghana's Fastest Data Delivery</title>
+    <title>Mystery Bundle Hub - Temporary Maintenance</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <script src="https://js.paystack.co/v1/inline.js"></script>
     <style>
         :root {
             --primary-dark: #0f172a;
             --secondary-dark: #1e293b;
             --accent-green: #00ff88;
-            --accent-blue: #3b82f6;
             --accent-purple: #8b5cf6;
-            --accent-yellow: #ffcc00;
-            --accent-red: #ff2a54;
-            --accent-teal: #00a1e0;
             --text-primary: #f8f9fa;
             --text-secondary: #94a3b8;
             --border-color: #334155;
         }
-        
         body {
             background: var(--primary-dark);
             color: var(--text-primary);
             font-family: 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
-        
-        /* Navbar */
-        .navbar {
-            background: rgba(15, 23, 42, 0.98) !important;
+        .maintenance-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem;
+            text-align: center;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
         }
-        
-        .navbar-brand {
+        .logo {
+            font-size: 3.5rem;
             font-weight: 800;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+            background: linear-gradient(90deg, var(--accent-green), var(--accent-purple));
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
         }
-        
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 0;
+        .icon-container {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-green);
         }
-        
-        /* Modern Info Badges - Smaller */
-        .info-badge {
+        h1 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 2.8rem;
+        }
+        .lead-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+        .highlight-box {
+            background: rgba(0, 255, 136, 0.08);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin: 2.5rem 0;
+            text-align: left;
+        }
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white !important;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            padding: 0.4rem 0.8rem;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin: 0.15rem;
-            border: 1px solid transparent;
-            color: white;
-            white-space: nowrap;
-        }
-        
-        .express-badge {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9));
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-        
-        .beneficiary-badge {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9));
-            border-color: rgba(139, 92, 246, 0.3);
-        }
-        
-        .instant-badge {
-            background: linear-gradient(135deg, rgba(255, 42, 84, 0.9), rgba(228, 0, 43, 0.9));
-            border-color: rgba(255, 42, 84, 0.3);
-        }
-        
-        /* Network Filter - Improved */
-        .network-filter {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        
-        .filter-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.2s ease;
-            background: rgba(255,255,255,0.03);
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
-        
-        .filter-btn:hover {
-            background: rgba(255,255,255,0.07);
-        }
-        
-        .filter-btn.active {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .filter-btn.all.active {
-            background: rgba(0, 255, 136, 0.1);
-            color: var(--accent-green);
-            border-color: rgba(0, 255, 136, 0.3);
-        }
-        
-        .filter-btn.mtn.active {
-            background: rgba(255, 204, 0, 0.1);
-            color: var(--accent-yellow);
-            border-color: rgba(255, 204, 0, 0.3);
-        }
-        
-        .filter-btn.airtel.active {
-            background: rgba(255, 42, 84, 0.1);
-            color: var(--accent-red);
-            border-color: rgba(255, 42, 84, 0.3);
-        }
-        
-        .filter-btn.telecel.active {
-            background: rgba(0, 161, 224, 0.1);
-            color: var(--accent-teal);
-            border-color: rgba(0, 161, 224, 0.3);
-        }
-        
-        .filter-btn.express.active {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--accent-blue);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-        
-        .filter-btn.beneficiary.active {
-            background: rgba(139, 92, 246, 0.1);
-            color: var(--accent-purple);
-            border-color: rgba(139, 92, 246, 0.3);
-        }
-        
-        /* Bundle Grid */
-        .bundle-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1rem;
-            padding: 1rem 0;
-        }
-        
-        @media (min-width: 1400px) {
-            .bundle-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .bundle-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-        }
-        
-        /* Bundle Cards - Improved Layout */
-        .bundle-card {
-            background: var(--secondary-dark);
-            border-radius: 14px;
-            padding: 1.25rem;
-            border: 1px solid var(--border-color);
+            gap: 10px;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            margin-top: 1rem;
         }
-        
-        .bundle-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            border-radius: 14px 14px 0 0;
-        }
-        
-        .bundle-card.mtn::before {
-            background: linear-gradient(90deg, var(--accent-yellow), #ffaa00);
-        }
-        
-        .bundle-card.airtel::before {
-            background: linear-gradient(90deg, var(--accent-red), #e4002b);
-        }
-        
-        .bundle-card.telecel::before {
-            background: linear-gradient(90deg, var(--accent-teal), #0088cc);
-        }
-        
-        .bundle-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(0, 255, 136, 0.3);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Bundle Header - Compact */
-        .bundle-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.8rem;
-        }
-        
-        .bundle-size {
-            font-size: 1.8rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #ffffff, #d1d5db);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            line-height: 1;
-            margin-top: 0.2rem;
-        }
-        
-        /* SMALLER Type Badges */
-        .bundle-type-tag {
-            padding: 0.2rem 0.6rem;
-            border-radius: 8px;
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            color: white;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        
-        .type-express {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        
-        .type-beneficiary {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-        
-        /* Network Info - Compact */
-        .bundle-network {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        .network-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-        }
-        
-        .icon-mtn {
-            background: linear-gradient(135deg, var(--accent-yellow), #ffaa00);
-            color: #000;
-        }
-        
-        .icon-airtel {
-            background: linear-gradient(135deg, var(--accent-red), #e4002b);
+        .whatsapp-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
             color: white;
         }
-        
-        .icon-telecel {
-            background: linear-gradient(135deg, var(--accent-teal), #0088cc);
-            color: white;
-        }
-        
-        /* Price Display - Cleaner */
-        .price-container {
-            margin: 0.8rem 0;
-            padding: 0.9rem;
-            background: rgba(255,255,255,0.03);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .bundle-price {
-            font-size: 1.7rem;
-            font-weight: 900;
-            color: var(--accent-green);
-            line-height: 1;
-            text-shadow: 0 2px 8px rgba(0, 255, 136, 0.2);
-        }
-        
-        .price-per-gb {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 0.2rem;
-            opacity: 0.9;
-        }
-        
-        /* Bundle Features - Compact */
-        .bundle-features {
-            list-style: none;
-            padding: 0;
-            margin: 0.6rem 0;
-        }
-        
-        .bundle-features li {
-            margin-bottom: 0.3rem;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-secondary);
-        }
-        
-        .bundle-features li i {
-            font-size: 0.85rem;
-            min-width: 14px;
-        }
-        
-        /* Buy Button - Improved */
-        .btn-buy {
-            background: linear-gradient(135deg, var(--accent-green), #00cc66);
-            color: black !important;
-            font-weight: 700;
-            border: none;
-            padding: 0.8rem;
-            width: 100%;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            margin-top: auto;
-            transition: all 0.2s ease;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
-        }
-        
-        .btn-buy:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
-        }
-        
-        /* Contact Section */
-        .contact-section {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 14px;
-            padding: 1.25rem;
-            margin: 1.5rem auto;
-            max-width: 600px;
-            border: 1px solid var(--border-color);
-        }
-        
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.7rem;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-        }
-        
-        .contact-item:hover {
-            background: rgba(0, 255, 136, 0.08);
-            border-color: rgba(0, 255, 136, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        /* Footer */
-        .footer {
-            background: var(--secondary-dark);
+        .contact-info {
+            margin-top: 3rem;
+            padding-top: 2rem;
             border-top: 1px solid var(--border-color);
-            padding: 1.5rem 0;
-            margin-top: 2rem;
-        }
-        
-        .footer-text {
             color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        .agent-notice {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 2rem;
             font-size: 0.9rem;
         }
-        
-        /* Modal - Cleaner */
-        .modal-content {
-            background: var(--secondary-dark);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-        
-        /* Form Controls */
-        .form-control {
-            background: rgba(255,255,255,0.07) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: var(--text-primary) !important;
-            border-radius: 8px;
-            padding: 0.7rem 0.9rem;
-            font-size: 0.9rem;
-        }
-        
-        .form-control:focus {
-            background: rgba(255,255,255,0.1) !important;
-            border-color: var(--accent-green) !important;
-            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2) !important;
-        }
-        
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.4) !important;
-        }
-        
-        /* Support Alert - Cleaner */
-        .support-alert {
-            background: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            color: var(--text-secondary) !important;
-            font-size: 0.85rem;
-            border-radius: 8px;
-        }
-        
-        .support-alert a {
-            color: var(--accent-green) !important;
-            font-weight: 600;
-        }
-        
-        /* Loading Spinner */
-        .loading-spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: var(--accent-green);
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Status Messages - Cleaner */
-        .alert-success {
-            background: rgba(16, 185, 129, 0.08) !important;
-            border-color: rgba(16, 185, 129, 0.2) !important;
-            color: #10b981 !important;
-            border-radius: 10px;
-        }
-        
-        .alert-info {
-            background: rgba(59, 130, 246, 0.08) !important;
-            border-color: rgba(59, 130, 246, 0.2) !important;
-            color: #3b82f6 !important;
-            border-radius: 10px;
-        }
-        
-        .alert-warning {
-            background: rgba(245, 158, 11, 0.08) !important;
-            border-color: rgba(245, 158, 11, 0.2) !important;
-            color: #f59e0b !important;
-            border-radius: 10px;
-        }
-        
-        .alert-danger {
-            background: rgba(239, 68, 68, 0.08) !important;
-            border-color: rgba(239, 68, 68, 0.2) !important;
-            color: #ef4444 !important;
-            border-radius: 10px;
-        }
-        
-        /* Progress Bar */
-        .progress {
-            height: 6px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 3px;
-        }
-        
-        /* Delivery Tooltip */
-        .delivery-tooltip {
-            visibility: hidden;
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 0.5rem 0.7rem;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            z-index: 1000;
-            margin-bottom: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .delivery-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 5px;
-            border-style: solid;
-            border-color: rgba(0,0,0,0.9) transparent transparent transparent;
-        }
-        
-        .delivery-time:hover .delivery-tooltip {
-            visibility: visible;
+        .agent-notice strong {
+            color: var(--accent-purple);
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="bi bi-lightning-charge-fill me-2"></i>MYSTERY BUNDLE HUB
+    <div class="container">
+        <div class="maintenance-container">
+            <!-- Logo -->
+            <div class="logo">
+                <i class="bi bi-lightning-charge-fill"></i> MYSTERY BUNDLE HUB
+            </div>
+            
+            <!-- Main Icon -->
+            <div class="icon-container">
+                <i class="bi bi-tools"></i>
+            </div>
+            
+            <!-- Main Heading -->
+            <h1>⚡ Temporary System Maintenance</h1>
+            
+            <!-- Explanation -->
+            <p class="lead-text">
+                We're currently upgrading our payment systems to serve you better. 
+                <strong>All order processing has been temporarily paused</strong> while we implement a more reliable and faster payment solution.
+            </p>
+            
+            <!-- Key Info Box -->
+            <div class="highlight-box">
+                <h4><i class="bi bi-info-circle-fill me-2"></i>What's Happening?</h4>
+                <p class="mb-0">
+                    • We're transitioning to a new automated payment system<br>
+                    • This upgrade will enable instant Mobile Money payments<br>
+                    • Your existing orders are safe and will be processed once complete<br>
+                    • We expect to be back online within <strong>7-14 days</strong>
+                </p>
+            </div>
+            
+            <!-- WhatsApp Support Button -->
+            <p class="mb-3">For urgent inquiries or existing order support:</p>
+            <a href="https://wa.me/233592066298" target="_blank" class="whatsapp-btn">
+                <i class="bi bi-whatsapp"></i> Contact Support on WhatsApp
             </a>
-            <div class="d-flex">
-                <a class="nav-link text-white me-3" href="track-order.html">
-                    <i class="bi bi-truck me-1"></i>Track Order
-                </a>
-                <a class="nav-link text-white" href="#contact">
-                    <i class="bi bi-headset me-1"></i>Support
-                </a>
+            
+            <!-- Agent Notice -->
+            <div class="agent-notice">
+                <strong><i class="bi bi-shield-check me-1"></i>AGENTS:</strong> Agent registration and dashboard access will resume with the new system. We'll contact all registered agents directly with updates.
             </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="container">
-            <div class="text-center">
-                <h1 class="display-6 fw-bold mb-2">⚡ Mobile Data Bundles</h1>
-                <p class="lead mb-3">Instant delivery • 3-15 minutes • 100% Guaranteed</p>
-                
-                <!-- Compact Info Badges -->
-                <div class="d-flex flex-wrap justify-content-center mb-3">
-                    <span class="info-badge express-badge">
-                        <i class="bi bi-bolt-fill me-1"></i>EXPRESS: 3-15min
-                    </span>
-                    <span class="info-badge beneficiary-badge">
-                        <i class="bi bi-cash-coin me-1"></i>BENEFICIARY: SAVE
-                    </span>
-                    <span class="info-badge instant-badge">
-                        <i class="bi bi-rocket-takeoff-fill me-1"></i>AIRTEL: INSTANT
-                    </span>
-                </div>
-                
-                <!-- Network Filter -->
-                <div class="network-filter">
-                    <button class="filter-btn all active" onclick="filterBundles('all')">
-                        <i class="bi bi-grid me-1"></i>All
-                    </button>
-                    <button class="filter-btn mtn" onclick="filterBundles('mtn')">
-                        <i class="bi bi-lightning-charge me-1"></i>MTN
-                    </button>
-                    <button class="filter-btn airtel" onclick="filterBundles('airtel')">
-                        <i class="bi bi-rocket-takeoff me-1"></i>AirtelTigo
-                    </button>
-                    <button class="filter-btn telecel" onclick="filterBundles('telecel')">
-                        <i class="bi bi-wifi me-1"></i>Telecel
-                    </button>
-                    <button class="filter-btn express" onclick="filterBundles('express')">
-                        <i class="bi bi-bolt me-1"></i>Express
-                    </button>
-                    <button class="filter-btn beneficiary" onclick="filterBundles('beneficiary')">
-                        <i class="bi bi-coin me-1"></i>Beneficiary
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container py-3">
-        <!-- Bundles Container -->
-        <div id="bundlesContainer" class="bundle-grid">
-            <!-- Bundles will be loaded here -->
-        </div>
-        
-        <!-- Contact Section -->
-        <div class="contact-section" id="contact">
-            <h5 class="text-center mb-3">
-                <i class="bi bi-headset me-2"></i>Need Help? Contact Support
-            </h5>
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <a href="https://wa.me/233592066298" target="_blank" class="contact-item mb-2">
-                        <div class="network-icon icon-mtn">
-                            <i class="bi bi-whatsapp"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <strong style="font-size: 0.95rem;">WhatsApp Support</strong>
-                            <small class="d-block" style="color: var(--text-secondary); font-size: 0.8rem;">Click to chat instantly</small>
-                            <span class="text-success" style="font-size: 0.9rem;">059 206 6298</span>
-                        </div>
-                        <i class="bi bi-arrow-up-right" style="color: var(--text-secondary);"></i>
-                    </a>
-                    
-                    <a href="mailto:aryeeteyemmanuel852@gmail.com" class="contact-item">
-                        <div class="network-icon icon-telecel">
-                            <i class="bi bi-envelope"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <strong style="font-size: 0.95rem;">Email Support</strong>
-                            <small class="d-block" style="color: var(--text-secondary); font-size: 0.8rem;">Send us an email</small>
-                            <span class="text-info" style="font-size: 0.9rem;">aryeeteyemmanuel852@gmail.com</span>
-                        </div>
-                        <i class="bi bi-arrow-up-right" style="color: var(--text-secondary);"></i>
-                    </a>
-                </div>
-            </div>
-            <p class="text-center mt-2 mb-0" style="color: var(--text-secondary); font-size: 0.85rem;">
-                <i class="bi bi-clock me-1"></i>Response time: 5-15 minutes
-            </p>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h5 class="mb-2 text-white" style="font-size: 1rem;">
-                        <i class="bi bi-lightning-charge-fill me-2"></i>MYSTERY BUNDLE HUB
-                    </h5>
-                    <p class="footer-text mb-2" style="font-size: 0.85rem;">Ghana's premier mobile data delivery service with guaranteed speed and reliability.</p>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-success" style="font-size: 0.7rem;">✓ Guaranteed</span>
-                        <span class="badge bg-info" style="font-size: 0.7rem;">⚡ Instant</span>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5 class="mb-2 text-white" style="font-size: 1rem;">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-1"><a href="index.html" class="footer-text text-decoration-none" style="font-size: 0.85rem;"><i class="bi bi-house me-2"></i>Home</a></li>
-                        <li class="mb-1"><a href="track-order.html" class="footer-text text-decoration-none" style="font-size: 0.85rem;"><i class="bi bi-truck me-2"></i>Track Order</a></li>
-                        <li class="mb-1"><a href="#contact" class="footer-text text-decoration-none" style="font-size: 0.85rem;"><i class="bi bi-headset me-2"></i>Support</a></li>
-                        <li class="mb-1"><a href="admin-login.html" class="footer-text text-decoration-none" style="font-size: 0.85rem;"><i class="bi bi-shield-lock me-2"></i>Admin Login</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h5 class="mb-2 text-white" style="font-size: 1rem;">Contact Info</h5>
-                    <ul class="list-unstyled footer-text" style="font-size: 0.85rem;">
-                        <li class="mb-1">
-                            <i class="bi bi-whatsapp me-2 text-success"></i>
-                            <span>WhatsApp: 059 206 6298</span>
-                        </li>
-                        <li class="mb-1">
-                            <i class="bi bi-envelope me-2 text-info"></i>
-                            <span>Email: aryeeteyemmanuel852@gmail.com</span>
-                        </li>
-                        <li class="mb-1">
-                            <i class="bi bi-clock me-2 text-warning"></i>
-                            <span>Support Hours: 24/7</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="my-3 opacity-25">
-            <p class="text-center footer-text mb-0" style="font-size: 0.8rem;">
-                © 2026 Mystery Bundle Hub • All rights reserved • Fastest data delivery in Ghana
-            </p>
-        </div>
-    </footer>
-
-    <!-- Buy Modal -->
-    <div class="modal fade" id="buyModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0 pb-2">
-                    <h5 class="modal-title text-white" style="font-size: 1.1rem;">
-                        <i class="bi bi-cart-check me-2"></i>Buy Data Bundle
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body pt-0">
-                    <div id="bundleInfo" class="mb-3 p-3 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
-                        <!-- Bundle info will be loaded here -->
-                    </div>
-                    
-                    <!-- Customer Form -->
-                    <div class="mb-2">
-                        <label class="form-label text-white" style="font-size: 0.9rem;">Email Address</label>
-                        <input type="email" id="emailInput" class="form-control" 
-                               placeholder="your@email.com" required>
-                        <div class="form-text" style="color: var(--text-secondary); font-size: 0.8rem;">Payment receipt will be sent here</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-white" style="font-size: 0.9rem;">Phone Number</label>
-                        <input type="tel" id="phoneInput" class="form-control" 
-                               placeholder="0550123456" required>
-                        <div class="form-text" style="color: var(--text-secondary); font-size: 0.8rem;">Bundle will be delivered to this number</div>
-                    </div>
-                    
-                    <!-- Payment Summary -->
-                    <div class="p-3 rounded mb-3" style="background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.2);">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1 text-white" style="font-size: 0.95rem;">Total Amount</h6>
-                                <small class="text-white-50" style="font-size: 0.8rem;">Including all charges</small>
-                            </div>
-                            <h3 class="text-success mb-0" id="modalPrice" style="font-size: 1.8rem;">₵0</h3>
-                        </div>
-                    </div>
-                    
-                    <!-- Pay Now Button -->
-                    <button type="button" class="btn-buy mb-2" onclick="processPayment()" id="payButton">
-                        <i class="bi bi-lock me-2"></i>Pay Securely with PayStack
-                    </button>
-                    
-                    <!-- Support Note -->
-                    <div class="alert support-alert mt-2 mb-0">
-                        <small>
-                            <i class="bi bi-info-circle me-2"></i>
-                            Need help? WhatsApp: <a href="https://wa.me/233592066298">059 206 6298</a>
-                        </small>
-                    </div>
-                    
-                    <!-- Payment Status -->
-                    <div id="paymentStatus" class="mt-2"></div>
-                </div>
+            
+            <!-- Contact Info -->
+            <div class="contact-info">
+                <p class="mb-1">
+                    <i class="bi bi-envelope me-2"></i>Email: aryeeteyemmanuel852@gmail.com
+                </p>
+                <p class="mb-0">
+                    <i class="bi bi-clock me-2"></i>Expected Return: Early April 2026
+                </p>
             </div>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Main JavaScript -->
-    <script>
-        // ===== CONFIGURATION =====
-        const CONFIG = {
-            BACKEND_URL: 'https://mysterydatahub-api.onrender.com',
-            PAYSTACK_PUBLIC_KEY: 'pk_live_f786738518503826805eb02c3c2ad945b62e5e8f', // Replace with your actual PayStack key
-            BUNDLES: [
-                // MTN Express Bundles
-                { id: 'mtn-1-express', network: 'mtn', size: '1GB', price: 6.70, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-2-express', network: 'mtn', size: '2GB', price: 12.90, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-3-express', network: 'mtn', size: '3GB', price: 18.80, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-4-express', network: 'mtn', size: '4GB', price: 24.50, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-5-express', network: 'mtn', size: '5GB', price: 29.50, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-6-express', network: 'mtn', size: '6GB', price: 35.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-7-express', network: 'mtn', size: '7GB', price: 40.50, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-8-express', network: 'mtn', size: '8GB', price: 45.80, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-10-express', network: 'mtn', size: '10GB', price: 55.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-15-express', network: 'mtn', size: '15GB', price: 79.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-20-express', network: 'mtn', size: '20GB', price: 102.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-25-express', network: 'mtn', size: '25GB', price: 124.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-30-express', network: 'mtn', size: '30GB', price: 145.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'mtn-40-express', network: 'mtn', size: '40GB', price: 190.00, validity: '90 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-
-                // MTN Beneficiary Bundles
-                { id: 'mtn-1-beneficiary', network: 'mtn', size: '1GB', price: 5.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-2-beneficiary', network: 'mtn', size: '2GB', price: 9.80, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-3-beneficiary', network: 'mtn', size: '3GB', price: 14.20, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-4-beneficiary', network: 'mtn', size: '4GB', price: 18.90, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-5-beneficiary', network: 'mtn', size: '5GB', price: 23.50, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-6-beneficiary', network: 'mtn', size: '6GB', price: 28.20, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-7-beneficiary', network: 'mtn', size: '7GB', price: 32.80, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-8-beneficiary', network: 'mtn', size: '8GB', price: 37.50, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-10-beneficiary', network: 'mtn', size: '10GB', price: 46.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-15-beneficiary', network: 'mtn', size: '15GB', price: 68.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-20-beneficiary', network: 'mtn', size: '20GB', price: 89.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-25-beneficiary', network: 'mtn', size: '25GB', price: 109.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-30-beneficiary', network: 'mtn', size: '30GB', price: 128.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-40-beneficiary', network: 'mtn', size: '40GB', price: 168.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-50-beneficiary', network: 'mtn', size: '50GB', price: 206.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-                { id: 'mtn-100-beneficiary', network: 'mtn', size: '100GB', price: 390.00, validity: '90 days', 
-                  delivery: '30min-2 hours', type: 'beneficiary' },
-
-                // AirtelTigo Bundles
-                { id: 'airtel-1', network: 'airtel', size: '1GB', price: 5.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-2', network: 'airtel', size: '2GB', price: 9.50, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-3', network: 'airtel', size: '3GB', price: 13.80, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-4', network: 'airtel', size: '4GB', price: 18.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-5', network: 'airtel', size: '5GB', price: 22.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-6', network: 'airtel', size: '6GB', price: 26.50, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-7', network: 'airtel', size: '7GB', price: 30.50, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-8', network: 'airtel', size: '8GB', price: 34.50, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-9', network: 'airtel', size: '9GB', price: 38.50, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-10', network: 'airtel', size: '10GB', price: 42.50, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-12', network: 'airtel', size: '12GB', price: 50.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-15', network: 'airtel', size: '15GB', price: 62.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-20', network: 'airtel', size: '20GB', price: 82.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-25', network: 'airtel', size: '25GB', price: 101.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-                { id: 'airtel-30', network: 'airtel', size: '30GB', price: 120.00, validity: '60 days', 
-                  delivery: 'INSTANT', type: 'instant' },
-
-                // Telecel Bundles
-                { id: 'telecel-5', network: 'telecel', size: '5GB', price: 26.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-10', network: 'telecel', size: '10GB', price: 48.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-15', network: 'telecel', size: '15GB', price: 69.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-20', network: 'telecel', size: '20GB', price: 90.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-25', network: 'telecel', size: '25GB', price: 112.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-30', network: 'telecel', size: '30GB', price: 130.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-40', network: 'telecel', size: '40GB', price: 168.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-50', network: 'telecel', size: '50GB', price: 205.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' },
-                { id: 'telecel-100', network: 'telecel', size: '100GB', price: 390.00, validity: '60 days', 
-                  delivery: '3-15 minutes', type: 'express' }
-            ]
-        };
-
-        let selectedBundle = null;
-        let currentOrderId = null;
-        const modal = new bootstrap.Modal(document.getElementById('buyModal'));
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            displayBundles('all');
-        });
-
-        // Display bundles with filtering
-        function displayBundles(filter) {
-            const container = document.getElementById('bundlesContainer');
-            container.innerHTML = '';
-            
-            let filtered = CONFIG.BUNDLES;
-            
-            switch(filter) {
-                case 'mtn':
-                    filtered = CONFIG.BUNDLES.filter(b => b.network === 'mtn');
-                    break;
-                case 'airtel':
-                    filtered = CONFIG.BUNDLES.filter(b => b.network === 'airtel');
-                    break;
-                case 'telecel':
-                    filtered = CONFIG.BUNDLES.filter(b => b.network === 'telecel');
-                    break;
-                case 'express':
-                    filtered = CONFIG.BUNDLES.filter(b => b.type === 'express');
-                    break;
-                case 'beneficiary':
-                    filtered = CONFIG.BUNDLES.filter(b => b.type === 'beneficiary');
-                    break;
-            }
-            
-            // Sort by size
-            filtered.sort((a, b) => {
-                const sizeA = parseInt(a.size);
-                const sizeB = parseInt(b.size);
-                return sizeA - sizeB;
-            });
-            
-            // Create bundle cards
-            filtered.forEach(bundle => {
-                const card = document.createElement('div');
-                card.className = `bundle-card ${bundle.network} ${bundle.type}`;
-                
-                // Calculate price per GB
-                const sizeNum = parseInt(bundle.size);
-                const pricePerGB = bundle.price / sizeNum;
-                
-                // Network icon
-                let networkIcon = '';
-                let networkName = '';
-                if (bundle.network === 'mtn') {
-                    networkIcon = '<div class="network-icon icon-mtn"><i class="bi bi-lightning-charge"></i></div>';
-                    networkName = 'MTN';
-                } else if (bundle.network === 'airtel') {
-                    networkIcon = '<div class="network-icon icon-airtel"><i class="bi bi-rocket-takeoff"></i></div>';
-                    networkName = 'AirtelTigo';
-                } else {
-                    networkIcon = '<div class="network-icon icon-telecel"><i class="bi bi-wifi"></i></div>';
-                    networkName = 'Telecel';
-                }
-                
-                // Type badge - COMPACT SIZE
-                let typeBadge = '';
-                if (bundle.type === 'express') {
-                    typeBadge = '<span class="bundle-type-tag type-express">EXPRESS</span>';
-                } else if (bundle.type === 'beneficiary') {
-                    typeBadge = '<span class="bundle-type-tag type-beneficiary">SAVE</span>';
-                } else if (bundle.type === 'instant') {
-                    typeBadge = '<span class="bundle-type-tag" style="background: linear-gradient(135deg, #ff2a54, #e4002b); border: 1px solid rgba(255, 42, 84, 0.3); color: white;">INSTANT</span>';
-                }
-                
-                // Delivery tooltip
-                let deliveryTooltip = '';
-                if (bundle.type === 'express') {
-                    deliveryTooltip = 'Fast delivery: 3-15 minutes in good network conditions';
-                } else if (bundle.type === 'beneficiary') {
-                    deliveryTooltip = 'Standard delivery: 30 minutes to 2 hours in good network conditions';
-                } else if (bundle.type === 'instant') {
-                    deliveryTooltip = 'Instant delivery: Usually within seconds';
-                }
-                
-                card.innerHTML = `
-                    <div class="bundle-header">
-                        <div class="bundle-size">${bundle.size}</div>
-                        ${typeBadge}
-                    </div>
-                    
-                    <div class="bundle-network">
-                        ${networkIcon}
-                        <div>
-                            <div class="fw-bold text-white" style="font-size: 0.95rem;">${networkName}</div>
-                            <small style="color: var(--text-secondary); font-size: 0.8rem;">${bundle.validity}</small>
-                        </div>
-                    </div>
-                    
-                    <div class="price-container">
-                        <div class="bundle-price">₵${bundle.price.toFixed(2)}</div>
-                        <div class="price-per-gb">₵${pricePerGB.toFixed(2)} per GB</div>
-                    </div>
-                    
-                    <ul class="bundle-features">
-                        <li>
-                            <i class="bi bi-clock" style="color: #60a5fa;"></i>
-                            <span class="delivery-time" style="color: var(--text-secondary);">
-                                ${bundle.delivery}
-                                <span class="delivery-tooltip">${deliveryTooltip}</span>
-                            </span>
-                        </li>
-                        <li>
-                            <i class="bi bi-shield-check" style="color: #10b981;"></i>
-                            <span>100% Delivery Guarantee</span>
-                        </li>
-                    </ul>
-                    
-                    <button class="btn-buy" onclick="openBuyModal('${bundle.id}')">
-                        <i class="bi bi-cart-plus me-2"></i> Buy Now
-                    </button>
-                `;
-                
-                container.appendChild(card);
-            });
-        }
-
-        // Open buy modal
-        function openBuyModal(bundleId) {
-            selectedBundle = CONFIG.BUNDLES.find(b => b.id === bundleId);
-            
-            if (!selectedBundle) {
-                showMessage('Bundle not found!', 'error');
-                return;
-            }
-            
-            // Update modal content
-            document.getElementById('bundleInfo').innerHTML = `
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1">
-                        <h5 class="mb-1 text-white" style="font-size: 1rem;">${selectedBundle.network.toUpperCase()} - ${selectedBundle.size}</h5>
-                        <p class="mb-0" style="color: var(--text-secondary); font-size: 0.85rem;">
-                            ${selectedBundle.validity} • ${selectedBundle.delivery}
-                        </p>
-                    </div>
-                    <h4 class="text-success mb-0" style="font-size: 1.5rem;">₵${selectedBundle.price.toFixed(2)}</h4>
-                </div>
-            `;
-            
-            document.getElementById('modalPrice').textContent = `₵${selectedBundle.price.toFixed(2)}`;
-            document.getElementById('paymentStatus').innerHTML = '';
-            document.getElementById('phoneInput').value = '';
-            document.getElementById('emailInput').value = '';
-            
-            modal.show();
-        }
-
-        // Process payment - FIXED VERSION
-        async function processPayment() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            const email = document.getElementById('emailInput').value.trim();
-            const payButton = document.getElementById('payButton');
-
-            if (!phone || !selectedBundle) {
-                showMessage('Please enter a phone number.', 'error');
-                return;
-            }
-
-            // Validate Ghana phone number
-            const phoneRegex = /^(0[2-9][0-9]{8}|233[2-9][0-9]{8})$/;
-            if (!phoneRegex.test(phone)) {
-                showMessage('Please enter a valid Ghana phone number (e.g., 0241234567)', 'error');
-                return;
-            }
-
-            if (!email) {
-                showMessage('Please enter an email address.', 'error');
-                return;
-            }
-
-            // Show loading
-            payButton.disabled = true;
-            payButton.innerHTML = '<div class="loading-spinner me-2"></div> Processing...';
-            
-            document.getElementById('paymentStatus').innerHTML = `
-                <div class="alert alert-info">
-                    <div class="loading-spinner me-2"></div>
-                    Creating your order...
-                </div>
-            `;
-
-            try {
-                // Create order
-                const response = await fetch(`${CONFIG.BACKEND_URL}/api/orders/create`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bundleId: selectedBundle.id,
-                        recipientPhone: phone,
-                        customerEmail: email,
-                        amount: selectedBundle.price
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Failed to create order. Please try again.');
-                }
-
-                // Initialize PayStack
-                document.getElementById('paymentStatus').innerHTML = `
-                    <div class="alert alert-info">
-                        <div class="loading-spinner me-2"></div>
-                        Redirecting to secure payment...
-                    </div>
-                `;
-
-                // Store order ID for status checking
-                currentOrderId = data.orderId;
-
-                const handler = PaystackPop.setup({
-                    key: data.publicKey,
-                    email: email,
-                    amount: data.amount,
-                    currency: 'GHS',
-                    ref: data.orderId,
-                    metadata: {
-                        orderId: data.orderId,
-                        phone: phone,
-                        bundle: selectedBundle.size,
-                        network: selectedBundle.network
-                    },
-                    callback: function(response) {
-                        // Payment successful
-                        document.getElementById('paymentStatus').innerHTML = `
-                            <div class="alert alert-success">
-                                <h6 class="text-white" style="font-size: 0.95rem;">✅ Payment Successful!</h6>
-                                <p class="text-white" style="font-size: 0.85rem;">Your ${selectedBundle.size} ${selectedBundle.network.toUpperCase()} bundle is being delivered to ${phone}</p>
-                                <a href="track-order.html?orderId=${data.orderId}" class="btn btn-primary btn-sm mt-2" style="font-size: 0.8rem;">
-                                    <i class="bi bi-truck me-1"></i> Track Order Status
-                                </a>
-                            </div>
-                        `;
-                        
-                        // Start checking order status
-                        startCheckingOrderStatus(data.orderId);
-                    },
-                    onClose: function() {
-                        document.getElementById('paymentStatus').innerHTML = `
-                            <div class="alert alert-warning">
-                                <h6 class="text-white" style="font-size: 0.95rem;">⚠️ Payment Incomplete</h6>
-                                <p class="text-white" style="font-size: 0.85rem;">You closed the payment window. If you completed the payment, your order is being processed.</p>
-                                <a href="track-order.html?orderId=${data.orderId}" class="btn btn-sm btn-warning mt-1" style="font-size: 0.8rem;">
-                                    <i class="bi bi-search me-1"></i> Check Order Status
-                                </a>
-                            </div>
-                        `;
-                        resetPayButton();
-                    }
-                });
-
-                handler.openIframe();
-
-            } catch (error) {
-                console.error('Payment error:', error);
-                document.getElementById('paymentStatus').innerHTML = `
-                    <div class="alert alert-danger">
-                        <h6 class="text-white" style="font-size: 0.95rem;">❌ Payment Failed</h6>
-                        <p class="text-white" style="font-size: 0.85rem;">${error.message}</p>
-                        <button class="btn btn-sm btn-warning mt-1" onclick="processPayment()" style="font-size: 0.8rem;">Try Again</button>
-                    </div>
-                `;
-                resetPayButton();
-            }
-        }
-
-        // Check order status
-        function startCheckingOrderStatus(orderId) {
-            let checks = 0;
-            const maxChecks = 20; // 20 checks = 100 seconds
-            
-            const checkInterval = setInterval(async () => {
-                checks++;
-                
-                if (checks > maxChecks) {
-                    clearInterval(checkInterval);
-                    document.getElementById('paymentStatus').innerHTML += `
-                        <div class="alert alert-info mt-2">
-                            <small class="text-white" style="font-size: 0.8rem;">Delivery might take a few minutes. <a href="track-order.html?orderId=${orderId}" class="text-warning">Track your order here</a></small>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                try {
-                    const response = await fetch(`${CONFIG.BACKEND_URL}/api/orders/${orderId}`);
-                    
-                    if (!response.ok) return;
-                    
-                    const result = await response.json();
-                    
-                    if (result.success && result.order) {
-                        const status = result.order.status;
-                        const statusEl = document.querySelector('#paymentStatus .alert');
-                        
-                        if (statusEl) {
-                            if (status === 'delivered') {
-                                statusEl.className = 'alert alert-success';
-                                statusEl.innerHTML = `
-                                    <h6 class="text-white" style="font-size: 0.95rem;">✅ Bundle Delivered!</h6>
-                                    <p class="text-white" style="font-size: 0.85rem;">Check your phone <strong>${result.order.recipientPhone}</strong>.</p>
-                                    <p class="text-white" style="font-size: 0.85rem;">Your ${selectedBundle.size} ${selectedBundle.network.toUpperCase()} bundle has been delivered.</p>
-                                    <a href="track-order.html?orderId=${orderId}" class="btn btn-success btn-sm mt-1" style="font-size: 0.8rem;">
-                                        <i class="bi bi-receipt me-1"></i> View Receipt
-                                    </a>
-                                `;
-                                clearInterval(checkInterval);
-                                resetPayButton();
-                            } else if (status === 'processing') {
-                                statusEl.className = 'alert alert-info';
-                                statusEl.innerHTML = `
-                                    <h6 class="text-white" style="font-size: 0.95rem;">⚙️ Processing Your Order...</h6>
-                                    <p class="text-white" style="font-size: 0.85rem;">Sending ${selectedBundle.size} to <strong>${result.order.recipientPhone}</strong>...</p>
-                                    <div class="progress mt-2">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 60%"></div>
-                                    </div>
-                                `;
-                            } else if (status === 'failed') {
-                                statusEl.className = 'alert alert-danger';
-                                statusEl.innerHTML = `
-                                    <h6 class="text-white" style="font-size: 0.95rem;">❌ Delivery Failed</h6>
-                                    <p class="text-white" style="font-size: 0.85rem;">We encountered an issue delivering your bundle.</p>
-                                    <p class="text-white" style="font-size: 0.85rem;">Contact support for assistance: <a href="https://wa.me/233592066298" class="text-warning">059 206 6298</a></p>
-                                `;
-                                clearInterval(checkInterval);
-                                resetPayButton();
-                            }
-                        }
-                    }
-                } catch (e) {
-                    // Silently continue polling
-                }
-            }, 5000); // Check every 5 seconds
-        }
-
-        // Reset pay button
-        function resetPayButton() {
-            const payButton = document.getElementById('payButton');
-            payButton.disabled = false;
-            payButton.innerHTML = '<i class="bi bi-lock me-2"></i>Pay Securely with PayStack';
-        }
-
-        // Filter functions
-        window.filterBundles = function(filter) {
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            displayBundles(filter);
-        };
-
-        // Show message
-        function showMessage(message, type) {
-            const alertClass = type === 'error' ? 'alert-danger' : 'alert-info';
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 350px; font-size: 0.85rem;';
-            alertDiv.innerHTML = `
-                <span class="text-white">${message}</span>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-            `;
-            
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
-        }
-    </script>
 </body>
 </html>
-
