@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Portal - Mystery Bundle Hub</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(180deg,#061018 0%, #07101a 40%, #0b0f12 100%); 
+      color: #e6eef6; 
+    }
+    .glass { 
+      background: rgba(10,12,15,0.56); 
+      backdrop-filter: blur(6px); 
+      -webkit-backdrop-filter: blur(6px); 
+      border: 1px solid rgba(255,255,255,0.03); 
+    }
+    .neon-border { 
+      box-shadow: 0 6px 30px rgba(0,224,122,0.07); 
+      border: 1px solid rgba(0,224,122,0.12); 
+    }
+    .accent { color: #00e07a; }
+    .btn-green { 
+      background: linear-gradient(90deg,#00e07a,#00c86b); 
+      color: #041017; 
+    }
+    .step { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+    }
+    .step-active { 
+      background: #00e07a; 
+      color: #041017; 
+    }
+    .step-inactive { 
+      background: rgba(255,255,255,0.1); 
+      color: #e6eef6; 
+    }
+    .text-hubGreen { color: #00e07a; }
+    .border-hubGreen { border-color: #00e07a; }
+    .bg-hubGreen-20 { background-color: rgba(0, 224, 122, 0.2); }
+  </style>
+  
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+  <script src="agent-coming-soon-gate.js"></script>
+  <div class="max-w-md w-full">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-black/40 border border-white/5 neon-border flex items-center justify-center">
+        <i class="ri-user-star-line text-hubGreen text-2xl"></i>
+      </div>
+      <h1 class="text-3xl font-black" id="pageTitle">Agent Portal</h1>
+      <p class="text-gray-400 mt-2" id="pageSubtitle">Start your bundle business</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="flex justify-center mb-8" id="progressSteps">
+      <div class="flex items-center">
+        <div class="step step-active">1</div>
+        <div class="w-12 h-1 bg-gray-600 mx-2"></div>
+        <div class="step step-inactive">2</div>
+        <div class="w-12 h-1 bg-gray-600 mx-2"></div>
+        <div class="step step-inactive">3</div>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="glass rounded-2xl p-6 neon-border">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+          <input type="tel" id="loginPhone" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="055 123 4567" required>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+          <input type="password" id="loginPassword" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="••••••••" required>
+        </div>
+
+        <button onclick="loginAgent()" class="w-full btn-green py-3 rounded-lg font-bold">
+          <i class="ri-login-box-line mr-2"></i>Sign In
+        </button>
+
+        <div class="text-center">
+          <button onclick="showRegister()" class="text-hubGreen hover:underline text-sm">
+            Don't have an account? Register here
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Registration Form -->
+    <div id="registerForm" class="glass rounded-2xl p-6 neon-border hidden">
+      <!-- Step 1: Plan Selection -->
+      <div id="step1">
+        <h3 class="text-xl font-bold mb-4 text-center">Start Your Data Business</h3>
+        <p class="text-gray-400 text-center mb-6">Join our network of successful agents</p>
+        
+        <!-- Single Premium Plan -->
+        <div class="border-2 border-hubGreen rounded-xl p-6 bg-gradient-to-br from-hubGreen/10 to-transparent mb-6 transform hover:scale-105 transition-all duration-300">
+          <div class="text-center mb-4">
+            <div class="inline-flex items-center gap-2 bg-hubGreen/20 px-3 py-1 rounded-full mb-3">
+              <i class="ri-star-fill text-hubGreen"></i>
+              <span class="text-hubGreen text-sm font-semibold">MOST POPULAR</span>
+            </div>
+            <div class="flex justify-center items-baseline gap-2 mb-2">
+              <span class="text-4xl font-black text-hubGreen">₵45</span>
+              <span class="text-gray-400 line-through">₵360</span>
+            </div>
+            <div class="text-hubGreen font-bold text-lg mb-2">Pro Agent Plan</div>
+            <div class="text-gray-300 text-sm">87% OFF - Limited Time Offer</div>
+          </div>
+
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center gap-3">
+              <i class="ri-checkbox-circle-fill text-hubGreen text-lg"></i>
+              <span class="text-gray-300">Set your own profit margins</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ri-checkbox-circle-fill text-hubGreen text-lg"></i>
+              <span class="text-gray-300">Personal branded store link</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ri-checkbox-circle-fill text-hubGreen text-lg"></i>
+              <span class="text-gray-300">Full dashboard analytics</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ri-checkbox-circle-fill text-hubGreen text-lg"></i>
+              <span class="text-gray-300">24/7 priority support</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ri-checkbox-circle-fill text-hubGreen text-lg"></i>
+              <span class="text-gray-300">Instant bundle delivery</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="ri-checkbox-circle-fill text-hubGreen text-lg"></i>
+              <span class="text-gray-300">Lifetime access - No monthly fees</span>
+            </div>
+          </div>
+
+          <div class="bg-black/30 rounded-lg p-4 text-center">
+            <div class="text-sm text-gray-300 mb-1">🎉 Join 500+ successful agents</div>
+            <div class="text-xs text-gray-400">Average earnings: ₵500-₵2000/month</div>
+          </div>
+        </div>
+
+        <button onclick="nextStep()" class="w-full btn-green py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl transition-all">
+          <i class="ri-rocket-line mr-2"></i>Start Earning Now - ₵45
+        </button>
+
+        <div class="text-center mt-4">
+          <button onclick="showLogin()" class="text-hubGreen hover:underline text-sm">
+            Already have an account? Sign in
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Registration Details -->
+      <div id="step2" class="hidden">
+        <h3 class="text-xl font-bold mb-4 text-center">Create Your Account</h3>
+        <p class="text-gray-400 text-center mb-6">Almost there! Complete your profile</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+            <input type="text" id="regName" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="e.g., John Doe" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Store Name</label>
+            <input type="text" id="regStoreName" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="e.g., Mike's Data Shop" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+            <input type="tel" id="regPhone" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="055 123 4567" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+            <input type="email" id="regEmail" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="your@email.com" required>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+            <input type="password" id="regPassword" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="••••••••" required>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">MoMo Number</label>
+            <input type="tel" id="regMomo" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400" placeholder="055 123 4567" required>
+          </div>
+
+          <div class="flex gap-3">
+            <button onclick="prevStep()" class="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition-colors">
+              <i class="ri-arrow-left-line mr-2"></i>Back
+            </button>
+            <button onclick="processRegistration()" class="flex-1 btn-green py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+              <i class="ri-check-line mr-2"></i>Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: OTP Verification -->
+      <div id="step3" class="hidden">
+        <h3 class="text-xl font-bold mb-4 text-center">Verify Your Account</h3>
+        <p class="text-gray-400 text-center mb-6">Enter the OTP sent to your phone</p>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">OTP Code</label>
+            <input type="text" id="otpCode" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 text-center text-xl font-mono" placeholder="000000" maxlength="6" required>
+          </div>
+
+          <div class="text-center">
+            <button onclick="resendOTP()" class="text-hubGreen hover:underline text-sm" id="resendOTP">
+              Resend OTP in <span id="otpTimer">60</span>s
+            </button>
+          </div>
+
+          <div class="flex gap-3">
+            <button onclick="prevStep()" class="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition-colors">
+              <i class="ri-arrow-left-line mr-2"></i>Back
+            </button>
+            <button onclick="verifyOTP()" class="flex-1 btn-green py-3 rounded-lg font-bold hover:shadow-lg transition-all">
+              <i class="ri-shield-check-line mr-2"></i>Verify
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 hidden items-center justify-center z-50 p-4">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      <div class="relative z-10 w-16 h-16 rounded-full border-4 border-hubGreen-30 border-t-hubGreen animate-spin"></div>
+    </div>
+
+    <div id="authMessage" class="mt-4 text-center text-sm"></div>
+  </div>
+
+  <script src="agent-api.js"></script>
+  <script>
+    let currentStep = 1;
+    let registrationData = null;
+    let otpTimer = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if already logged in
+      if (AgentAPI.isAuthenticated()) {
+        window.location.href = 'agent-dashboard.html';
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+
+      if (action === 'register') {
+        showRegister();
+      }
+    });
+
+    function showLogin() {
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('registerForm').classList.add('hidden');
+      document.getElementById('pageTitle').textContent = 'Agent Login';
+      document.getElementById('pageSubtitle').textContent = 'Access your agent dashboard';
+      updateProgress(1);
+    }
+
+    function showRegister() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('registerForm').classList.remove('hidden');
+      document.getElementById('pageTitle').textContent = 'Agent Registration';
+      document.getElementById('pageSubtitle').textContent = 'Join our agent network';
+      updateProgress(1);
+      resetRegistrationSteps();
+    }
+
+    function nextStep() {
+      if (currentStep === 1) {
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        currentStep = 2;
+        updateProgress(2);
+      }
+    }
+
+    function prevStep() {
+      if (currentStep === 2) {
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step1').classList.remove('hidden');
+        currentStep = 1;
+        updateProgress(1);
+      } else if (currentStep === 3) {
+        document.getElementById('step3').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+        currentStep = 2;
+        updateProgress(2);
+        clearInterval(otpTimer);
+      }
+    }
+
+    function resetRegistrationSteps() {
+      currentStep = 1;
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.add('hidden');
+      updateProgress(1);
+    }
+
+    function updateProgress(step) {
+      const steps = document.querySelectorAll('.step');
+      steps.forEach((s, index) => {
+        if (index < step) {
+          s.classList.add('step-active');
+          s.classList.remove('step-inactive');
+        } else {
+          s.classList.remove('step-active');
+          s.classList.add('step-inactive');
+        }
+      });
+    }
+
+    async function processRegistration() {
+      const name = document.getElementById('regName').value.trim();
+      const storeName = document.getElementById('regStoreName').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const momoNumber = document.getElementById('regMomo').value.trim();
+
+      if (!name || !storeName || !phone || !email || !password || !momoNumber) {
+        showMessage('Please fill all fields', 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage('Password must be at least 6 characters', 'error');
+        return;
+      }
+
+      registrationData = {
+        name,
+        storeName,
+        phone,
+        email,
+        password,
+        momoNumber,
+        plan: 'pro',
+        planPrice: 25
+      };
+
+      try {
+        showMessage('Creating your account...', 'info');
+        const response = await AgentAPI.register(registrationData);
+        
+        if (response.success) {
+          if (response.requiresOTP) {
+            // Move to OTP verification step
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            currentStep = 3;
+            updateProgress(3);
+            startOTPTimer();
+            showMessage('OTP sent to your phone', 'success');
+          } else {
+            showMessage('Registration successful!', 'success');
+            setTimeout(() => {
+              window.location.href = 'agent-dashboard.html';
+            }, 2000);
+          }
+        } else {
+          showMessage(response.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Registration failed. Please try again.', 'error');
+      }
+    }
+
+    async function verifyOTP() {
+      const otp = document.getElementById('otpCode').value.trim();
+      const phone = registrationData?.phone;
+
+      if (!otp || otp.length !== 6) {
+        showMessage('Please enter a valid 6-digit OTP', 'error');
+        return;
+      }
+
+      try {
+        const response = await AgentAPI.verifyOTP(phone, otp);
+        
+        if (response.success) {
+          showMessage('Account verified successfully! Redirecting...', 'success');
+          clearInterval(otpTimer);
+          setTimeout(() => {
+            window.location.href = 'agent-dashboard.html';
+          }, 2000);
+        } else {
+          showMessage(response.message, 'error');
+        }
+      } catch (error) {
+        showMessage('OTP verification failed', 'error');
+      }
+    }
+
+    async function resendOTP() {
+      const phone = registrationData?.phone;
+      if (!phone) return;
+
+      try {
+        const response = await AgentAPI.sendOTP(phone);
+        if (response.success) {
+          showMessage('OTP resent successfully', 'success');
+          startOTPTimer();
+        } else {
+          showMessage('Failed to resend OTP', 'error');
+        }
+      } catch (error) {
+        showMessage('Failed to resend OTP', 'error');
+      }
+    }
+
+    function startOTPTimer() {
+      let timeLeft = 60;
+      const timerElement = document.getElementById('otpTimer');
+      const resendButton = document.getElementById('resendOTP');
+      
+      resendButton.style.pointerEvents = 'none';
+      
+      otpTimer = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+          clearInterval(otpTimer);
+          resendButton.style.pointerEvents = 'auto';
+          timerElement.textContent = '0';
+        }
+      }, 1000);
+    }
+
+    async function loginAgent() {
+      const phone = document.getElementById('loginPhone').value;
+      const password = document.getElementById('loginPassword').value;
+
+      if (!phone || !password) {
+        showMessage('Please fill all fields', 'error');
+        return;
+      }
+
+      try {
+        showMessage('Signing in...', 'info');
+        const response = await AgentAPI.login(phone, password);
+
+        if (response.success) {
+          showMessage('Login successful! Redirecting...', 'success');
+          setTimeout(() => {
+            window.location.href = 'agent-dashboard.html';
+          }, 1000);
+        } else {
+          showMessage(response.message, 'error');
+        }
+      } catch (error) {
+        showMessage('Login failed. Please try again.', 'error');
+      }
+    }
+
+    function showMessage(message, type) {
+      const messageEl = document.getElementById('authMessage');
+      messageEl.textContent = message;
+      messageEl.className = `mt-4 text-center text-sm ${
+        type === 'error' ? 'text-red-400' : 
+        type === 'success' ? 'text-green-400' : 'text-blue-400'
+      }`;
+      
+      if (type === 'success') {
+        setTimeout(() => {
+          messageEl.textContent = '';
+        }, 3000);
+      }
+    }
+
+    function showLoading(show) {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) {
+        overlay.style.display = show ? 'flex' : 'none';
+      }
+    }
+  </script>
+</body>
+</html>

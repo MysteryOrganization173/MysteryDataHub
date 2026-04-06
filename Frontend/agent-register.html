@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become an Agent | Mystery Bundle Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        :root {
+            --bg-primary: #061018;
+            --bg-secondary: #07101a;
+            --text-primary: #e6eef6;
+            --accent: #00e07a;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #061018 0%, #07101a 40%, #0b0f12 100%);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+        body.light-mode {
+            background: linear-gradient(180deg, #f9f9fc 0%, #f0f2f5 100%);
+            color: #1f2937;
+        }
+        body.light-mode .glass {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .glass {
+            background: rgba(10,12,15,0.56);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .step.active {
+            background: var(--accent);
+            color: #041017;
+        }
+        .step-number {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            font-weight: bold;
+        }
+        .step.active .step-number {
+            background: white;
+            color: var(--accent);
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-control {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            color: inherit;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #041017;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: inherit;
+        }
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        .alert-error {
+            background: rgba(239,68,68,0.2);
+            border-left: 3px solid #ef4444;
+            color: #ef4444;
+        }
+        .alert-info {
+            background: rgba(0,224,122,0.1);
+            border-left: 3px solid var(--accent);
+            color: var(--accent);
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            padding: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .registration-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4">
+    <script src="agent-coming-soon-gate.js"></script>
+    <!-- Theme Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="themeToggle" class="p-2 rounded-full glass hover:bg-white/10 transition-colors">
+            <i class="ri-sun-line text-yellow-400 hidden dark-icon"></i>
+            <i class="ri-moon-line text-white light-icon"></i>
+        </button>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">Become a Certified Data Agent</h1>
+            <p class="text-gray-400 mt-2">One-time ₵45 fee • Lifetime access • Unlimited earnings</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Left: Registration Form -->
+            <div class="glass rounded-2xl p-6">
+                <!-- Steps -->
+                <div class="flex flex-wrap gap-2 mb-8">
+                    <div class="step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span>Personal</span>
+                    </div>
+                    <div class="step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span>Business</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span>Payment</span>
+                    </div>
+                </div>
+
+                <div id="alertContainer"></div>
+
+                <form id="registrationForm">
+                    <!-- Step 1: Personal Info -->
+                    <div class="form-step active" data-step="1">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-1">Full Name *</label>
+                                <input type="text" id="fullName" class="form-control" placeholder="Kwame Addo" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Email *</label>
+                                <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">WhatsApp Number *</label>
+                                <input type="tel" id="phone" class="form-control" placeholder="0550123456" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">City/Location *</label>
+                                <input type="text" id="location" class="form-control" placeholder="Accra, Kumasi..." required>
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-8">
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Business Details -->
+                    <div class="form-step" data-step="2">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm mb-1">Current Occupation/Business *</label>
+                                <input type="text" id="currentBusiness" class="form-control" placeholder="Student, Trader..." required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Previous Experience with Data Sales *</label>
+                                <textarea id="experience" rows="3" class="form-control" placeholder="Tell us about any experience..." required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Why do you want to become an agent? *</label>
+                                <textarea id="whyAgent" rows="3" class="form-control" placeholder="To earn extra income, start a business..." required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Expected Monthly Sales (GHS)</label>
+                                <select id="expectedSales" class="form-control">
+                                    <option value="">Select range</option>
+                                    <option value="500-1000">₵500 - ₵1,000</option>
+                                    <option value="1000-5000">₵1,000 - ₵5,000</option>
+                                    <option value="5000-10000">₵5,000 - ₵10,000</option>
+                                    <option value="10000+">₵10,000+</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Referral Code (optional)</label>
+                                <input type="text" id="referralCode" class="form-control" placeholder="If referred by another agent">
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep()">Continue →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Payment & Password -->
+                    <div class="form-step" data-step="3">
+                        <div class="space-y-4">
+                            <div class="bg-white/5 p-4 rounded-lg text-center">
+                                <div class="text-sm text-gray-400 line-through">₵360</div>
+                                <div class="text-3xl font-bold text-green-400">₵45</div>
+                                <div class="text-sm">One‑time payment • Lifetime access</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Create Password *</label>
+                                <input type="password" id="password" class="form-control" minlength="6" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm mb-1">Confirm Password *</label>
+                                <input type="password" id="confirmPassword" class="form-control" minlength="6" required>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="termsAgreement" required>
+                                <label class="text-sm">I agree to the <a href="#" class="text-green-400">Terms & Privacy</a></label>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                            <button type="submit" class="btn btn-success" id="submitBtn">Pay ₵45 & Register →</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right: Benefits & FAQ -->
+            <div class="glass rounded-2xl p-6">
+                <h3 class="text-xl font-bold mb-4">Why Join Our Agent Network?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div class="flex items-start gap-3">
+                        <i class="ri-money-dollar-circle-line text-green-400 text-xl"></i>
+                        <div><strong>Higher Profits</strong><br><span class="text-sm text-gray-400">Earn ₵2‑₵10 per sale</span></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="ri-time-line text-green-400 text-xl"></i>
+                        <div><strong>Lifetime Access</strong><br><span class="text-sm text-gray-400">Pay once, be an agent for life</span></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="ri-dashboard-line text-green-400 text-xl"></i>
+                        <div><strong>Full Dashboard</strong><br><span class="text-sm text-gray-400">Track sales, profits, analytics</span></div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="ri-customer-service-line text-green-400 text-xl"></i>
+                        <div><strong>Priority Support</strong><br><span class="text-sm text-gray-400">24/7 WhatsApp assistance</span></div>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold mb-4">Frequently Asked Questions</h3>
+                <div class="space-y-3">
+                    <div class="border-b border-white/10 pb-2">
+                        <div class="font-semibold">How soon can I start selling?</div>
+                        <div class="text-sm text-gray-400">Immediately after payment! Account activated within 24 hours.</div>
+                    </div>
+                    <div class="border-b border-white/10 pb-2">
+                        <div class="font-semibold">Is there any monthly fee?</div>
+                        <div class="text-sm text-gray-400">No! One‑time ₵45 only. No hidden charges.</div>
+                    </div>
+                    <div class="border-b border-white/10 pb-2">
+                        <div class="font-semibold">How much can I earn?</div>
+                        <div class="text-sm text-gray-400">Top agents make ₵5,000+ monthly. 20%+ profit margins.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content glass text-center">
+            <i class="ri-checkbox-circle-line text-5xl text-green-400 mb-4 block"></i>
+            <h3 class="text-xl font-bold mb-2">Registration Successful!</h3>
+            <p>Your account will be activated within 24 hours. Login details sent to <span id="successEmail"></span>.</p>
+            <button onclick="closeModal()" class="btn btn-primary mt-4 w-full">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        const PAYSTACK_PUBLIC_KEY = 'pk_test_fe583185a7778864a062d8d0fa468bfc4295873b'; // your test key
+
+        let currentStep = 1;
+        const formData = {};
+
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = themeToggle.querySelector('.ri-sun-line');
+        const moonIcon = themeToggle.querySelector('.ri-moon-line');
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('theme', 'dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') setTheme('light');
+        else setTheme('dark');
+        themeToggle.addEventListener('click', () => {
+            const isLight = document.body.classList.contains('light-mode');
+            setTheme(isLight ? 'dark' : 'light');
+        });
+
+        // Step navigation
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.step[data-step="${step}"]`).classList.add('active');
+            currentStep = step;
+        }
+        function nextStep() {
+            if (!validateStep(currentStep)) return;
+            saveStepData(currentStep);
+            showStep(currentStep + 1);
+        }
+        function prevStep() {
+            showStep(currentStep - 1);
+        }
+        function validateStep(step) {
+            if (step === 1) {
+                const fullName = document.getElementById('fullName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const location = document.getElementById('location').value.trim();
+                if (!fullName) { showAlert('Full name required', 'error'); return false; }
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showAlert('Valid email required', 'error'); return false; }
+                if (!phone || !/^(0[2-9][0-9]{8}|233[2-9][0-9]{8})$/.test(phone.replace(/\s/g,''))) { showAlert('Valid Ghana phone number required', 'error'); return false; }
+                if (!location) { showAlert('City/Location required', 'error'); return false; }
+                return true;
+            }
+            if (step === 2) {
+                const business = document.getElementById('currentBusiness').value.trim();
+                const exp = document.getElementById('experience').value.trim();
+                const why = document.getElementById('whyAgent').value.trim();
+                if (!business) { showAlert('Occupation required', 'error'); return false; }
+                if (!exp || exp.length < 10) { showAlert('Please describe experience (min 10 chars)', 'error'); return false; }
+                if (!why || why.length < 10) { showAlert('Please tell us why (min 10 chars)', 'error'); return false; }
+                return true;
+            }
+            if (step === 3) {
+                const pw = document.getElementById('password').value;
+                const cpw = document.getElementById('confirmPassword').value;
+                const terms = document.getElementById('termsAgreement').checked;
+                if (!pw || pw.length < 6) { showAlert('Password must be at least 6 characters', 'error'); return false; }
+                if (pw !== cpw) { showAlert('Passwords do not match', 'error'); return false; }
+                if (!terms) { showAlert('You must agree to the terms', 'error'); return false; }
+                return true;
+            }
+            return true;
+        }
+        function saveStepData(step) {
+            if (step === 1) {
+                formData.fullName = document.getElementById('fullName').value.trim();
+                formData.email = document.getElementById('email').value.trim();
+                formData.phone = document.getElementById('phone').value.trim();
+                formData.location = document.getElementById('location').value.trim();
+            } else if (step === 2) {
+                formData.currentBusiness = document.getElementById('currentBusiness').value.trim();
+                formData.experience = document.getElementById('experience').value.trim();
+                formData.whyAgent = document.getElementById('whyAgent').value.trim();
+                formData.expectedSales = document.getElementById('expectedSales').value;
+                formData.referralCode = document.getElementById('referralCode').value.trim();
+            } else if (step === 3) {
+                formData.password = document.getElementById('password').value;
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 5000);
+        }
+
+        // Submit registration
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validateStep(3)) return;
+            saveStepData(3);
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i> Processing...';
+            submitBtn.disabled = true;
+
+            try {
+                // First, register the agent with backend (without payment)
+                const res = await fetch(`${API_BASE_URL}/agent/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: formData.fullName,
+                        email: formData.email,
+                        phone: formData.phone,
+                        location: formData.location,
+                        business: formData.currentBusiness,
+                        experience: formData.experience,
+                        reason: formData.whyAgent,
+                        expectedVolume: formData.expectedSales,
+                        referralCode: formData.referralCode,
+                        password: formData.password
+                    })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || 'Registration failed');
+
+                // Initialize Paystack payment
+                const paymentHandler = PaystackPop.setup({
+                    key: PAYSTACK_PUBLIC_KEY,
+                    email: formData.email,
+                    amount: 4500, // ₵45 in pesewas
+                    currency: 'GHS',
+                    ref: data.reference || 'AGENT-' + Date.now(),
+                    metadata: {
+                        custom_fields: [
+                            { display_name: "Agent Name", variable_name: "agent_name", value: formData.fullName },
+                            { display_name: "Phone", variable_name: "phone", value: formData.phone }
+                        ]
+                    },
+                    callback: function(response) {
+                        // Payment successful
+                        document.getElementById('successEmail').textContent = formData.email;
+                        document.getElementById('successModal').classList.add('active');
+                        // Optionally verify payment with backend
+                        fetch(`${API_BASE_URL}/agent/verify-payment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reference: response.reference })
+                        }).catch(console.error);
+                    },
+                    onClose: function() {
+                        showAlert('Payment cancelled. You can try again.', 'info');
+                        submitBtn.innerHTML = 'Pay ₵45 & Register →';
+                        submitBtn.disabled = false;
+                    }
+                });
+                paymentHandler.openIframe();
+            } catch (err) {
+                showAlert(err.message, 'error');
+                submitBtn.innerHTML = 'Pay ₵45 & Register →';
+                submitBtn.disabled = false;
+            }
+        });
+
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('active');
+            window.location.href = 'agent-login.html';
+        }
+
+        window.nextStep = nextStep;
+        window.prevStep = prevStep;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>

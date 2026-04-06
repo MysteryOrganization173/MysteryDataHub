@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mystery Bundle Hub — Lightning-Fast Data Bundles (Express 5-45min)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        hubGreen: '#00e07a',
+                        hubDark: '#0b0f12',
+                        hubGlass: 'rgba(255,255,255,0.06)',
+                        mtnYellow: '#ffcc00',
+                        airtelRed: '#e4002b',
+                        telecelBlue: '#00a1e0',
+                        chartMtn: '#ffcc00',
+                        chartAirtel: '#e4002b',
+                        chartTelecel: '#00a1e0',
+                        chartProfit: '#00e07a',
+                        chartUsage: '#8b5cf6',
+                        mtnLight: '#fff9e6',
+                        airtelLight: '#ffe6ea',
+                        telecelLight: '#e6f7ff',
+                        discountRed: '#ff4757',
+                        neonPurple: '#9d4edd'
+                    },
+                    fontFamily: {
+                        display: ['Inter', 'ui-sans-serif', 'system-ui']
+                    },
+                    boxShadow: {
+                        neon: '0 10px 30px rgba(0,224,122,0.12), 0 0 20px rgba(0,224,122,0.09)',
+                        mtn: '0 10px 30px rgba(255,204,0,0.12), 0 0 20px rgba(255,204,0,0.09)',
+                        airtel: '0 10px 30px rgba(228,0,43,0.12), 0 0 20px rgba(228,0,43,0.09)',
+                        telecel: '0 10px 30px rgba(0,161,224,0.12), 0 0 20px rgba(0,161,224,0.09)',
+                        purpleNeon: '0 0 20px rgba(157,78,221,0.5), 0 10px 30px rgba(157,78,221,0.2)',
+                        discount: '0 0 15px rgba(255,71,87,0.4)'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'slide-in': 'slideIn 0.5s ease-out'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(0,224,122,0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(0,224,122,0.8), 0 0 30px rgba(0,224,122,0.6)' }
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --mtn-color: #ffcc00;
+            --airtel-color: #e4002b;
+            --telecel-color: #00a1e0;
+            --hub-green: #00e07a;
+            --discount-red: #ff4757;
+            --bg-primary: #061018;
+            --bg-secondary: #07101a;
+            --text-primary: #e6eef6;
+            --glass-bg: rgba(10, 12, 15, 0.56);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #061018 0%, #07101a 40%, #0b0f12 100%);
+            color: #e6eef6;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* LIGHT MODE - enhanced readability */
+        body.light-mode {
+            background: linear-gradient(180deg, #f9f9fc 0%, #f0f2f5 100%);
+            color: #1f2937;
+        }
+        
+        body.light-mode .glass {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        body.light-mode .small-muted {
+            color: #4b5563 !important;
+        }
+        
+        body.light-mode .price-tag {
+            background: #f3f4f6;
+            border-left-color: #00e07a;
+        }
+        
+        body.light-mode .glass-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+        
+        body.light-mode .text-slate-300 {
+            color: #334155 !important;
+        }
+        
+        body.light-mode .bg-black\/20, 
+        body.light-mode .bg-black\/30,
+        body.light-mode .bg-black\/40 {
+            background-color: rgba(0,0,0,0.05) !important;
+        }
+        
+        body.light-mode .border-white\/10,
+        body.light-mode .border-white\/5,
+        body.light-mode .border-white\/6 {
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        
+        body.light-mode .text-white {
+            color: #1f2937 !important;
+        }
+        
+        body.light-mode .trust-indicator,
+        body.light-mode .guarantee-badge {
+            background: rgba(0,0,0,0.03);
+        }
+        
+        .glass {
+            background: rgba(10, 12, 15, 0.56);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .neon-border {
+            box-shadow: 0 6px 30px rgba(0, 224, 122, 0.07);
+            border: 1px solid rgba(0, 224, 122, 0.12);
+        }
+        
+        .mtn-border {
+            box-shadow: 0 6px 30px rgba(255, 204, 0, 0.07);
+            border: 1px solid rgba(255, 204, 0, 0.12);
+        }
+        
+        .airtel-border {
+            box-shadow: 0 6px 30px rgba(228, 0, 43, 0.07);
+            border: 1px solid rgba(228, 0, 43, 0.12);
+        }
+        
+        .telecel-border {
+            box-shadow: 0 6px 30px rgba(0, 161, 224, 0.07);
+            border: 1px solid rgba(0, 161, 224, 0.12);
+        }
+        
+        .accent { color: #00e07a !important; }
+        .mtn-color { color: #ffcc00 !important; }
+        .airtel-color { color: #e4002b !important; }
+        .telecel-color { color: #00a1e0 !important; }
+        .discount-color { color: #ff4757 !important; }
+        
+        .btn-green { 
+            background: linear-gradient(90deg, #00e07a, #00c86b) !important; 
+            color: #041017 !important; 
+        }
+        
+        .btn-mtn { 
+            background: linear-gradient(90deg, #ffcc00, #ffaa00) !important; 
+            color: #041017 !important; 
+        }
+        
+        .btn-airtel { 
+            background: linear-gradient(90deg, #e4002b, #c40024) !important; 
+            color: white !important; 
+        }
+        
+        .btn-telecel { 
+            background: linear-gradient(90deg, #00a1e0, #0088c0) !important; 
+            color: white !important; 
+        }
+        
+        .btn-purple {
+            background: linear-gradient(90deg, #9d4edd, #7b2cbf) !important;
+            color: white !important;
+        }
+        
+        .card-hover { 
+            transition: all 0.3s ease !important;
+        }
+        
+        .card-hover:hover { 
+            transform: translateY(-8px) scale(1.01) !important; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 18px rgba(0, 224, 122, 0.06) !important; 
+        }
+        
+        .small-muted { 
+            color: rgba(230, 238, 246, 0.5) !important; 
+            font-size: 0.9rem !important; 
+        }
+        
+        .price-tag { 
+            background: linear-gradient(90deg, #031217, #082022) !important; 
+            border-left: 3px solid rgba(0, 224, 122, 0.18) !important; 
+        }
+        
+        .section-hidden { display: none !important; }
+        .section-active { display: block !important; }
+        
+        .network-btn { 
+            transition: all 0.3s ease !important; 
+            border: 2px solid transparent !important;
+        }
+        
+        .network-btn.active { 
+            transform: scale(1.05) !important; 
+            border-color: currentColor !important;
+        }
+        
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .nav-item.active {
+            color: #00e07a !important;
+            font-weight: 600 !important;
+        }
+        
+        .logo-home {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .logo-home:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Network-specific card backgrounds */
+        .mtn-card {
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.05), rgba(255, 204, 0, 0.02)) !important;
+        }
+        
+        .airtel-card {
+            background: linear-gradient(135deg, rgba(228, 0, 43, 0.05), rgba(228, 0, 43, 0.02)) !important;
+        }
+        
+        .telecel-card {
+            background: linear-gradient(135deg, rgba(0, 161, 224, 0.05), rgba(0, 161, 224, 0.02)) !important;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 12, 15, 0.5);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 224, 122, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 224, 122, 0.5);
+        }
+        
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Smooth transitions */
+        .smooth-transition {
+            transition: all 0.3s ease !important;
+        }
+        
+        /* Button enhancements */
+        .btn-enhanced {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-enhanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-enhanced:hover::before {
+            left: 100%;
+        }
+        
+        /* Speed badge */
+        .speed-badge {
+            background: linear-gradient(90deg, #00e07a, #00c86b);
+            color: #041017;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-left: 4px;
+        }
+        
+        .express-badge {
+            background: linear-gradient(90deg, #ffcc00, #ffaa00);
+            color: #041017;
+            font-weight: 700;
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-left: 4px;
+            box-shadow: 0 0 8px rgba(255,204,0,0.5);
+        }
+        
+        .flash-badge {
+            background: linear-gradient(90deg, #9d4edd, #7b2cbf);
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .standard-badge {
+            background: rgba(255,255,255,0.2);
+            color: #ccc;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        
+        /* Discount tag - now properly positioned without clipping */
+        .discount-tag {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: linear-gradient(45deg, #ff4757, #ff6b81);
+            color: white;
+            font-weight: 800;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            transform: rotate(10deg);
+            box-shadow: 0 4px 15px rgba(255,71,87,0.4);
+            z-index: 20;
+        }
+        
+        /* Live orders ticker */
+        .live-ticker {
+            background: linear-gradient(90deg, rgba(0,224,122,0.1), rgba(157,78,221,0.1));
+            border-left: 3px solid #00e07a;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+        }
+        
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        /* Bundle card inner wrapper for shine effect without clipping discount tag */
+        .bundle-card {
+            position: relative;
+            overflow: visible !important;
+        }
+        
+        .bundle-card-inner {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        
+        .bundle-card .bundle-card-inner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(0,224,122,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+            pointer-events: none;
+        }
+        
+        .bundle-card:hover .bundle-card-inner::after {
+            transform: translateX(100%);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #00e07a, #9d4edd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* Enhanced mobile touch targets */
+        @media (max-width: 768px) {
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        
+        /* Modal scrollable */
+        .modal-scrollable {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Agent "coming soon" — isolated from purchase flow */
+        .cs-soon-pill {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(0,224,122,0.25), rgba(157,78,221,0.25));
+            color: #00e07a;
+            margin-left: 6px;
+            vertical-align: middle;
+            animation: csSoonPulse 2.4s ease-in-out infinite;
+            box-shadow: 0 0 12px rgba(0,224,122,0.2);
+        }
+        @keyframes csSoonPulse {
+            0%, 100% { opacity: 0.75; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.04); }
+        }
+        .coming-soon-agent-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .coming-soon-agent-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
+            background-size: 220% 100%;
+            animation: csBtnShimmer 3s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes csBtnShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        .agent-launch-banner {
+            border-left: 3px solid #00e07a;
+        }
+        .cs-inline-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 28px;
+            margin-bottom: 10px;
+        }
+        .cs-inline-bars span {
+            width: 5px;
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #00e07a, #008f5a);
+            animation: csInlineBar 1s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+        .cs-inline-bars span:nth-child(2) { animation-delay: 0.12s; }
+        .cs-inline-bars span:nth-child(3) { animation-delay: 0.24s; }
+        .cs-inline-bars span:nth-child(4) { animation-delay: 0.36s; }
+        @keyframes csInlineBar {
+            0%, 100% { transform: scaleY(0.25); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+        #agentComingSoonModal .cs-modal-bars span {
+            display: inline-block;
+            width: 8px;
+            margin: 0 3px;
+            border-radius: 4px;
+            background: linear-gradient(180deg, #00e07a, #00a86b);
+            animation: csModalBar 1.1s ease-in-out infinite;
+            vertical-align: bottom;
+            height: 40px;
+        }
+        #agentComingSoonModal .cs-modal-bars span:nth-child(2) { animation-delay: 0.15s; }
+        #agentComingSoonModal .cs-modal-bars span:nth-child(3) { animation-delay: 0.3s; }
+        #agentComingSoonModal .cs-modal-bars span:nth-child(4) { animation-delay: 0.45s; }
+        @keyframes csModalBar {
+            0%, 100% { transform: scaleY(0.2); opacity: 0.45; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+        body.light-mode .cs-soon-pill {
+            color: #059669;
+            background: linear-gradient(90deg, rgba(5,150,105,0.15), rgba(157,78,221,0.12));
+        }
+
+        /* Status indicator styles */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        .status-green { background-color: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .status-yellow { background-color: #eab308; box-shadow: 0 0 8px #eab308; }
+        .status-red { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; transform: scale(0.95);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Promo Banner -->
+    <div class="bg-gradient-to-r from-hubGreen to-neonPurple text-black py-2 px-4 text-center font-bold">
+        <div class="flex items-center justify-center gap-4 flex-wrap">
+            <i class="ri-flashlight-fill animate-bounce"></i>
+            <span>⚡ FLASH SALE: Get 20% OFF on first purchase! Use code: WELCOME20</span>
+            <i class="ri-flashlight-fill animate-bounce"></i>
+        </div>
+    </div>
+
+    <!-- Live Orders Ticker -->
+    <div class="live-ticker py-2 px-4 hidden md:block">
+        <div class="ticker-content">
+            <span class="mx-8">📱 Just now: Kwame purchased 10GB MTN Express • </span>
+            <span class="mx-8">🚀 Ama bought 5GB AirtelTigo Instant! • </span>
+            <span class="mx-8">💫 Kofi ordered 20GB Telecel Express • </span>
+            <span class="mx-8">🔥 15 bundles sold in last 30 minutes! • </span>
+            <span class="mx-8">⭐ New customer: Abena from Accra • </span>
+            <span class="mx-8">⚡ Express delivery: 5-45 minutes guaranteed!</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="w-full py-4 px-6 flex items-center justify-between glass sticky top-0 z-50">
+        <div class="flex items-center gap-4 logo-home" onclick="switchSection('home')">
+            <div class="rounded-full w-12 h-12 flex items-center justify-center bg-black/40 border border-white/5 neon-border relative">
+                <i class="ri-wifi-line text-hubGreen text-lg"></i>
+                <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            </div>
+            <div>
+                <div class="text-xl font-extrabold">Mystery <span class="accent">Bundle</span> Hub</div>
+                <div class="small-muted text-sm -mt-1">⚡ Express 5-45min Delivery</div>
+            </div>
+        </div>
+
+        <!-- Social Proof -->
+        <div class="hidden md:flex items-center gap-3">
+            <div class="social-proof-badge">
+                <i class="ri-star-fill text-yellow-400"></i>
+                <span class="font-semibold">4.9/5</span>
+                <span class="small-muted">(2.4k reviews)</span>
+            </div>
+            <div class="social-proof-badge">
+                <i class="ri-user-fill text-hubGreen"></i>
+                <span class="font-semibold">15k+</span>
+                <span class="small-muted">Happy Users</span>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation (Dashboard removed) -->
+        <ul class="hidden md:flex items-center gap-6 text-white/90">
+            <li class="nav-item cursor-pointer smooth-transition active" onclick="switchSection('home')">Home</li>
+            <li class="nav-item cursor-pointer smooth-transition" onclick="switchSection('bundles')">Bundles</li>
+            <li class="nav-item cursor-pointer smooth-transition" onclick="switchSection('testimonials')">
+                <i class="ri-star-smile-line mr-2"></i>Reviews
+            </li>
+            <li class="nav-item cursor-pointer smooth-transition" onclick="switchSection('agent')" title="Launching Q2 2026 — get ready!">
+                <i class="ri-user-star-line mr-2"></i>Become Agent<span class="cs-soon-pill">soon</span>
+            </li>
+        </ul>
+
+        <div class="flex items-center gap-3">
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="p-2 rounded-full glass hover:bg-white/10 transition-colors touch-target">
+                <i class="ri-sun-line text-yellow-400 hidden dark-icon"></i>
+                <i class="ri-moon-line text-white light-icon"></i>
+            </button>
+            <button onclick="switchSection('bundles')" class="px-4 py-2 rounded-full small-muted hover:bg-white/3 smooth-transition hidden md:block touch-target">
+                <i class="ri-compass-3-line mr-2"></i>Explore
+            </button>
+            <button onclick="openBuyModal()" class="btn-green px-4 py-2 rounded-full font-semibold btn-enhanced smooth-transition relative touch-target">
+                <i class="ri-shopping-bag-line mr-2"></i>Buy Now
+                <span class="absolute -top-2 -right-2 bg-discountRed text-white text-xs px-2 py-1 rounded-full animate-pulse">🔥</span>
+            </button>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuToggle" class="md:hidden text-white p-2 text-xl hover:bg-white/10 rounded-lg smooth-transition touch-target">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (Dashboard removed) -->
+    <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-black/95 backdrop-blur-lg z-50 md:hidden flex flex-col p-6">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-4">
+                <div class="rounded-full w-12 h-12 flex items-center justify-center bg-black/40 border border-white/5 neon-border">
+                    <i class="ri-wifi-line text-hubGreen text-lg"></i>
+                </div>
+                <div>
+                    <div class="text-xl font-extrabold">Mystery <span class="accent">Bundle</span> Hub</div>
+                    <div class="small-muted text-sm -mt-1">⚡ Express 5-45min</div>
+                </div>
+            </div>
+            <button id="closeMobileMenu" class="text-white p-2 text-2xl hover:bg-white/10 rounded-lg smooth-transition touch-target">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 space-y-6">
+            <button class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target" onclick="switchSection('home'); closeMobileMenu()">
+                <i class="ri-home-4-line mr-3"></i>Home
+            </button>
+            <button class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target" onclick="switchSection('bundles'); closeMobileMenu()">
+                <i class="ri-shopping-bag-line mr-3"></i>Bundles
+            </button>
+            <button class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target" onclick="switchSection('testimonials'); closeMobileMenu()">
+                <i class="ri-star-smile-line mr-3"></i>Customer Reviews
+            </button>
+            <button type="button" class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target" onclick="switchSection('agent'); closeMobileMenu()" title="Launching Q2 2026 — get ready!">
+                <i class="ri-user-star-line mr-3"></i>Become an Agent<span class="cs-soon-pill">soon</span>
+            </button>
+        </div>
+
+        <div class="pt-6 border-t border-white/10">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="trust-indicator">
+                    <i class="ri-star-fill text-yellow-400"></i>
+                    <div>
+                        <div class="font-bold">4.9/5</div>
+                        <div class="text-xs small-muted">Rating</div>
+                    </div>
+                </div>
+                <div class="trust-indicator">
+                    <i class="ri-user-fill text-hubGreen"></i>
+                    <div>
+                        <div class="font-bold">15k+</div>
+                        <div class="text-xs small-muted">Users</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="openBuyModal(); closeMobileMenu()" class="w-full btn-green py-3 rounded-lg font-semibold mb-3 btn-enhanced smooth-transition touch-target">
+                <i class="ri-shopping-bag-line mr-2"></i>Buy Now
+            </button>
+            <button onclick="switchSection('bundles'); closeMobileMenu()" class="w-full glass py-3 rounded-lg small-muted hover:bg-white/5 smooth-transition touch-target">
+                <i class="ri-compass-3-line mr-2"></i>Explore Bundles
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT SECTIONS -->
+    <main>
+        <!-- HOME SECTION (with status indicator) -->
+        <section id="home-section" class="section-active">
+            <div class="max-w-7xl mx-auto p-6">
+                <!-- NETWORK STATUS INDICATOR (Dynamic) -->
+                <div id="networkStatusBanner" class="mb-6 rounded-xl p-4 glass border-l-4 transition-all" style="border-left-color: #00e07a;">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span id="statusDot" class="status-dot status-green"></span>
+                            <div>
+                                <h3 id="statusTitle" class="font-bold text-base md:text-lg">Network Status: Excellent</h3>
+                                <p id="statusMessage" class="text-sm small-muted max-w-xl">⚡ Express delivery active: 5-45 minutes guaranteed. Orders processing instantly.</p>
+                            </div>
+                        </div>
+                        <div class="text-xs bg-black/20 p-2 rounded-lg text-center cursor-help" title="We're transparent about network conditions to set real expectations. Your data will always be delivered.">
+                            <i class="ri-information-line mr-1"></i> Why this matters?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-6 items-center py-10">
+                    <!-- HERO LEFT -->
+                    <div class="space-y-6">
+                        <h1 class="text-5xl lg:text-6xl font-black leading-tight">
+                            <span class="block">Ghana's Fastest</span>
+                            <span class="block gradient-text">Data Bundle Delivery</span>
+                        </h1>
+                        <p class="text-lg text-slate-300 max-w-xl">
+                            ⚡ Get <strong class="accent">Express</strong> mobile data from all networks.
+                            <span class="font-semibold accent">AirtelTigo delivers instantly</span>, 
+                            while <span class="font-semibold mtn-color">MTN Express</span> & <span class="font-semibold telecel-color">Telecel Express</span> arrive in <strong class="text-white">5-45 minutes</strong> — the fastest in Ghana!
+                        </p>
+
+                        <!-- Guarantee Badges -->
+                        <div class="flex flex-wrap gap-4">
+                            <div class="guarantee-badge">
+                                <div class="flex items-center gap-2">
+                                    <i class="ri-checkbox-circle-fill text-hubGreen"></i>
+                                    <span class="font-semibold">5-45min Express</span>
+                                </div>
+                                <div class="text-xs small-muted">Guaranteed Speed</div>
+                            </div>
+                            <div class="guarantee-badge">
+                                <div class="flex items-center gap-2">
+                                    <i class="ri-shield-check-fill text-hubGreen"></i>
+                                    <span class="font-semibold">100% Secure</span>
+                                </div>
+                                <div class="text-xs small-muted">Payment Protection</div>
+                            </div>
+                            <div class="guarantee-badge">
+                                <div class="flex items-center gap-2">
+                                    <i class="ri-refresh-line text-hubGreen"></i>
+                                    <span class="font-semibold">Money Back</span>
+                                </div>
+                                <div class="text-xs small-muted">If Not Satisfied</div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 mobile-hero-buttons">
+                            <button onclick="openBuyModal()" class="btn-green px-6 py-3 rounded-full font-bold shadow-neon btn-enhanced smooth-transition flex-1 touch-target">
+                                <i class="ri-flashlight-line mr-2"></i>Buy Now - 20% OFF!
+                            </button>
+                            <button onclick="switchSection('bundles')" class="px-6 py-3 rounded-full border border-white/6 glass small-muted hover:bg-white/5 smooth-transition flex-1 touch-target">
+                                <i class="ri-eye-line mr-2"></i>View All Bundles
+                            </button>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-3 gap-4 mobile-hero-stats">
+                            <div class="glass px-4 py-3 rounded-md small-muted price-tag pulse-slow relative">
+                                <div class="discount-tag">🔥</div>
+                                <div class="text-xs">Best Value</div>
+                                <div class="text-2xl font-bold accent">₵4.99/1GB</div>
+                                <div class="text-xs">AirtelTigo Instant</div>
+                            </div>
+                            <div class="glass px-4 py-3 rounded-md small-muted">
+                                <div class="text-xs">Orders Today</div>
+                                <div class="text-2xl font-bold accent" id="ordersToday">247</div>
+                            </div>
+                            <div class="glass px-4 py-3 rounded-md small-muted">
+                                <div class="text-xs">Avg. Delivery</div>
+                                <div class="text-2xl font-bold" id="avgDelivery">12min</div>
+                            </div>
+                        </div>
+
+                        <!-- Trust Indicators -->
+                        <div class="pt-4">
+                            <p class="text-sm small-muted mb-2">Trusted by students, businesses & streamers across Ghana:</p>
+                            <div class="flex flex-wrap gap-3">
+                                <div class="trust-indicator">
+                                    <i class="ri-graduation-cap-line text-blue-400"></i>
+                                    <span>KNUST Students</span>
+                                </div>
+                                <div class="trust-indicator">
+                                    <i class="ri-building-line text-green-400"></i>
+                                    <span>Small Businesses</span>
+                                </div>
+                                <div class="trust-indicator">
+                                    <i class="ri-live-line text-purple-400"></i>
+                                    <span>Streamers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- HERO RIGHT (Flash Deal) - FIXED DISCOUNT TAG -->
+                    <div class="glass rounded-xl p-6 neon-border card-hover smooth-transition float-animation relative bundle-card">
+                        <div class="discount-tag">20% OFF</div>
+                        <div class="bundle-card-inner">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-sm small-muted">🔥 Flash Deal of the Day</div>
+                                    <div class="text-2xl font-bold">AirtelTigo | 5GB — 60 days</div>
+                                    <div class="flash-badge text-xs mt-1">⚡ Instant Delivery</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm small-muted line-through text-gray-400">₵30.00</div>
+                                    <div class="text-2xl font-bold accent">₵23.99</div>
+                                    <div class="text-xs text-green-400">Save ₵6.01</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button onclick="quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D')" class="w-full btn-green py-3 rounded-full font-semibold btn-enhanced smooth-transition touch-target">
+                                    <i class="ri-zap-line mr-2"></i>Flash Buy • ₵23.99 (Save 20%)
+                                </button>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="mt-6">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Limited stock:</span>
+                                    <span>12/50 sold</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-hubGreen to-neonPurple h-2 rounded-full" style="width: 24%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Network Selector -->
+                <section class="mt-12">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i class="ri-wifi-line text-hubGreen"></i>
+                        Choose Your Network
+                    </h2>
+                    <div class="flex flex-wrap gap-4 mb-8 justify-center">
+                        <button class="network-btn btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" 
+                                onclick="filterBundles('all')" data-network="all">
+                            <i class="ri-wifi-line mr-2"></i>All Networks
+                        </button>
+                        <button class="network-btn btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                onclick="filterBundles('mtn')" data-network="mtn">
+                            <i class="ri-fire-fill mr-2"></i>MTN Express (5-45min)
+                        </button>
+                        <button class="network-btn btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                onclick="filterBundles('airteltigo')" data-network="airteltigo">
+                            <i class="ri-flashlight-fill mr-2"></i>AirtelTigo <span class="flash-badge">INSTANT</span>
+                        </button>
+                        <button class="network-btn btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                onclick="filterBundles('telecel')" data-network="telecel">
+                            <i class="ri-signal-wifi-3-fill mr-2"></i>Telecel Express (5-45min)
+                        </button>
+                    </div>
+                    <p class="text-center small-muted mt-4 bg-black/30 p-4 rounded-xl">
+                        <i class="ri-information-line mr-2 text-hubGreen"></i>
+                        ⚡ <strong>AirtelTigo iShare bundles deliver instantly.</strong> 
+                        <strong class="mtn-color">MTN Express</strong> & <strong class="telecel-color">Telecel Express</strong> bundles arrive in just <strong class="text-white">5-45 minutes</strong> — fastest delivery in Ghana!
+                    </p>
+                </section>
+
+                <!-- FEATURED PRODUCTS -->
+                <section class="mt-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold">🔥 Hot Deals This Week</h2>
+                            <p class="small-muted">Most popular bundles with exclusive discounts</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-hubGreen">
+                            <i class="ri-fire-fill"></i>
+                            <span class="font-semibold">Trending Now</span>
+                        </div>
+                    </div>
+
+                    <div id="products" class="featured-plans-grid mt-6">
+                        <!-- Product cards injected by JS -->
+                    </div>
+                </section>
+
+                <!-- DATA VISUALIZATION -->
+                <section class="mt-12 grid md:grid-cols-3 gap-6">
+                    <div class="glass p-6 rounded-xl neon-border card-hover smooth-transition">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="ri-bar-chart-fill text-hubGreen"></i>
+                            Real-time Bundle Sales
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover smooth-transition">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="ri-money-dollar-circle-fill text-green-400"></i>
+                            Daily Revenue Trend
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover smooth-transition">
+                        <h3 class="font-bold mb-4 flex items-center gap-2">
+                            <i class="ri-dashboard-fill text-blue-400"></i>
+                            Network Performance
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- TESTIMONIALS SECTION (fully preserved) -->
+        <section id="testimonials-section" class="section-hidden">
+            <div class="max-w-7xl mx-auto p-6 py-20">
+                <h2 class="text-4xl font-black text-center mb-4">What Our Customers Say</h2>
+                <p class="text-center small-muted mb-8">Rated 4.9/5 by 2,400+ happy users across Ghana</p>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                    <div class="glass p-6 rounded-xl text-center card-hover">
+                        <div class="text-3xl font-black accent">4.9</div>
+                        <div class="text-yellow-400">
+                            <i class="ri-star-fill"></i>
+                            <i class="ri-star-fill"></i>
+                            <i class="ri-star-fill"></i>
+                            <i class="ri-star-fill"></i>
+                            <i class="ri-star-half-fill"></i>
+                        </div>
+                        <div class="text-sm small-muted mt-2">Overall Rating</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl text-center card-hover">
+                        <div class="text-3xl font-black accent">2.4k+</div>
+                        <div class="text-hubGreen">
+                            <i class="ri-user-heart-fill"></i>
+                        </div>
+                        <div class="text-sm small-muted mt-2">Happy Customers</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl text-center card-hover">
+                        <div class="text-3xl font-black accent">12min</div>
+                        <div class="text-green-400">
+                            <i class="ri-time-fill"></i>
+                        </div>
+                        <div class="text-sm small-muted mt-2">Avg. Delivery Time</div>
+                    </div>
+                    <div class="glass p-6 rounded-xl text-center card-hover">
+                        <div class="text-3xl font-black accent">99.2%</div>
+                        <div class="text-green-400">
+                            <i class="ri-thumb-up-fill"></i>
+                        </div>
+                        <div class="text-sm small-muted mt-2">Success Rate</div>
+                    </div>
+                </div>
+
+                <!-- Testimonials Grid -->
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="glass p-6 rounded-xl neon-border card-hover">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-hubGreen to-neonPurple flex items-center justify-center font-bold">
+                                KA
+                            </div>
+                            <div>
+                                <div class="font-bold">Kwame Addo</div>
+                                <div class="text-sm small-muted">Student, University of Ghana</div>
+                                <div class="text-yellow-400 text-sm">
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small-muted italic">
+                            "I needed data for online exams. Ordered MTN Express 10GB at 2:15 PM, received by 2:23 PM! 8 minutes! This service saved my semester!"
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="text-xs small-muted">Verified Purchase • MTN Express 10GB</div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-airtelRed to-pink-600 flex items-center justify-center font-bold">
+                                AS
+                            </div>
+                            <div>
+                                <div class="font-bold">Ama Serwaa</div>
+                                <div class="text-sm small-muted">Business Owner, Kumasi</div>
+                                <div class="text-yellow-400 text-sm">
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small-muted italic">
+                            "AirtelTigo instant delivery is REAL! My team needed data for client presentations. Ordered 5 bundles, all delivered in under 2 minutes each!"
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="text-xs small-muted">Verified Purchase • AirtelTigo 5x5GB</div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-telecelBlue to-blue-600 flex items-center justify-center font-bold">
+                                KO
+                            </div>
+                            <div>
+                                <div class="font-bold">Kofi Osei</div>
+                                <div class="text-sm small-muted">Streamer, Accra</div>
+                                <div class="text-yellow-400 text-sm">
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small-muted italic">
+                            "Live streaming with Telecel Express 100GB. Ordered during my stream, got it in 12 minutes without buffering interruption. Your Express promise is legit!"
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="text-xs small-muted">Verified Purchase • Telecel Express 100GB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Why Customers Love Us -->
+                <div class="mt-12 glass p-8 rounded-2xl neon-border">
+                    <h3 class="text-2xl font-bold mb-6 text-center">Why Customers Love Us</h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <div class="bg-gradient-to-br from-hubGreen/10 to-neonPurple/10 rounded-xl p-6 h-full">
+                                <h4 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="ri-zap-line text-hubGreen"></i>
+                                    Our Express Promise
+                                </h4>
+                                <ul class="space-y-4">
+                                    <li class="flex items-start gap-3">
+                                        <i class="ri-checkbox-circle-fill text-hubGreen mt-1"></i>
+                                        <div>
+                                            <div class="font-semibold">5-45 Minute Delivery</div>
+                                            <div class="text-sm small-muted">Actual Express delivery, not just promises</div>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <i class="ri-checkbox-circle-fill text-hubGreen mt-1"></i>
+                                        <div>
+                                            <div class="font-semibold">24/7 Instant Support</div>
+                                            <div class="text-sm small-muted">Real humans answer within 2 minutes</div>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <i class="ri-checkbox-circle-fill text-hubGreen mt-1"></i>
+                                        <div>
+                                            <div class="font-semibold">Best Prices Guaranteed</div>
+                                            <div class="text-sm small-muted">Lowest prices or we match it + 10% off</div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-xl p-6 h-full">
+                                <h4 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="ri-shield-check-line text-blue-400"></i>
+                                    Trust & Security
+                                </h4>
+                                <ul class="space-y-4">
+                                    <li class="flex items-start gap-3">
+                                        <i class="ri-checkbox-circle-fill text-blue-400 mt-1"></i>
+                                        <div>
+                                            <div class="font-semibold">100% Secure Payments</div>
+                                            <div class="text-sm small-muted">Encrypted transactions with Paystack</div>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <i class="ri-checkbox-circle-fill text-blue-400 mt-1"></i>
+                                        <div>
+                                            <div class="font-semibold">Money-Back Guarantee</div>
+                                            <div class="text-sm small-muted">Full refund for undelivered bundles</div>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <i class="ri-checkbox-circle-fill text-blue-400 mt-1"></i>
+                                        <div>
+                                            <div class="font-semibold">Data Privacy Protected</div>
+                                            <div class="text-sm small-muted">Your information stays private</div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BUNDLES SECTION (fully preserved) -->
+        <section id="bundles-section" class="section-hidden">
+            <div class="max-w-7xl mx-auto p-6 py-20">
+                <h2 class="text-4xl font-black text-center mb-4">All Data Bundles</h2>
+                <p class="text-center small-muted mb-8">⚡ Express (5-45min) or Instant – choose your speed</p>
+                
+                <!-- Speed Guarantee Banner -->
+                <div class="glass p-6 rounded-2xl mb-12 border-2 border-hubGreen text-center">
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                        <div class="bg-hubGreen/20 p-4 rounded-xl">
+                            <i class="ri-time-fill text-3xl text-hubGreen"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">⚡ 5-45 Minute Express Delivery Guarantee</h3>
+                            <p class="small-muted">If your Express bundle takes longer than 45 minutes, get 20% refund automatically!</p>
+                        </div>
+                        <button onclick="switchSection('home')" class="btn-green px-6 py-3 rounded-full font-bold touch-target">
+                            Learn More
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Network Filter -->
+                <div class="flex flex-wrap gap-4 mb-12 justify-center">
+                    <button class="network-filter-btn btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" onclick="filterAllBundles('all')">
+                        All Networks
+                    </button>
+                    <button class="network-filter-btn btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="filterAllBundles('mtn')">
+                        MTN Express (5-45min)
+                    </button>
+                    <button class="network-filter-btn btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="filterAllBundles('airteltigo')">
+                        AirtelTigo <span class="flash-badge">INSTANT</span> / BigTime
+                    </button>
+                    <button class="network-filter-btn btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="filterAllBundles('telecel')">
+                        Telecel Express (5-45min)
+                    </button>
+                </div>
+
+                <!-- Network-specific bundle containers -->
+                <div id="allBundles" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- All bundles will be loaded here by network -->
+                </div>
+            </div>
+        </section>
+
+        <!-- AGENT SECTION (Updated: referral removed, button links to agent-register.html, FAQ filled) -->
+        <section id="agent-section" class="section-hidden">
+            <div class="max-w-7xl mx-auto p-6 py-20">
+                <h2 class="text-4xl font-black text-center mb-4">Become a Certified Bundle Agent</h2>
+                <p class="text-center small-muted mb-6">Join our elite network of data bundle resellers and earn unlimited commissions</p>
+                <div class="agent-launch-banner max-w-2xl mx-auto rounded-xl p-5 mb-10 text-center">
+                    <div class="cs-inline-bars" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <p class="text-hubGreen font-bold text-sm md:text-base">Agents launching soon 🚀</p>
+                    <p class="text-gray-400 text-xs md:text-sm mt-2">Agent portal under construction — stay tuned. Want to become an agent? Launching soon!</p>
+                </div>
+
+                <!-- Single Agent Plan -->
+                <div class="glass rounded-2xl p-8 neon-border border-2 border-hubGreen relative max-w-2xl mx-auto card-hover smooth-transition">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-gradient-to-r from-hubGreen to-neonPurple text-white px-6 py-2 rounded-full text-sm font-bold animate-pulse">LIMITED TIME OFFER</span>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold mb-4 text-center">Pro Agent</h3>
+                    <div class="text-center mb-6">
+                        <div class="text-4xl font-black mb-2 line-through text-red-400">₵360</div>
+                        <div class="text-3xl font-black accent mb-2">₵45 Only!</div>
+                        <div class="text-sm discount-color font-bold">87% OFF - Limited Time Offer</div>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                            <span class="font-semibold">Set Your Own Prices + Profit Margin</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                            <span class="font-semibold">Personal Store Link & Branding</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                            <span class="font-semibold">Advanced Dashboard with Analytics</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                            <span class="font-semibold">Priority 24/7 Support</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                            <span class="font-semibold">Real-time Sales Analytics</span>
+                        </li>
+                        <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
+                            <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
+                            <span class="font-semibold">Earn ₵15 per agent referral</span>
+                        </li>
+                    </ul>
+                    
+                    <a href="#" role="button" title="Launching Q2 2026 — get ready!" class="coming-soon-agent-btn w-full btn-green py-4 rounded-xl font-bold text-lg btn-enhanced smooth-transition touch-target inline-block text-center" onclick="event.preventDefault(); comingSoon('Pro Agent signup');">
+                        <i class="ri-star-line mr-2"></i>Become a Pro Agent - ₵45 Only!
+                    </a>
+                    <p class="text-center text-sm text-gray-500 mt-4">One-time payment • Lifetime access • Unlimited earnings</p>
+                </div>
+
+                <!-- Success Stories -->
+                <div class="text-center mt-16">
+                    <h3 class="text-2xl font-bold mb-8">Our Successful Agents</h3>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition relative">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">
+                                #1 Top Agent
+                            </div>
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center">
+                                <i class="ri-user-3-line text-2xl text-black"></i>
+                            </div>
+                            <div class="font-bold">Ama Serwaa</div>
+                            <div class="text-sm text-gray-400 mb-2">Pro Agent • Kumasi</div>
+                            <div class="text-hubGreen font-semibold text-xl">₵12,450 earned</div>
+                            <div class="text-xs text-gray-500 mt-1">ROI: 27,667% • 312 sales this month</div>
+                        </div>
+                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
+                                <i class="ri-user-3-line text-2xl text-white"></i>
+                            </div>
+                            <div class="font-bold">Kwame Osei</div>
+                            <div class="text-sm text-gray-400 mb-2">Pro Agent • Takoradi</div>
+                            <div class="text-hubGreen font-semibold text-xl">₵7,890 earned</div>
+                            <div class="text-xs text-gray-500 mt-1">ROI: 17,533% • 189 sales</div>
+                        </div>
+                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-400 to-cyan-500 flex items-center justify-center">
+                                <i class="ri-user-3-line text-2xl text-white"></i>
+                            </div>
+                            <div class="font-bold">Williams Isreal</div>
+                            <div class="text-sm text-gray-400 mb-2">Pro Agent • Accra</div>
+                            <div class="text-hubGreen font-semibold text-xl">₵5,240 earned</div>
+                            <div class="text-xs text-gray-500 mt-1">ROI: 11,644% • 134 sales</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ (fully detailed) -->
+                <div class="glass rounded-2xl p-8 neon-border mt-12 card-hover smooth-transition">
+                    <h3 class="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="font-semibold mb-2 flex items-center gap-2">
+                                <i class="ri-money-dollar-circle-line text-hubGreen"></i>
+                                How much can I earn?
+                            </div>
+                            <p class="text-sm text-gray-400">Our top agents earn ₵8,000+ monthly. With just 20 sales daily at ₵15 profit each, you'll make ₵9,000 monthly!</p>
+                        </div>
+                        <div>
+                            <div class="font-semibold mb-2 flex items-center gap-2">
+                                <i class="ri-bill-line text-hubGreen"></i>
+                                Is the fee one-time?
+                            </div>
+                            <p class="text-sm text-gray-400">Yes! Pay ₵45 once and earn commissions forever. No monthly fees or hidden charges.</p>
+                        </div>
+                        <div>
+                            <div class="font-semibold mb-2 flex items-center gap-2">
+                                <i class="ri-wallet-line text-hubGreen"></i>
+                                When do I get paid?
+                            </div>
+                            <p class="text-sm text-gray-400">Withdraw your earnings anytime to your MoMo account. Minimum withdrawal: ₵5.</p>
+                        </div>
+                        <div>
+                            <div class="font-semibold mb-2 flex items-center gap-2">
+                                <i class="ri-customer-service-line text-hubGreen"></i>
+                                What support do I get?
+                            </div>
+                            <p class="text-sm text-gray-400">24/7 WhatsApp support, marketing materials, and sales training included.</p>
+                        </div>
+                        <div>
+                            <div class="font-semibold mb-2 flex items-center gap-2">
+                                <i class="ri-smartphone-line text-hubGreen"></i>
+                                Can I resell via WhatsApp/Telegram?
+                            </div>
+                            <p class="text-sm text-gray-400">Absolutely! Many agents run their own channels. We give you a store link and you can sell anywhere.</p>
+                        </div>
+                        <div>
+                            <div class="font-semibold mb-2 flex items-center gap-2">
+                                <i class="ri-refund-line text-hubGreen"></i>
+                                What if a customer is unhappy?
+                            </div>
+                            <p class="text-sm text-gray-400">We handle refunds and support – you just focus on selling. We guarantee all orders.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <div class="glass rounded-2xl p-8 inline-block neon-border card-hover smooth-transition">
+                        <h3 class="text-2xl font-bold mb-4">Ready to Start Earning?</h3>
+                        <p class="text-gray-400 mb-6">Join 500+ successful agents across Ghana</p>
+                        <a href="#" role="button" title="Launching Q2 2026 — get ready!" class="coming-soon-agent-btn btn-green px-8 py-4 rounded-xl font-bold text-lg btn-enhanced smooth-transition touch-target inline-block" onclick="event.preventDefault(); comingSoon('Pro Agent signup');">
+                            <i class="ri-flashlight-line mr-2"></i>Become a Pro Agent - ₵45 Only!
+                        </a>
+                        <p class="text-sm text-gray-500 mt-4">
+                            <i class="ri-time-line mr-1"></i>
+                            Limited spots available at this price
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER (added Agent Login & Admin Login) -->
+    <footer class="mt-16 py-8 glass">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="text-xl font-extrabold mb-4">Mystery <span class="accent">Bundle</span> Hub</div>
+                    <p class="text-sm small-muted">Ghana's fastest data bundle delivery. Express 5-45 minute delivery guaranteed.</p>
+                </div>
+                <div>
+                    <div class="font-bold mb-4">Quick Links</div>
+                    <ul class="space-y-2 text-sm small-muted">
+                        <li><a href="#" onclick="switchSection('home')" class="hover:text-hubGreen">Home</a></li>
+                        <li><a href="#" onclick="switchSection('bundles')" class="hover:text-hubGreen">All Bundles</a></li>
+                        <li><a href="#" onclick="switchSection('testimonials')" class="hover:text-hubGreen">Customer Reviews</a></li>
+                        <li><a href="#" onclick="switchSection('support')" class="hover:text-hubGreen">FAQ & Support</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="font-bold mb-4">Support</div>
+                    <ul class="space-y-2 text-sm small-muted">
+                        <li><a href="#" onclick="switchSection('support')" class="hover:text-hubGreen">Help Center</a></li>
+                        <li><a href="#" onclick="contactSupport()" class="hover:text-hubGreen">WhatsApp Support</a></li>
+                        <li><a href="#" onclick="emailSupport()" class="hover:text-hubGreen">Email Support</a></li>
+                        <li><a href="#" onclick="callSupport()" class="hover:text-hubGreen">Call Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <div class="font-bold mb-4">Business</div>
+                    <ul class="space-y-2 text-sm small-muted">
+                        <li><a href="#" class="hover:text-hubGreen" title="Launching Q2 2026 — get ready!" onclick="event.preventDefault(); comingSoon('Become an Agent');">Become Agent</a></li>
+                        <li><a href="#" class="hover:text-hubGreen" title="Launching Q2 2026 — get ready!" onclick="event.preventDefault(); comingSoon('Agent Login');">Agent Login</a></li>
+                        <li><a href="admin-login.html" class="hover:text-hubGreen">Admin Login</a></li>
+                        <li><a href="#" onclick="showTerms()" class="hover:text-hubGreen">Terms of Service</a></li>
+                        <li><a href="#" onclick="showPrivacy()" class="hover:text-hubGreen">Privacy Policy</a></li>
+                        <li><a href="mailto:aryeeteyemmanuel852@gmail.com" class="hover:text-hubGreen">Contact Founder</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 pt-8 text-center small-muted">
+                © <span id="year"></span> Mystery Bundle Hub — Lightning-Fast Data Bundles • 
+                <span class="accent">aryeeteyemmanuel852@gmail.com</span>
+                <div class="mt-4 text-xs">
+                    ⚡ Express 5-45 Minute Delivery Guarantee • 100% Secure Payments • 24/7 Customer Support
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Agent coming soon (does not affect purchase modal) -->
+    <div id="agentComingSoonModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/75 backdrop-blur-md" aria-hidden="true" role="dialog" aria-labelledby="agentComingSoonHeadline" aria-modal="true" onclick="if(event.target===this) closeAgentComingSoon()">
+        <div class="glass rounded-2xl p-8 max-w-md w-full neon-border text-center relative overflow-hidden" onclick="event.stopPropagation()">
+            <div class="absolute inset-0 pointer-events-none opacity-30" style="background: radial-gradient(circle at 30% 20%, rgba(0,224,122,0.15), transparent 50%);"></div>
+            <div class="cs-modal-bars mb-4" aria-hidden="true">
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="w-14 h-14 mx-auto mb-4 rounded-full border-2 border-hubGreen/40 border-t-hubGreen animate-spin" style="animation-duration:2s;"></div>
+            <h3 id="agentComingSoonHeadline" class="text-2xl font-black mb-2">Coming soon</h3>
+            <p class="text-gray-400 text-sm mb-2">Agents launching soon 🚀</p>
+            <p class="text-gray-500 text-xs mb-6">Your agent portal is coming — we’re polishing the experience.</p>
+            <button type="button" onclick="closeAgentComingSoon()" class="btn-green px-6 py-3 rounded-xl font-bold w-full touch-target">Got it</button>
+            <p class="text-[11px] text-gray-600 mt-4">Launching Q2 2026 — get ready!</p>
+        </div>
+    </div>
+
+    <!-- BUY MODAL (scrollable) -->
+    <div id="buyModal" class="fixed inset-0 hidden items-center justify-center z-50 p-4">
+        <div class="absolute inset-0 modal-backdrop bg-black/70 backdrop-blur-sm"></div>
+        <div class="relative z-10 w-full max-w-lg p-6 glass rounded-xl neon-border smooth-transition modal-scrollable">
+            <h3 class="font-bold text-xl flex items-center gap-2">
+                <i class="ri-shopping-bag-line text-hubGreen"></i>
+                Buy Data Bundle
+            </h3>
+            <p class="small-muted mt-1">⚡ Enter phone number and confirm payment. Express delivery in 5-45 minutes!</p>
+
+            <!-- Discount Banner -->
+            <div class="mt-4 bg-gradient-to-r from-discountRed/20 to-pink-500/20 p-3 rounded-lg border border-discountRed/30">
+                <div class="flex items-center gap-2">
+                    <i class="ri-coupon-line text-discountRed"></i>
+                    <span class="font-semibold">20% OFF for new customers!</span>
+                    <span class="text-xs bg-discountRed text-white px-2 py-1 rounded ml-auto">WELCOME20</span>
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Network</label>
+                    <select id="opSelect" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
+                        <option value="mtn">MTN Express (5-45min delivery)</option>
+                        <option value="airteltigo">AirtelTigo (Instant delivery)</option>
+                        <option value="telecel">Telecel Express (5-45min delivery)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Bundle Plan</label>
+                    <select id="planSelect" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
+                        <!-- Plans will be populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
+                    <input id="phoneInput" type="tel" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="e.g., 0550123456" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email (Optional)</label>
+                    <input id="emailInput" type="email" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="your@email.com" />
+                </div>
+
+                <div class="flex gap-3 mt-4 flex-col sm:flex-row">
+                    <button id="confirmBuy" class="btn-green px-5 py-3 rounded-lg font-bold flex-1 hover:scale-105 transition-transform btn-enhanced touch-target">
+                        <i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF
+                    </button>
+                    <button onclick="closeBuyModal()" class="px-5 py-3 rounded-lg border border-white/6 glass text-gray-400 hover:bg-white/5 transition-colors flex-1 touch-target">Cancel</button>
+                </div>
+
+                <div id="buyStatus" class="mt-3 text-center text-sm"></div>
+                
+                <!-- Trust Indicators -->
+                <div class="grid grid-cols-3 gap-2 mt-4">
+                    <div class="text-center p-2 bg-white/5 rounded">
+                        <i class="ri-shield-check-line text-green-400"></i>
+                        <div class="text-xs mt-1">Secure</div>
+                    </div>
+                    <div class="text-center p-2 bg-white/5 rounded">
+                        <i class="ri-time-line text-blue-400"></i>
+                        <div class="text-xs mt-1">5-45min</div>
+                    </div>
+                    <div class="text-center p-2 bg-white/5 rounded">
+                        <i class="ri-refresh-line text-purple-400"></i>
+                        <div class="text-xs mt-1">Refund</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass rounded-2xl p-8 text-center neon-border smooth-transition">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-hubGreen/30 border-t-hubGreen animate-spin"></div>
+            <div class="text-hubGreen font-semibold">Processing your order...</div>
+            <div class="text-sm small-muted mt-2">⚡ Express delivery in 5-45 minutes</div>
+        </div>
+    </div>
+
+
+    <script>
+        // ==================== FULL BUNDLE DATA (all original plans) ====================
+        const bundleData = {
+            mtn: [
+                { size: '1GB', validity: '90 days', price: 5.99, code: 'MTN_1GB_90D', delivery: '5-45min', express: true },
+                { size: '2GB', validity: '90 days', price: 11.99, code: 'MTN_2GB_90D', delivery: '5-45min', express: true },
+                { size: '3GB', validity: '90 days', price: 16.99, code: 'MTN_3GB_90D', delivery: '5-45min', express: true },
+                { size: '4GB', validity: '90 days', price: 22.99, code: 'MTN_4GB_90D', delivery: '5-45min', express: true },
+                { size: '5GB', validity: '90 days', price: 27.99, code: 'MTN_5GB_90D', delivery: '5-45min', express: true },
+                { size: '6GB', validity: '90 days', price: 32.99, code: 'MTN_6GB_90D', delivery: '5-45min', express: true },
+                { size: '8GB', validity: '90 days', price: 44.99, code: 'MTN_8GB_90D', delivery: '5-45min', express: true },
+                { size: '10GB', validity: '90 days', price: 51.99, code: 'MTN_10GB_90D', delivery: '5-45min', express: true },
+                { size: '15GB', validity: '90 days', price: 76.99, code: 'MTN_15GB_90D', delivery: '5-45min', express: true },
+                { size: '20GB', validity: '90 days', price: 99.99, code: 'MTN_20GB_90D', delivery: '5-45min', express: true },
+                { size: '25GB', validity: '90 days', price: 124.99, code: 'MTN_25GB_90D', delivery: '5-45min', express: true },
+                { size: '30GB', validity: '90 days', price: 149.99, code: 'MTN_30GB_90D', delivery: '5-45min', express: true },
+                { size: '40GB', validity: '90 days', price: 199.99, code: 'MTN_40GB_90D', delivery: '5-45min', express: true },
+                { size: '50GB', validity: '90 days', price: 249.99, code: 'MTN_50GB_90D', delivery: '5-45min', express: true },
+                { size: '100GB', validity: '90 days', price: 489.99, code: 'MTN_100GB_90D', delivery: '5-45min', express: true }
+            ],
+            airteltigo: [
+                // iShare bundles (instant)
+                { size: '1GB', validity: '60 days', price: 4.99, code: 'AT_1GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '2GB', validity: '60 days', price: 9.99, code: 'AT_2GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '3GB', validity: '60 days', price: 14.99, code: 'AT_3GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '4GB', validity: '60 days', price: 19.99, code: 'AT_4GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '5GB', validity: '60 days', price: 23.99, code: 'AT_5GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '6GB', validity: '60 days', price: 28.99, code: 'AT_6GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '7GB', validity: '60 days', price: 33.99, code: 'AT_7GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '8GB', validity: '60 days', price: 38.99, code: 'AT_8GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '9GB', validity: '60 days', price: 43.99, code: 'AT_9GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '10GB', validity: '60 days', price: 48.99, code: 'AT_10GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '12GB', validity: '60 days', price: 58.99, code: 'AT_12GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '15GB', validity: '60 days', price: 72.99, code: 'AT_15GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '20GB', validity: '60 days', price: 96.99, code: 'AT_20GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '25GB', validity: '60 days', price: 119.99, code: 'AT_25GB_60D', instant: true, delivery: 'INSTANT' },
+                { size: '30GB', validity: '60 days', price: 139.99, code: 'AT_30GB_60D', instant: true, delivery: 'INSTANT' },
+                // BigTime bundles (non-expiry, standard delivery)
+                { size: '40GB', validity: 'No expiry', price: 99.99, code: 'AT_40GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' },
+                { size: '50GB', validity: 'No expiry', price: 109.99, code: 'AT_50GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' },
+                { size: '60GB', validity: 'No expiry', price: 129.99, code: 'AT_60GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' },
+                { size: '70GB', validity: 'No expiry', price: 159.99, code: 'AT_70GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' },
+                { size: '80GB', validity: 'No expiry', price: 189.99, code: 'AT_80GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' },
+                { size: '90GB', validity: 'No expiry', price: 199.99, code: 'AT_90GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' },
+                { size: '100GB', validity: 'No expiry', price: 219.99, code: 'AT_100GB_NOEXP', bigTime: true, delivery: 'Standard (30min-4h)' }
+            ],
+            telecel: [
+                { size: '5GB', validity: '60 days', price: 25.99, code: 'TEL_5GB_60D', delivery: '5-45min', express: true },
+                { size: '10GB', validity: '60 days', price: 48.99, code: 'TEL_10GB_60D', delivery: '5-45min', express: true },
+                { size: '15GB', validity: '60 days', price: 69.99, code: 'TEL_15GB_60D', delivery: '5-45min', express: true },
+                { size: '20GB', validity: '60 days', price: 89.99, code: 'TEL_20GB_60D', delivery: '5-45min', express: true },
+                { size: '25GB', validity: '60 days', price: 109.99, code: 'TEL_25GB_60D', delivery: '5-45min', express: true },
+                { size: '30GB', validity: '60 days', price: 129.99, code: 'TEL_30GB_60D', delivery: '5-45min', express: true },
+                { size: '40GB', validity: '60 days', price: 169.99, code: 'TEL_40GB_60D', delivery: '5-45min', express: true },
+                { size: '50GB', validity: '60 days', price: 209.99, code: 'TEL_50GB_60D', delivery: '5-45min', express: true },
+                { size: '100GB', validity: '60 days', code: 'TEL_100GB_60D', price: 419.99, delivery: '5-45min', express: true }
+            ]
+        };
+
+        // Local port must match Backend PORT in .env (default 5000 if PORT unset)
+        const BASE_URL =
+            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000/api'
+                : '/api';
+
+        // ==================== NETWORK STATUS HANDLER ====================
+        async function fetchNetworkStatus() {
+            try {
+                // MVP: /api/network-status not mounted — use local fallback only
+                // const response = await fetch(`${BASE_URL}/network-status`).catch(() => null);
+                const response = null;
+                if (response && response.ok) {
+                    const data = await response.json();
+                    updateStatusUI(data.status, data.message);
+                } else {
+                    // Fallback: use localStorage for demo (admin can set via console)
+                    let demoStatus = localStorage.getItem('demoNetworkStatus') || 'green';
+                    let demoMsg = localStorage.getItem('demoNetworkMsg') || '';
+                    updateStatusUI(demoStatus, demoMsg);
+                }
+            } catch (e) {
+                updateStatusUI('green', 'All systems operational. Express delivery active.');
+            }
+        }
+
+        function updateStatusUI(status, customMsg) {
+            const dot = document.getElementById('statusDot');
+            const title = document.getElementById('statusTitle');
+            const msg = document.getElementById('statusMessage');
+            dot.className = `status-dot status-${status}`;
+            if (status === 'green') {
+                title.innerText = '✅ Network: Excellent';
+                msg.innerText = customMsg || '⚡ Instant to 15 min delivery — blazing fast. Order with confidence!';
+            } else if (status === 'yellow') {
+                title.innerText = '🟡 Network: Moderate Load';
+                msg.innerText = customMsg || 'Delivery may take 20-60 min, but every order will be delivered. Thank you for your patience!';
+            } else if (status === 'red') {
+                title.innerText = '🔴 Network: High Traffic';
+                msg.innerText = customMsg || 'Expect slight delays (1-3 hrs). We’re working hard — your data is safe and will arrive.';
+            }
+            // Update banner left border color
+            const banner = document.getElementById('networkStatusBanner');
+            if (banner) {
+                if (status === 'green') banner.style.borderLeftColor = '#22c55e';
+                else if (status === 'yellow') banner.style.borderLeftColor = '#eab308';
+                else if (status === 'red') banner.style.borderLeftColor = '#ef4444';
+            }
+        }
+
+        // For testing purposes: hold Alt and click the status banner to cycle states (admin can use real API)
+        document.addEventListener('DOMContentLoaded', () => {
+            const banner = document.getElementById('networkStatusBanner');
+            if (banner) {
+                banner.addEventListener('click', (e) => {
+                    if (e.altKey) {
+                        let current = localStorage.getItem('demoNetworkStatus') || 'green';
+                        let next = current === 'green' ? 'yellow' : (current === 'yellow' ? 'red' : 'green');
+                        localStorage.setItem('demoNetworkStatus', next);
+                        let msg = '';
+                        if (next === 'green') msg = 'Express delivery active: 5-45 minutes guaranteed.';
+                        else if (next === 'yellow') msg = 'Network is experiencing moderate load. Deliveries may take up to 60 minutes, but all orders will be completed.';
+                        else msg = 'High traffic detected. Some delays possible (1-3 hours). Your order is safe and will be delivered.';
+                        updateStatusUI(next, msg);
+                    }
+                });
+            }
+        });
+
+        // ==================== ALL ORIGINAL FUNCTIONS (preserved) ====================
+        let appState = {
+            currentSection: 'home',
+            orders: [],
+            agents: [],
+            products: [],
+            currentNetworkFilter: 'all',
+            userData: {
+                totalSpent: 0,
+                referrals: 0,
+                rewardBalance: 0
+            }
+        };
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Mystery Bundle Hub...');
+            document.getElementById('year').textContent = new Date().getFullYear();
+            setupEventListeners();
+            loadFeaturedProducts();
+            updatePlanOptions();
+            initializeEnhancedCharts();
+            checkBackendConnection();
+            loadOrderStats();
+            updateActiveNav('home');
+            
+            setInterval(() => {
+                const ordersToday = document.getElementById('ordersToday');
+                if (ordersToday) {
+                    const current = parseInt(ordersToday.textContent) || 247;
+                    ordersToday.textContent = current + Math.floor(Math.random() * 3);
+                }
+            }, 30000);
+            setViewportHeight();
+            window.addEventListener('resize', setViewportHeight);
+            // Poll network status every 45 seconds
+            setInterval(fetchNetworkStatus, 45000);
+            fetchNetworkStatus();
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = themeToggle.querySelector('.ri-sun-line');
+        const moonIcon = themeToggle.querySelector('.ri-moon-line');
+        
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                localStorage.setItem('theme', 'light');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                document.body.classList.remove('light-mode');
+                localStorage.setItem('theme', 'dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const isLight = document.body.classList.contains('light-mode');
+            setTheme(isLight ? 'dark' : 'light');
+        });
+        
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') setTheme('light');
+        else setTheme('dark');
+
+        function setViewportHeight() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        async function checkBackendConnection() {
+            // MVP: /api/health not mounted
+            console.log('MVP: backend health check skipped (use POST /api/orders/create)');
+        }
+
+        async function loadOrderStats() {
+            // MVP: GET /api/orders not exposed — keep default UI stats
+            document.getElementById('avgDelivery').textContent = '12min';
+        }
+
+        function setupEventListeners() {
+            document.getElementById('mobileMenuToggle').addEventListener('click', openMobileMenu);
+            document.getElementById('closeMobileMenu').addEventListener('click', closeMobileMenu);
+            document.getElementById('opSelect').addEventListener('change', updatePlanOptions);
+            document.getElementById('confirmBuy').addEventListener('click', handlePurchase);
+            document.getElementById('buyModal').addEventListener('click', function(e) {
+                if (e.target === this) closeBuyModal();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    var cs = document.getElementById('agentComingSoonModal');
+                    if (cs && !cs.classList.contains('hidden')) {
+                        closeAgentComingSoon();
+                        return;
+                    }
+                    closeBuyModal();
+                    closeMobileMenu();
+                }
+            });
+            document.getElementById('phoneInput').addEventListener('input', function(e) {
+                const phone = e.target.value.replace(/\D/g, '');
+                if (phone.length <= 10) {
+                    e.target.value = phone;
+                }
+            });
+            document.addEventListener('touchstart', function() {}, {passive: true});
+        }
+
+        function openMobileMenu() {
+            document.getElementById('mobileMenu').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchSection(sectionName) {
+            document.querySelectorAll('[id$="-section"]').forEach(section => {
+                section.classList.add('section-hidden');
+                section.classList.remove('section-active');
+            });
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.remove('section-hidden');
+                targetSection.classList.add('section-active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (sectionName === 'bundles') {
+                    loadAllBundles();
+                }
+            }
+            appState.currentSection = sectionName;
+            updateActiveNav(sectionName);
+            closeMobileMenu();
+        }
+
+        function updateActiveNav(activeSection) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                const onclickAttr = item.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(activeSection)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Helper functions for styling
+        function getNetworkClass(network) {
+            const classes = { 'mtn': 'mtn-card', 'airteltigo': 'airtel-card', 'telecel': 'telecel-card' };
+            return classes[network] || '';
+        }
+
+        function getNetworkBorderClass(network) {
+            const borders = { 'mtn': 'mtn-border', 'airteltigo': 'airtel-border', 'telecel': 'telecel-border' };
+            return borders[network] || 'neon-border';
+        }
+
+        function getNetworkColorClass(network) {
+            const colors = { 'mtn': 'mtn-color', 'airteltigo': 'airtel-color', 'telecel': 'telecel-color' };
+            return colors[network] || 'accent';
+        }
+
+        function getNetworkButtonClass(network) {
+            const buttons = { 'mtn': 'btn-mtn', 'airteltigo': 'btn-airtel', 'telecel': 'btn-telecel' };
+            return buttons[network] || 'btn-green';
+        }
+
+        // Featured Products generation
+        function generateFeaturedProducts() {
+            const products = [];
+            let id = 1;
+            const featuredBundles = [
+                { network: 'mtn', bundleIndex: 0, discount: '🔥' },
+                { network: 'airteltigo', bundleIndex: 4, discount: '20% OFF' },
+                { network: 'airteltigo', bundleIndex: 15, discount: '🔥' }, // BigTime 40GB
+                { network: 'telecel', bundleIndex: 0, discount: '15% OFF' },
+                { network: 'mtn', bundleIndex: 7, discount: '🔥' },
+                { network: 'airteltigo', bundleIndex: 12, discount: 'FLASH' }
+            ];
+            featuredBundles.forEach(({network, bundleIndex, discount}) => {
+                if (bundleData[network] && bundleData[network][bundleIndex]) {
+                    const bundle = bundleData[network][bundleIndex];
+                    const oldPrice = discount.includes('%') ? (bundle.price * 1.25).toFixed(2) : null;
+                    products.push({
+                        id: id++,
+                        operator: network.charAt(0).toUpperCase() + network.slice(1),
+                        name: `${bundle.size} - ${bundle.validity}`,
+                        price: bundle.price.toFixed(2),
+                        oldPrice: oldPrice,
+                        data_amount: bundle.size,
+                        network: network,
+                        validity: bundle.validity,
+                        code: bundle.code,
+                        bigTime: bundle.bigTime || false,
+                        instant: bundle.instant || false,
+                        express: bundle.express || false,
+                        delivery: bundle.delivery || '5-45min',
+                        discount: discount
+                    });
+                }
+            });
+            return products;
+        }
+
+        function loadFeaturedProducts() {
+            const container = document.getElementById('products');
+            const featuredProducts = generateFeaturedProducts();
+            container.innerHTML = featuredProducts.map(product => {
+                const networkClass = getNetworkClass(product.network);
+                const borderClass = getNetworkBorderClass(product.network);
+                const isBigTime = product.bigTime || false;
+                const isInstant = product.instant || false;
+                const isExpress = product.express || false;
+                return `
+                    <div class="glass rounded-xl p-6 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative">
+                        ${product.discount ? '<div class="discount-tag">' + product.discount + '</div>' : ''}
+                        <div class="bundle-card-inner">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center ${isBigTime ? 'pulse-slow' : ''}">
+                                    <i class="ri-wifi-line ${getNetworkColorClass(product.network)} text-xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    ${product.oldPrice ? `
+                                        <div class="text-sm line-through text-gray-400">₵${product.oldPrice}</div>
+                                        <div class="text-2xl font-bold ${getNetworkColorClass(product.network)}">₵${product.price}</div>
+                                        <div class="text-xs text-green-400 font-semibold">Save ₵${(product.oldPrice - product.price).toFixed(2)}</div>
+                                    ` : `
+                                        <div class="text-2xl font-bold ${getNetworkColorClass(product.network)}">₵${product.price}</div>
+                                        <div class="text-xs small-muted">${product.data_amount}</div>
+                                    `}
+                                    ${isBigTime ? '<div class="text-xs text-yellow-400 font-semibold mt-1">🔥 BigTime</div>' : ''}
+                                    ${isInstant ? '<div class="flash-badge text-xs mt-1">⚡ INSTANT</div>' : 
+                                      isExpress ? '<div class="express-badge text-xs mt-1">✈️ EXPRESS 5-45min</div>' :
+                                      `<div class="speed-badge text-xs mt-1">${product.delivery || '5-45min'}</div>`}
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">${product.network.toUpperCase()} ${product.data_amount}</h3>
+                            <p class="small-muted text-sm mb-4">${product.validity} • High speed internet</p>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
+                                    <i class="ri-time-line mr-1"></i>${product.validity}
+                                </span>
+                                <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
+                                    <i class="ri-zap-line mr-1"></i>${isInstant ? 'Instant' : (isExpress ? 'Express 5-45min' : product.delivery)}
+                                </span>
+                            </div>
+                            <button onclick="quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" 
+                                    class="w-full ${getNetworkButtonClass(product.network)} py-3 rounded-lg font-semibold btn-enhanced smooth-transition hover:scale-105 transition-transform touch-target">
+                                <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${product.price}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadAllBundles() {
+            const container = document.getElementById('allBundles');
+            container.innerHTML = '';
+            Object.keys(bundleData).forEach(network => {
+                bundleData[network].forEach(bundle => {
+                    const card = createBundleCard(network, bundle);
+                    container.appendChild(card);
+                });
+            });
+        }
+
+        function createBundleCard(network, bundle) {
+            const card = document.createElement('div');
+            const networkClass = getNetworkClass(network);
+            const borderClass = getNetworkBorderClass(network);
+            const isBigTime = bundle.bigTime || false;
+            const isInstant = bundle.instant || false;
+            const isExpress = bundle.express || false;
+            const deliveryTime = bundle.delivery || '5-45min';
+            card.className = `glass rounded-xl p-6 bundle-card card-hover smooth-transition ${borderClass} ${networkClass} relative`;
+            card.setAttribute('data-network', network);
+            card.innerHTML = `
+                <div class="bundle-card-inner">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center ${isBigTime ? 'pulse-slow' : ''}">
+                            <i class="ri-wifi-line ${getNetworkColorClass(network)} text-xl"></i>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold ${getNetworkColorClass(network)}">₵${bundle.price.toFixed(2)}</div>
+                            <div class="text-xs small-muted">${bundle.size}</div>
+                            ${isBigTime ? '<div class="text-xs text-yellow-400 font-semibold mt-1">🔥 BigTime</div>' : ''}
+                            ${isInstant ? '<div class="flash-badge text-xs mt-1">⚡ INSTANT</div>' : 
+                              isExpress ? '<div class="express-badge text-xs mt-1">✈️ EXPRESS 5-45min</div>' :
+                              `<div class="speed-badge text-xs mt-1">${deliveryTime}</div>`}
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">${network.toUpperCase()} ${bundle.size}</h3>
+                    <p class="small-muted text-sm mb-4">${bundle.validity} • High speed internet</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
+                            <i class="ri-time-line mr-1"></i>${bundle.validity}
+                        </span>
+                        <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
+                            <i class="ri-zap-line mr-1"></i>${isInstant ? 'Instant' : (isExpress ? 'Express 5-45min' : deliveryTime)}
+                        </span>
+                    </div>
+                    <button onclick="quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}')"
+                            class="w-full ${getNetworkButtonClass(network)} py-3 rounded-lg font-semibold btn-enhanced smooth-transition hover:scale-105 transition-transform touch-target">
+                        <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${bundle.price.toFixed(2)}
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Filter functions
+        function filterBundles(network) {
+            const products = document.querySelectorAll('#products > div');
+            products.forEach(product => {
+                const button = product.querySelector('button');
+                if (button && button.getAttribute('onclick')) {
+                    const onclick = button.getAttribute('onclick');
+                    if (network === 'all' || onclick.includes(`'${network}'`)) {
+                        product.style.display = 'block';
+                    } else {
+                        product.style.display = 'none';
+                    }
+                }
+            });
+            document.querySelectorAll('.network-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            appState.currentNetworkFilter = network;
+        }
+
+        function filterAllBundles(network) {
+            const bundles = document.querySelectorAll('#allBundles > div');
+            bundles.forEach(bundle => {
+                if (network === 'all' || bundle.getAttribute('data-network') === network) {
+                    bundle.style.display = 'block';
+                } else {
+                    bundle.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.network-filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            appState.currentNetworkFilter = network;
+        }
+
+        // Modal functions
+        function openBuyModal(network = '', size = '', price = 0, code = '') {
+            const modal = document.getElementById('buyModal');
+            const opSelect = document.getElementById('opSelect');
+            const planSelect = document.getElementById('planSelect');
+            if (network) {
+                if (network === 'mtn') opSelect.value = 'mtn';
+                else if (network === 'airteltigo') opSelect.value = 'airteltigo';
+                else if (network === 'telecel') opSelect.value = 'telecel';
+            }
+            updatePlanOptions();
+            if (size && price > 0 && code) {
+                for (let i = 0; i < planSelect.options.length; i++) {
+                    const option = planSelect.options[i];
+                    if (option.getAttribute('data-code') === code) {
+                        planSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('buyStatus').textContent = '';
+            document.getElementById('confirmBuy').disabled = false;
+            document.getElementById('confirmBuy').innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+        }
+
+        function closeBuyModal() {
+            document.getElementById('buyModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('buyStatus').textContent = '';
+        }
+
+        function quickBuy(network, size, price, code) {
+            openBuyModal(network, size, price, code);
+        }
+
+        function updatePlanOptions() {
+            const opSelect = document.getElementById('opSelect');
+            const planSelect = document.getElementById('planSelect');
+            const network = opSelect.value;
+            planSelect.innerHTML = '';
+            if (bundleData[network]) {
+                bundleData[network].forEach(bundle => {
+                    const option = document.createElement('option');
+                    option.value = bundle.price;
+                    let deliveryText = '';
+                    if (bundle.instant) {
+                        deliveryText = ' • ⚡ INSTANT Delivery';
+                    } else if (bundle.bigTime) {
+                        deliveryText = ' • No expiry (Standard)';
+                    } else if (bundle.express) {
+                        deliveryText = ' • ✈️ Express 5-45min';
+                    } else {
+                        deliveryText = ' • 5-45min Delivery';
+                    }
+                    option.textContent = `${bundle.size} - ${bundle.validity}${deliveryText} — ₵${bundle.price.toFixed(2)}`;
+                    option.setAttribute('data-code', bundle.code);
+                    if (bundle.bigTime) {
+                        option.textContent = `${bundle.size} - BigTime (No expiry) — ₵${bundle.price.toFixed(2)}`;
+                    }
+                    planSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Purchase flow
+        async function handlePurchase() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim() || 'customer@mysterybundlehub.com';
+            const amount = parseFloat(document.getElementById('planSelect').value);
+            const operator = document.getElementById('opSelect').value;
+            const planText = document.getElementById('planSelect').options[document.getElementById('planSelect').selectedIndex].text;
+            const productCode = document.getElementById('planSelect').options[document.getElementById('planSelect').selectedIndex].getAttribute('data-code');
+
+            if (!validatePhoneNumber(phone)) {
+                showStatus('Please enter a valid Ghanaian phone number (e.g., 0550123456)', 'error');
+                return;
+            }
+            if (!amount || amount <= 0) {
+                showStatus('Please select a valid bundle', 'error');
+                return;
+            }
+            if (!validateEmail(email) && email !== 'customer@mysterybundlehub.com') {
+                showStatus('Please enter a valid email address', 'error');
+                return;
+            }
+            await confirmPurchase(phone, email, operator, planText, productCode);
+        }
+
+        async function confirmPurchase(phone, email, operator, planText, productCode) {
+            showLoading();
+            const confirmBtn = document.getElementById('confirmBuy');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Redirecting to Paystack...';
+            try {
+                if (!productCode || String(productCode).trim() === '') {
+                    throw new Error('Please select a valid bundle');
+                }
+                const payload = { phone, bundle: productCode };
+                if (email && email !== 'customer@mysterybundlehub.com' && validateEmail(email)) {
+                    payload.email = email;
+                }
+                const payRes = await fetch(`${BASE_URL}/payment/initialize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const payJson = await payRes.json().catch(() => ({}));
+                if (!payRes.ok) {
+                    throw new Error(payJson.message || `Payment could not start (${payRes.status})`);
+                }
+                const authUrl = payJson.data?.authorization_url;
+                const reference = payJson.data?.reference;
+                if (!authUrl) {
+                    throw new Error('No Paystack authorization URL returned');
+                }
+                try {
+                    localStorage.setItem('lastOrder', JSON.stringify({
+                        phone,
+                        operator,
+                        planText,
+                        reference,
+                        productCode
+                    }));
+                } catch (e) { /* ignore */ }
+                window.location.href = authUrl;
+            } catch (error) {
+                console.error('Payment init error:', error);
+                hideLoading();
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+                showStatus(error.message || 'Could not start payment', 'error');
+            }
+        }
+
+        function validatePhoneNumber(phone) {
+            const phoneRegex = /^(0|\+233)[235]\d{8}$/;
+            return phoneRegex.test(phone);
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        async function verifyPayment(reference, isNewCustomer) {}
+
+        // Support functions
+        function contactSupport() { window.open('https://wa.me/233592066298', '_blank'); }
+        function emailSupport() { window.location.href = 'mailto:support@mysterybundlehub.com'; }
+        function callSupport() { window.location.href = 'tel:+233246802468'; }
+        function comingSoon(feature) {
+            var label = feature || 'This feature';
+            var modal = document.getElementById('agentComingSoonModal');
+            var headline = document.getElementById('agentComingSoonHeadline');
+            if (headline) headline.textContent = label + ' — coming soon 🚀';
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closeAgentComingSoon() {
+            var modal = document.getElementById('agentComingSoonModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+        }
+        function registerAsAgent() {
+            comingSoon('Agent registration');
+        }
+
+        function showTerms() {
+            alert("Terms of Service: By using Mystery Bundle Hub, you agree to our terms. Please contact support for full details.");
+        }
+
+        function showPrivacy() {
+            alert("Privacy Policy: We value your privacy. Your data is secure and never shared. Read full policy at mysterybundlehub.com/privacy.");
+        }
+
+        function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+        function showStatus(message, type = 'info') {
+            const statusEl = document.getElementById('buyStatus');
+            statusEl.textContent = message;
+            statusEl.className = 'mt-3 text-center text-sm ' + 
+                (type === 'error' ? 'text-red-400' : type === 'success' ? 'text-green-400' : 'text-blue-400');
+        }
+
+        // Charts
+        function initializeEnhancedCharts() {
+            const salesCtx = document.getElementById('salesChart');
+            if (salesCtx) {
+                new Chart(salesCtx, {
+                    type: 'bar',
+                    data: { labels: ['MTN', 'AirtelTigo', 'Telecel'], datasets: [{ label: 'Sales Today', data: [156, 89, 67], backgroundColor: ['#ffcc00', '#e4002b', '#00a1e0'] }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(11, 15, 18, 0.9)', titleColor: '#00e07a', bodyColor: '#e6eef6' } } }
+                });
+            }
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                new Chart(revenueCtx, {
+                    type: 'line',
+                    data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Revenue (₵)', data: [1250, 1890, 2100, 1780, 2450, 3120, 2850], borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', borderWidth: 3, tension: 0.4, fill: true }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(11, 15, 18, 0.9)', titleColor: '#8b5cf6', bodyColor: '#e6eef6' } } }
+                });
+            }
+            const performanceCtx = document.getElementById('performanceChart');
+            if (performanceCtx) {
+                new Chart(performanceCtx, {
+                    type: 'doughnut',
+                    data: { labels: ['MTN', 'AirtelTigo', 'Telecel'], datasets: [{ data: [45, 32, 23], backgroundColor: ['#ffcc00', '#e4002b', '#00a1e0'], borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e6eef6', font: { size: 12 } } } } }
+                });
+            }
+        }
+
+        // Make functions globally available
+        window.switchSection = switchSection;
+        window.openBuyModal = openBuyModal;
+        window.closeBuyModal = closeBuyModal;
+        window.quickBuy = quickBuy;
+        window.filterBundles = filterBundles;
+        window.filterAllBundles = filterAllBundles;
+        window.registerAsAgent = registerAsAgent;
+        window.comingSoon = comingSoon;
+        window.closeAgentComingSoon = closeAgentComingSoon;
+        window.contactSupport = contactSupport;
+        window.emailSupport = emailSupport;
+        window.callSupport = callSupport;
+        window.handlePurchase = handlePurchase;
+        window.showTerms = showTerms;
+        window.showPrivacy = showPrivacy;
+    </script>
+</body>
+</html>

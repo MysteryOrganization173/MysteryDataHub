@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Login — Mystery Bundle Hub</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00e07a, #00c86b);
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 224, 122, 0.3);
+        }
+    </style>
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Agent API -->
+    <script src="agent-api.js"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <script src="agent-coming-soon-gate.js"></script>
+    <div class="glass rounded-2xl p-8 w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-green-500/20 flex items-center justify-center">
+                <i class="ri-user-star-line text-green-400 text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold">Agent Portal</h1>
+            <p class="text-gray-400">Sign in to your agent dashboard</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium mb-2">Phone Number</label>
+                <input type="text" id="phone" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-green-400 transition-colors" placeholder="0551234567" required>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium mb-2">Password</label>
+                <input type="password" id="password" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-green-400 transition-colors" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="w-full btn-primary py-3 rounded-lg font-semibold">
+                <i class="ri-login-box-line mr-2"></i>Sign In
+            </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="text-center mt-6">
+            <p class="text-gray-400">Don't have an agent account?</p>
+            <a href="agent-register.html" class="text-green-400 hover:text-green-300 font-semibold">
+                Register as Agent
+            </a>
+        </div>
+
+        <!-- Demo Credentials -->
+        <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <div class="flex items-center space-x-2 text-blue-400 mb-2">
+                <i class="ri-information-line"></i>
+                <span class="text-sm font-medium">Demo Credentials</span>
+            </div>
+            <div class="text-xs text-blue-400/80 space-y-1">
+                <div>Phone: <strong>0551234567</strong></div>
+                <div>Password: <strong>password123</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            
+            // Show loading
+            const button = this.querySelector('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Signing In...';
+            button.disabled = true;
+            
+            try {
+                const response = await AgentAPI.login(phone, password);
+                
+                if (response.success) {
+                    button.innerHTML = '<i class="ri-check-line mr-2"></i>Success! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = 'agent-dashboard.html';
+                    }, 1000);
+                } else {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    alert('Login failed: ' + response.message);
+                }
+            } catch (error) {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                alert('Login error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

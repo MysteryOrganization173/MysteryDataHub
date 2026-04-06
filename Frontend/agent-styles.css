@@ -1,0 +1,425 @@
+/* Advanced Agent Dashboard Styles */
+:root {
+    --hub-green: #00e07a;
+    --hub-dark: #0b0f12;
+    --hub-glass: rgba(255,255,255,0.06);
+    --mtn-yellow: #ffcc00;
+    --airtel-red: #e4002b;
+    --telecel-blue: #00a1e0;
+}
+
+/* Enhanced Glass Effect */
+.agent-glass {
+    background: rgba(10, 12, 15, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+}
+
+/* Neon Glow Effects */
+.agent-glow {
+    box-shadow: 
+        0 8px 32px rgba(0, 224, 122, 0.15),
+        0 0 0 1px rgba(0, 224, 122, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Pricing Table Styles */
+.pricing-table {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.pricing-row {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pricing-row:hover {
+    background: rgba(0, 224, 122, 0.05);
+    transform: translateX(4px);
+}
+
+.pricing-header {
+    background: linear-gradient(135deg, rgba(0, 224, 122, 0.1), rgba(0, 224, 122, 0.05));
+    border-bottom: 2px solid var(--hub-green);
+}
+
+/* Profit Display */
+.profit-display {
+    font-weight: 700;
+    font-size: 0.9em;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(0, 224, 122, 0.1);
+}
+
+.profit-display.negative {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Price Input Styles */
+.price-input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.price-input:focus {
+    border-color: var(--hub-green);
+    box-shadow: 0 0 0 3px rgba(0, 224, 122, 0.1);
+    background: rgba(0, 224, 122, 0.05);
+}
+
+.price-input.invalid {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+/* Network Badges */
+.network-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.network-badge.mtn {
+    background: rgba(255, 204, 0, 0.15);
+    color: var(--mtn-yellow);
+    border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.network-badge.airtel {
+    background: rgba(228, 0, 43, 0.15);
+    color: var(--airtel-red);
+    border: 1px solid rgba(228, 0, 43, 0.3);
+}
+
+.network-badge.telecel {
+    background: rgba(0, 161, 224, 0.15);
+    color: var(--telecel-blue);
+    border: 1px solid rgba(0, 161, 224, 0.3);
+}
+
+/* Action Buttons */
+.btn-agent-primary {
+    background: linear-gradient(135deg, var(--hub-green), #00c86b);
+    color: #041017;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-agent-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 224, 122, 0.3);
+}
+
+.btn-agent-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-agent-primary:hover::before {
+    left: 100%;
+}
+
+.btn-agent-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-agent-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Stats Cards */
+.stats-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--hub-green), transparent);
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.stats-card .icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 224, 122, 0.1);
+    color: var(--hub-green);
+}
+
+/* Pricing Strategies */
+.pricing-strategy-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.pricing-strategy-card:hover {
+    border-color: var(--hub-green);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 224, 122, 0.15);
+}
+
+.pricing-strategy-card.active {
+    border-color: var(--hub-green);
+    background: linear-gradient(135deg, rgba(0, 224, 122, 0.1), rgba(0, 224, 122, 0.05));
+}
+
+/* Bulk Actions */
+.bulk-actions-panel {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bulk-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.bulk-action-btn:hover {
+    background: rgba(0, 224, 122, 0.1);
+    border-color: var(--hub-green);
+}
+
+/* Store Preview */
+.store-preview-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.store-preview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--hub-green), transparent);
+}
+
+.store-preview-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+/* Earnings Chart */
+.earnings-chart-container {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Withdrawal Status */
+.withdrawal-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.withdrawal-status.pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.withdrawal-status.completed {
+    background: rgba(0, 224, 122, 0.15);
+    color: var(--hub-green);
+}
+
+.withdrawal-status.failed {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .pricing-table .pricing-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+    
+    .stats-card {
+        padding: 16px;
+    }
+    
+    .bulk-actions-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar */
+.agent-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.agent-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.agent-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--hub-green);
+    border-radius: 3px;
+}
+
+.agent-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #00c86b;
+}
+
+/* Loading States */
+.loading-skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Notification System */
+.agent-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Tooltip */
+.agent-tooltip {
+    position: relative;
+}
+
+.agent-tooltip::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.95);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.agent-tooltip:hover::before {
+    opacity: 1;
+}

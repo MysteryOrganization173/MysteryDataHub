@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Mystery Bundle Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        body { 
+            background: linear-gradient(180deg,#061018 0%, #07101a 40%, #0b0f12 100%); 
+            color: #e6eef6; 
+            font-family: 'Inter', sans-serif;
+        }
+        .glass { 
+            background: rgba(10,12,15,0.56); 
+            backdrop-filter: blur(6px); 
+            border: 1px solid rgba(255,255,255,0.03); 
+        }
+        .neon-border { 
+            box-shadow: 0 6px 30px rgba(0,224,122,0.07); 
+            border: 1px solid rgba(0,224,122,0.12); 
+        }
+        .accent { color: #00e07a; }
+        .btn-green { 
+            background: linear-gradient(90deg,#00e07a,#00c86b); 
+            color: #041017; 
+        }
+        .section-hidden { display: none; }
+        .section-active { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="glass p-4 border-b border-white/10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-black/40 border border-white/5 flex items-center justify-center">
+                    <i class="ri-admin-line text-hubGreen"></i>
+                </div>
+                <div>
+                    <div class="font-bold">Admin Panel</div>
+                    <div class="text-xs text-gray-400">Mystery Bundle Hub</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="showSection('overview')" class="nav-btn px-4 py-2 rounded-lg btn-green" data-section="overview">
+                    <i class="ri-dashboard-line mr-2"></i>Overview
+                </button>
+                <button onclick="showSection('agents')" class="nav-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white" data-section="agents">
+                    <i class="ri-user-star-line mr-2"></i>Agents
+                </button>
+                <button onclick="showSection('withdrawals')" class="nav-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white" data-section="withdrawals">
+                    <i class="ri-wallet-3-line mr-2"></i>Withdrawals
+                </button>
+                <button onclick="showSection('orders')" class="nav-btn px-4 py-2 rounded-lg text-gray-400 hover:text-white" data-section="orders">
+                    <i class="ri-shopping-bag-line mr-2"></i>Orders
+                </button>
+                <button onclick="logout()" class="px-4 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10">
+                    <i class="ri-logout-box-r-line mr-2"></i>Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6">
+        <!-- Overview Section -->
+        <section id="overview-section" class="section-active">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="glass p-6 rounded-xl neon-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-400">Total Agents</div>
+                            <div class="text-2xl font-bold accent" id="totalAgents">0</div>
+                        </div>
+                        <i class="ri-user-star-line text-2xl text-hubGreen"></i>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-xl neon-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-400">Platform Revenue</div>
+                            <div class="text-2xl font-bold accent" id="platformRevenue">₵0.00</div>
+                        </div>
+                        <i class="ri-money-dollar-circle-line text-2xl text-hubGreen"></i>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-xl neon-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-400">Agent Earnings</div>
+                            <div class="text-2xl font-bold" id="agentEarnings">₵0.00</div>
+                        </div>
+                        <i class="ri-wallet-line text-2xl text-hubGreen"></i>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-xl neon-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-400">Pending Withdrawals</div>
+                            <div class="text-2xl font-bold accent" id="pendingWithdrawals">₵0.00</div>
+                        </div>
+                        <i class="ri-time-line text-2xl text-hubGreen"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Recent Activity -->
+                <div class="glass p-6 rounded-xl neon-border">
+                    <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
+                    <div id="recentActivity" class="space-y-3">
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="ri-history-line text-4xl mb-3"></i>
+                            <p>No recent activity</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Agents -->
+                <div class="glass p-6 rounded-xl neon-border">
+                    <h3 class="text-xl font-bold mb-4">Top Agents</h3>
+                    <div id="topAgents" class="space-y-3">
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="ri-user-star-line text-4xl mb-3"></i>
+                            <p>No agents yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agents Section -->
+        <section id="agents-section" class="section-hidden">
+            <div class="glass p-6 rounded-xl neon-border">
+                <h3 class="text-xl font-bold mb-6">All Agents</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left p-3">Store Name</th>
+                                <th class="text-left p-3">Email</th>
+                                <th class="text-left p-3">Total Sales</th>
+                                <th class="text-left p-3">Earnings</th>
+                                <th class="text-left p-3">Balance</th>
+                                <th class="text-left p-3">Status</th>
+                                <th class="text-left p-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agentsTable">
+                            <!-- Agents will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Withdrawals Section -->
+        <section id="withdrawals-section" class="section-hidden">
+            <div class="glass p-6 rounded-xl neon-border">
+                <h3 class="text-xl font-bold mb-6">Withdrawal Requests</h3>
+                <div id="withdrawalRequests" class="space-y-4">
+                    <!-- Withdrawal requests will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section id="orders-section" class="section-hidden">
+            <div class="glass p-6 rounded-xl neon-border">
+                <h3 class="text-xl font-bold mb-6">All Orders</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left p-3">Order ID</th>
+                                <th class="text-left p-3">Network</th>
+                                <th class="text-left p-3">Amount</th>
+                                <th class="text-left p-3">Agent Profit</th>
+                                <th class="text-left p-3">Agent</th>
+                                <th class="text-left p-3">Status</th>
+                                <th class="text-left p-3">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = "http://localhost:3000";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminData();
+            setupNavigation();
+        });
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-btn').forEach(b => {
+                        b.classList.remove('btn-green');
+                        b.classList.add('text-gray-400', 'hover:text-white');
+                    });
+                    this.classList.add('btn-green');
+                    this.classList.remove('text-gray-400', 'hover:text-white');
+                });
+            });
+        }
+
+        async function loadAdminData() {
+            try {
+                // Load agents
+                const agentsResponse = await fetch('/api/admin/agents');
+                const agentsData = await agentsResponse.json();
+                
+                if (agentsData.success) {
+                    updateAgentsTable(agentsData.data);
+                    updateTopAgents(agentsData.data);
+                }
+
+                // Load withdrawals
+                const withdrawalsResponse = await fetch('/api/admin/withdrawals');
+                const withdrawalsData = await withdrawalsResponse.json();
+                
+                if (withdrawalsData.success) {
+                    updateWithdrawalRequests(withdrawalsData.data);
+                }
+
+                // Load orders
+                const ordersResponse = await fetch('/api/admin/orders');
+                const ordersData = await ordersResponse.json();
+                
+                if (ordersData.success) {
+                    updateOrdersTable(ordersData.data);
+                }
+
+                // Update overview stats
+                updateOverviewStats(agentsData.data, withdrawalsData.data, ordersData.data);
+
+            } catch (error) {
+                console.error('Failed to load admin data:', error);
+            }
+        }
+
+        function updateOverviewStats(agents, withdrawals, orders) {
+            const totalAgents = agents.length;
+            const platformRevenue = orders.reduce((total, order) => total + order.basePrice, 0);
+            const agentEarnings = orders.reduce((total, order) => total + (order.agentProfit || 0), 0);
+            const pendingWithdrawals = withdrawals
+                .filter(w => w.status === 'pending')
+                .reduce((total, w) => total + w.amount, 0);
+
+            document.getElementById('totalAgents').textContent = totalAgents;
+            document.getElementById('platformRevenue').textContent = `₵${platformRevenue.toFixed(2)}`;
+            document.getElementById('agentEarnings').textContent = `₵${agentEarnings.toFixed(2)}`;
+            document.getElementById('pendingWithdrawals').textContent = `₵${pendingWithdrawals.toFixed(2)}`;
+        }
+
+        function updateAgentsTable(agents) {
+            const container = document.getElementById('agentsTable');
+            
+            if (agents.length === 0) {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center p-8 text-gray-400">
+                            <i class="ri-user-star-line text-4xl mb-3"></i>
+                            <div>No agents registered yet</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            container.innerHTML = agents.map(agent => `
+                <tr class="border-b border-white/5 hover:bg-white/5">
+                    <td class="p-3">
+                        <div class="font-semibold">${agent.storeName}</div>
+                        <div class="text-xs text-gray-400">${agent.referralCode}</div>
+                    </td>
+                    <td class="p-3">${agent.email}</td>
+                    <td class="p-3">${agent.totalSales || 0}</td>
+                    <td class="p-3 text-hubGreen">₵${(agent.totalEarnings || 0).toFixed(2)}</td>
+                    <td class="p-3">₵${(agent.availableBalance || 0).toFixed(2)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs ${agent.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+                            ${agent.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="p-3">
+                        <button onclick="viewAgent('${agent.id}')" class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded text-sm hover:bg-blue-500/30">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateTopAgents(agents) {
+            const container = document.getElementById('topAgents');
+            const topAgents = agents
+                .sort((a, b) => (b.totalEarnings || 0) - (a.totalEarnings || 0))
+                .slice(0, 5);
+
+            if (topAgents.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="ri-user-star-line text-4xl mb-3"></i>
+                        <p>No agents yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = topAgents.map(agent => `
+                <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                    <div>
+                        <div class="font-semibold">${agent.storeName}</div>
+                        <div class="text-sm text-gray-400">${agent.totalSales || 0} sales</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-hubGreen font-semibold">₵${(agent.totalEarnings || 0).toFixed(2)}</div>
+                        <div class="text-xs text-gray-400">Earned</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateWithdrawalRequests(withdrawals) {
+            const container = document.getElementById('withdrawalRequests');
+            const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
+
+            if (pendingWithdrawals.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="ri-wallet-line text-4xl mb-3"></i>
+                        <p>No pending withdrawals</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = pendingWithdrawals.map(withdrawal => `
+                <div class="flex justify-between items-center p-4 rounded-lg bg-white/5">
+                    <div>
+                        <div class="font-semibold">${withdrawal.agentName}</div>
+                        <div class="text-sm text-gray-400">${withdrawal.agentMomo}</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xl font-bold accent">₵${withdrawal.amount.toFixed(2)}</div>
+                        <div class="text-xs text-gray-400">${new Date(withdrawal.createdAt).toLocaleDateString()}</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="approveWithdrawal('${withdrawal.id}')" class="px-4 py-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30">
+                            Approve
+                        </button>
+                        <button onclick="rejectWithdrawal('${withdrawal.id}')" class="px-4 py-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateOrdersTable(orders) {
+            const container = document.getElementById('ordersTable');
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center p-8 text-gray-400">
+                            <i class="ri-shopping-bag-line text-4xl mb-3"></i>
+                            <div>No orders yet</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.map(order => `
+                <tr class="border-b border-white/5 hover:bg-white/5">
+                    <td class="p-3">
+                        <div class="font-mono text-sm">${order.id.slice(-8)}</div>
+                    </td>
+                    <td class="p-3">${order.network}</td>
+                    <td class="p-3">₵${order.amount.toFixed(2)}</td>
+                    <td class="p-3 ${order.agentProfit ? 'text-hubGreen' : 'text-gray-400'}">
+                        ${order.agentProfit ? `₵${order.agentProfit.toFixed(2)}` : 'N/A'}
+                    </td>
+                    <td class="p-3">
+                        ${order.agentId ? 
+                            `<span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">Agent</span>` : 
+                            '<span class="text-gray-400">Direct</span>'
+                        }
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-full text-xs ${
+                            order.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                            order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
+                        }">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td class="p-3 text-sm text-gray-400">
+                        ${new Date(order.createdAt).toLocaleDateString()}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function approveWithdrawal(withdrawalId) {
+            if (!confirm('Approve this withdrawal?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/withdrawals/${withdrawalId}/approve`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Withdrawal approved!');
+                    loadAdminData(); // Reload data
+                } else {
+                    alert('Failed to approve withdrawal: ' + data.message);
+                }
+            } catch (error) {
+                alert('Failed to approve withdrawal');
+            }
+        }
+
+        async function rejectWithdrawal(withdrawalId) {
+            if (!confirm('Reject this withdrawal?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/withdrawals/${withdrawalId}/reject`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Withdrawal rejected!');
+                    loadAdminData(); // Reload data
+                } else {
+                    alert('Failed to reject withdrawal: ' + data.message);
+                }
+            } catch (error) {
+                alert('Failed to reject withdrawal');
+            }
+        }
+
+        function viewAgent(agentId) {
+            // In a real app, you'd show agent details modal
+            alert(`View agent details for: ${agentId}`);
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('section').forEach(sec => {
+                sec.classList.add('section-hidden');
+                sec.classList.remove('section-active');
+            });
+            document.getElementById(`${section}-section`).classList.remove('section-hidden');
+            document.getElementById(`${section}-section`).classList.add('section-active');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/';
+            }
+        }
+
+        // Auto-refresh data every 30 seconds
+        setInterval(loadAdminData, 30000);
+    </script>
+</body>
+</html>

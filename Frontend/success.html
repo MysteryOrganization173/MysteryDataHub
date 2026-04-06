@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful - Mystery Bundle Hub</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(180deg,#061018 0%, #07101a 40%, #0b0f12 100%); 
+      color: #e6eef6; 
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .glass { 
+      background: rgba(10,12,15,0.56); 
+      backdrop-filter: blur(12px); 
+      -webkit-backdrop-filter: blur(12px); 
+      border: 1px solid rgba(255,255,255,0.03); 
+    }
+    .neon-border { 
+      box-shadow: 0 6px 30px rgba(0,224,122,0.07); 
+      border: 1px solid rgba(0,224,122,0.12); 
+    }
+    .accent { color: #00e07a; }
+    
+    /* Loading animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    /* Success animation */
+    @keyframes checkmark {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    .checkmark-animation {
+      animation: checkmark 0.5s ease-out;
+    }
+    
+    /* Error animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake-animation {
+      animation: shake 0.5s ease-in-out;
+    }
+  </style>
+  
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div id="successContainer" class="glass rounded-3xl p-8 max-w-md w-full neon-border text-center mx-4 hidden">
+    <!-- Success Icon -->
+    <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center checkmark-animation">
+      <i class="ri-checkbox-circle-line text-green-500 text-4xl"></i>
+    </div>
+    
+    <h1 class="text-3xl font-black mb-4">Payment Successful! 🎉</h1>
+    
+    <div id="paymentDetails" class="mb-6 space-y-3 text-left">
+      <div class="flex justify-between">
+        <span class="text-gray-400">Status:</span>
+        <span class="font-semibold text-green-500">Verified</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Amount:</span>
+        <span class="font-semibold" id="amount">₵0.00</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Network:</span>
+        <span class="font-semibold" id="network">-</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Phone:</span>
+        <span class="font-semibold" id="phone">-</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Reference:</span>
+        <span class="font-semibold text-xs" id="reference">-</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Date:</span>
+        <span class="font-semibold text-sm" id="date">-</span>
+      </div>
+    </div>
+    
+    <p class="text-gray-300 mb-6 leading-relaxed">
+      Thank you for your purchase! Your data bundle is being processed and will be delivered to your phone within minutes.
+    </p>
+    <p id="deliveryNote" class="text-amber-400 text-sm mb-6 hidden"></p>
+    
+    <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6">
+      <div class="flex items-center justify-center space-x-2 text-green-400">
+        <i class="ri-time-line"></i>
+        <span class="text-sm">Delivery usually takes 1-3 minutes</span>
+      </div>
+      <div class="flex items-center justify-center space-x-2 text-green-400 mt-2">
+        <i class="ri-whatsapp-line"></i>
+        <span class="text-sm">Need help? WhatsApp: +233 59 20 662 98</span>
+      </div>
+    </div>
+    
+    <div class="flex gap-3">
+      <button onclick="goHome()" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 py-3 rounded-xl font-bold text-white hover:scale-105 transition-transform btn-enhanced">
+        <i class="ri-home-line mr-2"></i>Home
+      </button>
+      <button onclick="buyAgain()" class="flex-1 glass py-3 rounded-xl font-semibold border border-white/10 hover:border-green-500/30 transition-colors btn-enhanced">
+        <i class="ri-shopping-bag-line mr-2"></i>Buy Again
+      </button>
+    </div>
+    
+    <div class="mt-6 text-xs text-gray-500">
+      Need help? Contact support@mysterybundlehub.com
+    </div>
+  </div>
+
+  <div id="loadingContainer" class="glass rounded-3xl p-8 max-w-md w-full neon-border text-center mx-4">
+    <div class="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-hubGreen/30 border-t-hubGreen animate-spin"></div>
+    <h1 class="text-2xl font-bold mb-2">Verifying Payment...</h1>
+    <p class="text-gray-400 pulse-animation">Please wait while we confirm your payment</p>
+    <div class="mt-4 text-sm text-gray-500">
+      <p>Reference: <span id="loadingRef" class="font-mono"></span></p>
+    </div>
+  </div>
+
+  <div id="errorContainer" class="glass rounded-3xl p-8 max-w-md w-full neon-border text-center mx-4 hidden">
+    <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center shake-animation">
+      <i class="ri-error-warning-line text-red-500 text-4xl"></i>
+    </div>
+    <h1 class="text-3xl font-black mb-4 text-red-400">Verification Failed</h1>
+    <p id="errorMessage" class="text-gray-300 mb-6">An error occurred during verification.</p>
+    <div class="flex gap-3">
+      <button onclick="retryVerification()" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 py-3 rounded-xl font-bold text-white hover:scale-105 transition-transform btn-enhanced">
+        <i class="ri-refresh-line mr-2"></i>Retry
+      </button>
+      <button onclick="goHome()" class="flex-1 bg-gradient-to-r from-red-500 to-red-600 py-3 rounded-xl font-bold text-white hover:scale-105 transition-transform btn-enhanced">
+        <i class="ri-home-line mr-2"></i>Home
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const API_ORIGIN =
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : '';
+    let paymentRef = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+
+    // Get Paystack reference from URL
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🔄 Payment Success Page Loaded');
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const reference = urlParams.get("reference");
+      const trxref = urlParams.get("trxref");
+      
+      paymentRef = reference || trxref;
+      document.getElementById('loadingRef').textContent = paymentRef || 'N/A';
+
+      if (!paymentRef) {
+        showError("No payment reference found in URL!");
+      } else {
+        // Start verification
+        verifyPayment(paymentRef);
+        
+        // Auto-retry after 5 seconds if still loading
+        setTimeout(() => {
+          if (document.getElementById('loadingContainer').style.display !== 'none') {
+            console.log('⏱️ Auto-retry verification...');
+            retryVerification();
+          }
+        }, 5000);
+      }
+    });
+
+    async function verifyPayment(ref) {
+      try {
+        console.log('🔍 Verifying payment with reference:', ref);
+        
+        // Show loading state
+        document.getElementById('loadingContainer').classList.remove('hidden');
+        document.getElementById('successContainer').classList.add('hidden');
+        document.getElementById('errorContainer').classList.add('hidden');
+        
+        const res = await fetch(`${API_ORIGIN}/api/payment/verify/${encodeURIComponent(ref)}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        console.log('📡 Verification response status:', res.status);
+        
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.message || `Verification failed (${res.status})`);
+        }
+        console.log('✅ Verification response:', data);
+
+        // Enhanced: Handle both response formats
+        let isSuccess = false;
+        let paymentData = null;
+        
+        // Format 1: Direct success status
+        if (data.status === "success") {
+          isSuccess = true;
+          paymentData = data.data || data;
+        }
+        // Format 2: Nested success status
+        else if (data.data && data.data.status === "success") {
+          isSuccess = true;
+          paymentData = data.data;
+        }
+        // Format 3: Boolean status
+        else if (data.success === true) {
+          isSuccess = true;
+          paymentData = data.data || data;
+        }
+
+        if (isSuccess) {
+          console.log('🎉 Payment verified successfully');
+          showSuccessState(paymentData);
+          const note = document.getElementById('deliveryNote');
+          if (data.order?.deliveryStatus === 'failed') {
+            note.textContent =
+              'Your payment was received, but automatic delivery reported an issue. Please contact support with your reference below.';
+            note.classList.remove('hidden');
+          } else {
+            note.classList.add('hidden');
+          }
+          try {
+            const lastOrder = JSON.parse(localStorage.getItem('lastOrder') || '{}');
+            updateOrderDetails(lastOrder, paymentData);
+          } catch (e) {
+            console.warn('⚠️ Could not load last order from localStorage:', e);
+          }
+          if (paymentData) {
+            updatePaymentDetails(paymentData);
+          }
+        } else {
+          console.warn('⚠️ Payment verification failed:', data);
+          showErrorState("Payment verification failed. Please contact support.");
+        }
+      } catch (error) {
+        console.error("❌ Verification error:", error);
+        
+        // Different error messages based on error type
+        let errorMessage = "Unable to verify payment. ";
+        if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorMessage += "Please check your internet connection.";
+        } else if (error.message.includes('500') || error.message.includes('server')) {
+          errorMessage += "Server error. Please try again in a moment.";
+        } else {
+          errorMessage += "Please contact support.";
+        }
+        
+        showErrorState(errorMessage);
+      }
+    }
+
+    function showSuccessState(paymentData) {
+      document.getElementById('loadingContainer').classList.add('hidden');
+      document.getElementById('errorContainer').classList.add('hidden');
+      document.getElementById('successContainer').classList.remove('hidden');
+      
+      // Add celebratory animation
+      const container = document.getElementById('successContainer');
+      container.style.animation = 'none';
+      setTimeout(() => {
+        container.style.animation = 'checkmark 0.5s ease-out';
+      }, 10);
+      
+      // Play success sound if available
+      playSuccessSound();
+    }
+
+    function showErrorState(message) {
+      document.getElementById('loadingContainer').classList.add('hidden');
+      document.getElementById('successContainer').classList.add('hidden');
+      document.getElementById('errorContainer').classList.remove('hidden');
+      
+      document.getElementById('errorMessage').textContent = message;
+      
+      // Add shake animation
+      const container = document.getElementById('errorContainer');
+      container.classList.add('shake-animation');
+      setTimeout(() => {
+        container.classList.remove('shake-animation');
+      }, 500);
+      
+      // Increment retry count
+      retryCount++;
+    }
+
+    function retryVerification() {
+      if (retryCount >= MAX_RETRIES) {
+        showErrorState("Maximum retry attempts reached. Please contact support.");
+        return;
+      }
+      
+      console.log(`🔄 Retry attempt ${retryCount + 1}/${MAX_RETRIES}`);
+      if (paymentRef) {
+        verifyPayment(paymentRef);
+      } else {
+        showErrorState("No payment reference available to retry.");
+      }
+    }
+
+    function updateOrderDetails(order, paymentData) {
+      // Update from localStorage order data
+      if (order.amount) {
+        document.getElementById('amount').textContent = `₵${parseFloat(order.amount).toFixed(2)}`;
+      }
+      if (order.operator) {
+        document.getElementById('network').textContent = order.operator.toUpperCase();
+      }
+      if (order.phone) {
+        document.getElementById('phone').textContent = order.phone;
+      }
+      if (order.reference) {
+        document.getElementById('reference').textContent = order.reference;
+      }
+      
+      // Update date
+      document.getElementById('date').textContent = new Date().toLocaleString('en-GH', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function updatePaymentDetails(paymentData) {
+      // Update with actual payment data from Paystack
+      if (paymentData.amount) {
+        const amountInGHS = paymentData.amount / 100;
+        document.getElementById('amount').textContent = `₵${amountInGHS.toFixed(2)}`;
+      }
+      
+      if (paymentData.metadata) {
+        // Extract metadata if available
+        const metadata = paymentData.metadata;
+        if (metadata.custom_fields) {
+          metadata.custom_fields.forEach(field => {
+            if (field.variable_name === 'phone') {
+              document.getElementById('phone').textContent = field.value;
+            }
+            if (field.variable_name === 'network') {
+              document.getElementById('network').textContent = field.value.toUpperCase();
+            }
+          });
+        }
+      }
+      
+      if (paymentData.reference) {
+        document.getElementById('reference').textContent = paymentData.reference;
+      }
+      
+      if (paymentData.paid_at) {
+        document.getElementById('date').textContent = new Date(paymentData.paid_at).toLocaleString('en-GH', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    }
+
+    function playSuccessSound() {
+      // Create a simple success sound using Web Audio API
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 523.25; // C5
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch (e) {
+        console.log('Audio not supported or muted:', e);
+      }
+    }
+
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+
+    function buyAgain() {
+      window.location.href = 'index.html';
+    }
+
+    function showError(message) {
+      document.getElementById('loadingContainer').classList.add('hidden');
+      document.getElementById('successContainer').classList.add('hidden');
+      document.getElementById('errorContainer').classList.remove('hidden');
+      
+      document.getElementById('errorMessage').textContent = message;
+    }
+  </script>
+</body>
+</html>

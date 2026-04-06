@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Dashboard - DataHub</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <!-- Tailwind CSS for better styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'hub-green': '#00e07a',
+                        'hub-dark': '#0a0f1c',
+                        'hub-darker': '#060913',
+                        'hub-light': '#e6eef6',
+                        'hub-gray': '#8a9bb8'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --hub-green: #00e07a;
+            --hub-dark: #0a0f1c;
+            --hub-darker: #060913;
+            --hub-light: #e6eef6;
+            --hub-gray: #8a9bb8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--hub-darker) 0%, var(--hub-dark) 100%);
+            color: var(--hub-light);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(10, 15, 28, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem 1.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--hub-green);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--hub-light);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 224, 122, 0.1);
+        }
+
+        .nav-btn.btn-agent-primary {
+            background: var(--hub-green);
+            color: var(--hub-dark);
+            font-weight: 600;
+        }
+
+        .nav-btn.btn-agent-secondary {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--hub-green), #00c46b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 224, 122, 0.3);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--hub-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hub-green);
+        }
+
+        .stat-card .trend {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .trend.positive {
+            color: #00e07a;
+        }
+
+        .trend.negative {
+            color: #ff4d4d;
+        }
+
+        /* Sections */
+        section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section-active {
+            display: block;
+        }
+
+        .section-hidden {
+            display: none;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--hub-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--hub-gray);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: var(--hub-light);
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--hub-green);
+            box-shadow: 0 0 0 3px rgba(0, 224, 122, 0.1);
+        }
+
+        .form-control:read-only {
+            background: rgba(255,255,255,0.05);
+            cursor: not-allowed;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--hub-green);
+            color: var(--hub-dark);
+        }
+
+        .btn-primary:hover {
+            background: #00c46b;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 224, 122, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: var(--hub-light);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: rgba(220, 38, 38, 0.2);
+            color: #ff4d4d;
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 38, 38, 0.3);
+        }
+
+        /* Network Badges */
+        .network-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .network-badge.mtn { background: #ffcc00; color: #000; }
+        .network-badge.vodafone { background: #e60000; color: #fff; }
+        .network-badge.airteltigo { background: #ff0080; color: #fff; }
+        .network-badge.telecel { background: #0066ff; color: #fff; }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 15, 28, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 224, 122, 0.3);
+            border-top: 4px solid var(--hub-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            background: rgba(0, 224, 122, 0.1);
+            border: 1px solid rgba(0, 224, 122, 0.3);
+            color: var(--hub-green);
+            backdrop-filter: blur(20px);
+            z-index: 1001;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: rgba(255, 77, 77, 0.1);
+            border-color: rgba(255, 77, 77, 0.3);
+            color: #ff4d4d;
+        }
+
+        .notification.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        /* Pricing Table */
+        .pricing-table {
+            overflow-x: auto;
+        }
+
+        .pricing-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .pricing-row:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .price-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 0.5rem;
+            color: white;
+            width: 100%;
+        }
+
+        .price-input:focus {
+            outline: none;
+            border-color: var(--hub-green);
+        }
+
+        /* Withdrawal Status */
+        .withdrawal-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .withdrawal-status.pending { background: #fef3c7; color: #92400e; }
+        .withdrawal-status.approved { background: #d1fae5; color: #065f46; }
+        .withdrawal-status.completed { background: #00e07a; color: #000; }
+        .withdrawal-status.failed { background: #fee2e2; color: #991b1b; }
+
+        /* Store Preview Cards */
+        .store-preview-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .store-preview-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 224, 122, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .pricing-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                transition: left 0.3s ease;
+                z-index: 100;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 101;
+                background: var(--hub-green);
+                color: var(--hub-dark);
+                border: none;
+                border-radius: 8px;
+                padding: 0.5rem;
+                cursor: pointer;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--hub-green);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00c46b;
+        }
+    </style>
+</head>
+<body>
+    <script src="agent-coming-soon-gate.js"></script>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn lg:hidden fixed top-4 left-4 z-50 bg-hub-green text-hub-dark p-2 rounded-lg" onclick="toggleSidebar()">
+        <i class="ri-menu-line text-xl"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="ri-shield-flash-fill"></i>
+                <span>DataHub Agent</span>
+            </div>
+            
+            <div class="nav-menu">
+                <button class="nav-btn btn-agent-primary" onclick="showSection('dashboard')">
+                    <i class="ri-dashboard-line"></i>
+                    Dashboard
+                </button>
+                <button class="nav-btn btn-agent-secondary" onclick="showSection('pricing')">
+                    <i class="ri-price-tag-3-line"></i>
+                    Pricing
+                </button>
+                <button class="nav-btn btn-agent-secondary" onclick="showSection('withdraw')">
+                    <i class="ri-wallet-3-line"></i>
+                    Withdraw
+                </button>
+                <button class="nav-btn btn-agent-secondary" onclick="showSection('store')">
+                    <i class="ri-store-3-line"></i>
+                    My Store
+                </button>
+                <button class="nav-btn btn-agent-secondary" onclick="showSection('profile')">
+                    <i class="ri-user-3-line"></i>
+                    Profile
+                </button>
+                <button class="nav-btn btn-agent-secondary" onclick="logout()" style="margin-top: 2rem;">
+                    <i class="ri-logout-box-r-line"></i>
+                    Logout
+                </button>
+            </div>
+
+            <!-- Agent Info -->
+            <div class="mt-8 pt-4 border-t border-white/10">
+                <div class="text-xs text-gray-400 mb-2">Agent ID</div>
+                <div class="text-sm font-semibold" id="agentId">Loading...</div>
+                <div class="text-xs text-gray-400 mt-2">Status: <span class="text-hub-green" id="agentStatus">Active</span></div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div>
+                    <h1>Agent Dashboard</h1>
+                    <div class="text-gray-400 text-sm" id="welcomeMessage">Welcome back!</div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden md:block">
+                        <div class="text-sm text-gray-400">Your Store</div>
+                        <div class="font-semibold" id="storeName">My Mobile Data Store</div>
+                    </div>
+                    <div class="relative">
+                        <button class="btn btn-secondary" onclick="toggleNotifications()">
+                            <i class="ri-notification-3-line"></i>
+                            <span class="hidden md:inline">Notifications</span>
+                            <span class="notification-badge hidden bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        </button>
+                        <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-64 bg-hub-dark border border-white/10 rounded-lg shadow-lg z-50">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section-active">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Earnings</h3>
+                        <div class="value" id="totalEarnings">₵0.00</div>
+                        <div class="trend positive" id="earningsTrend">
+                            <i class="ri-arrow-up-line"></i> 12% from last month
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Sales</h3>
+                        <div class="value" id="totalSales">0</div>
+                        <div class="trend positive" id="salesTrend">
+                            <i class="ri-arrow-up-line"></i> 8 today
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Available Balance</h3>
+                        <div class="value" id="availableBalance">₵0.00</div>
+                        <div class="trend positive" id="balanceTrend">
+                            <i class="ri-wallet-line"></i> Ready to withdraw
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Monthly Earnings</h3>
+                        <div class="value" id="monthlyEarnings">₵0.00</div>
+                        <div class="trend positive" id="monthlyTrend">
+                            <i class="ri-calendar-line"></i> Current month
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <button class="btn btn-primary" onclick="showSection('store')">
+                        <i class="ri-share-line"></i>
+                        Share Store Link
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSection('pricing')">
+                        <i class="ri-settings-3-line"></i>
+                        Update Prices
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSection('withdraw')">
+                        <i class="ri-bank-card-line"></i>
+                        Withdraw Funds
+                    </button>
+                </div>
+
+                <!-- Charts and Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2><i class="ri-line-chart-line"></i> Earnings Overview</h2>
+                            <select id="chartPeriod" class="form-control" style="width: auto;" onchange="updateChart()">
+                                <option value="7d">Last 7 Days</option>
+                                <option value="30d">Last 30 Days</option>
+                                <option value="90d">Last 90 Days</option>
+                            </select>
+                        </div>
+                        <canvas id="earningsChart" height="250"></canvas>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2><i class="ri-history-line"></i> Recent Sales</h2>
+                            <button class="btn btn-secondary text-sm" onclick="loadRecentSales()">
+                                <i class="ri-refresh-line"></i> Refresh
+                            </button>
+                        </div>
+                        <div id="recentSales" class="space-y-3 max-h-80 overflow-y-auto">
+                            <!-- Sales will be loaded here -->
+                            <div class="text-center py-8 text-gray-400">
+                                <i class="ri-shopping-bag-line text-4xl mb-3"></i>
+                                <p>Loading sales data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <div class="card mt-6">
+                    <h2><i class="ri-award-line"></i> Top Selling Products</h2>
+                    <div id="topProducts" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <!-- Top products will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Section -->
+            <section id="pricing-section" class="section-hidden">
+                <div class="card">
+                    <h2><i class="ri-price-tag-3-line"></i> Product Pricing Management</h2>
+                    
+                    <!-- Pricing Controls -->
+                    <div class="pricing-controls mb-6 p-4 bg-white/5 rounded-lg">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Global Margin %</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="globalMargin" placeholder="e.g., 10" min="0" max="50" step="0.1" class="form-control">
+                                    <button class="btn btn-secondary" onclick="applyGlobalMargin()">Apply</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Price Increase/Decrease</label>
+                                <div class="flex gap-2">
+                                    <button class="btn btn-secondary flex-1" onclick="adjustAllPrices(5)">+5% All</button>
+                                    <button class="btn btn-secondary flex-1" onclick="adjustAllPrices(-5)">-5% All</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Quick Strategies</label>
+                                <div class="flex gap-2">
+                                    <button class="btn btn-secondary flex-1" onclick="applyCompetitivePricing()">Competitive</button>
+                                    <button class="btn btn-secondary flex-1" onclick="applyPremiumPricing()">Premium</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="btn btn-secondary" onclick="exportPricing()">
+                                <i class="ri-download-line"></i> Export Prices
+                            </button>
+                            <button class="btn btn-secondary" onclick="importPricing()">
+                                <i class="ri-upload-line"></i> Import Prices
+                            </button>
+                            <input type="file" id="importFile" class="hidden" accept=".json,.csv" onchange="handleFileImport(event)">
+                            <button class="btn btn-danger ml-auto" onclick="resetToDefaults()">
+                                <i class="ri-refresh-line"></i> Reset to Defaults
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Pricing Table -->
+                    <div class="pricing-table">
+                        <div class="pricing-row font-semibold text-gray-400 border-b-2">
+                            <div>Product</div>
+                            <div>Base Price</div>
+                            <div>Your Price</div>
+                            <div>Your Profit</div>
+                            <div>Margin %</div>
+                            <div>Actions</div>
+                        </div>
+                        <div id="pricingTable">
+                            <!-- Pricing rows will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-between">
+                        <div>
+                            <button class="btn btn-primary" onclick="saveAllPrices()">
+                                <i class="ri-save-line"></i> Save All Prices
+                            </button>
+                            <button class="btn btn-secondary ml-2" onclick="previewPriceChanges()">
+                                <i class="ri-eye-line"></i> Preview Changes
+                            </button>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-400">Total Potential Profit:</div>
+                            <div class="text-xl font-bold text-hub-green" id="totalPotentialProfit">₵0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insights and Preview -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <div class="card">
+                        <h2><i class="ri-lightbulb-line"></i> Pricing Insights</h2>
+                        <div id="pricingInsights" class="grid grid-cols-2 gap-4 mt-4">
+                            <!-- Insights will be loaded here -->
+                        </div>
+                        <div class="mt-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                            <div class="flex items-center gap-2 text-yellow-400">
+                                <i class="ri-information-line"></i>
+                                <span class="font-semibold">Tip:</span>
+                            </div>
+                            <p class="text-sm text-yellow-300/80 mt-1">
+                                Competitive pricing (8-12% margin) works best for high-volume sales, while premium pricing (15-20% margin) is better for exclusive bundles.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h2><i class="ri-store-2-line"></i> Store Price Preview</h2>
+                        <div id="storePreview" class="grid grid-cols-1 gap-4 mt-4">
+                            <!-- Store preview will be loaded here -->
+                        </div>
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-secondary" onclick="refreshStorePreview()">
+                                <i class="ri-refresh-line"></i> Refresh Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Withdraw Section -->
+            <section id="withdraw-section" class="section-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Withdrawal Request -->
+                    <div class="card">
+                        <h2><i class="ri-wallet-3-line"></i> Request Withdrawal</h2>
+                        
+                        <div class="bg-white/5 rounded-lg p-4 mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <div class="text-gray-400">Available Balance</div>
+                                <div class="text-2xl font-bold text-hub-green" id="availableBalanceDisplay">₵0.00</div>
+                            </div>
+                            <div class="text-sm text-gray-400">
+                                <i class="ri-information-line"></i> Minimum withdrawal: ₵15.00
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Mobile Money Number</label>
+                            <input type="tel" id="withdrawMomo" class="form-control" placeholder="e.g., 0241234567">
+                            <div class="text-xs text-gray-400 mt-1">Enter the MoMo number to receive funds</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Amount (Min: ₵15)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₵</span>
+                                <input type="number" id="withdrawAmount" class="form-control pl-8" placeholder="Enter amount" min="15" step="0.1">
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">Processing fee: ₵0.50</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Withdrawal Fee</label>
+                            <div class="text-lg font-semibold text-gray-400" id="withdrawalFee">₵0.50</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>You Will Receive</label>
+                            <div class="text-2xl font-bold text-hub-green" id="receiveAmount">₵0.00</div>
+                        </div>
+                        
+                        <div class="flex gap-2 mt-6">
+                            <button class="btn btn-primary flex-1" onclick="requestWithdrawal()">
+                                <i class="ri-send-plane-line"></i> Request Withdrawal
+                            </button>
+                            <button class="btn btn-secondary" onclick="calculateWithdrawal()">
+                                <i class="ri-calculator-line"></i> Calculate
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Withdrawal History -->
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2><i class="ri-history-line"></i> Withdrawal History</h2>
+                            <div class="flex gap-2">
+                                <select id="withdrawalFilter" class="form-control text-sm" onchange="loadWithdrawalHistory()">
+                                    <option value="all">All</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="failed">Failed</option>
+                                </select>
+                                <button class="btn btn-secondary text-sm" onclick="loadWithdrawalHistory()">
+                                    <i class="ri-refresh-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="withdrawalHistory" class="space-y-3 max-h-[500px] overflow-y-auto">
+                            <!-- Withdrawal history will be loaded here -->
+                            <div class="text-center py-8 text-gray-400">
+                                <i class="ri-history-line text-4xl mb-3"></i>
+                                <p>Loading withdrawal history...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Withdrawal Stats -->
+                        <div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/10">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-hub-green" id="totalWithdrawn">₵0</div>
+                                <div class="text-xs text-gray-400">Total Withdrawn</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-yellow-400" id="pendingWithdrawals">₵0</div>
+                                <div class="text-xs text-gray-400">Pending</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold" id="withdrawalCount">0</div>
+                                <div class="text-xs text-gray-400">Total Requests</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Withdrawal Information -->
+                <div class="card mt-6">
+                    <h2><i class="ri-information-line"></i> Withdrawal Information</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-2 text-hub-green mb-2">
+                                <i class="ri-time-line"></i>
+                                <span class="font-semibold">Processing Time</span>
+                            </div>
+                            <p class="text-sm text-gray-400">Withdrawals are processed within 24 hours on business days.</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-2 text-hub-green mb-2">
+                                <i class="ri-money-dollar-circle-line"></i>
+                                <span class="font-semibold">Fees</span>
+                            </div>
+                            <p class="text-sm text-gray-400">Flat fee of ₵0.50 per withdrawal. Minimum withdrawal: ₵15.</p>
+                        </div>
+                        <div class="p-4 bg-white/5 rounded-lg">
+                            <div class="flex items-center gap-2 text-hub-green mb-2">
+                                <i class="ri-customer-service-2-line"></i>
+                                <span class="font-semibold">Support</span>
+                            </div>
+                            <p class="text-sm text-gray-400">Issues? Contact support at support@datahub.com</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Store Section -->
+            <section id="store-section" class="section-hidden">
+                <!-- Store Link -->
+                <div class="card">
+                    <h2><i class="ri-store-3-line"></i> Your Store Link</h2>
+                    <div class="form-group">
+                        <label>Share this link with your customers</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="storeLink" class="form-control" readonly>
+                            <button class="btn btn-secondary" onclick="copyStoreLink()">
+                                <i class="ri-file-copy-line"></i> Copy
+                            </button>
+                            <button class="btn btn-primary" onclick="openStore()">
+                                <i class="ri-external-link-line"></i> Open Store
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- QR Code -->
+                    <div class="mt-4 flex items-center gap-4">
+                        <div class="bg-white p-2 rounded-lg">
+                            <div id="qrcode" class="w-32 h-32"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">QR Code</h3>
+                            <p class="text-sm text-gray-400">Customers can scan this QR code to visit your store directly.</p>
+                            <button class="btn btn-secondary mt-2 text-sm" onclick="downloadQRCode()">
+                                <i class="ri-download-line"></i> Download QR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Store Performance -->
+                <div class="card">
+                    <h2><i class="ri-bar-chart-2-line"></i> Store Performance</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="storeVisits">0</div>
+                            <div class="text-sm text-gray-400">Store Visits</div>
+                            <div class="text-xs text-hub-green mt-1">+12% this week</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="conversionRate">0%</div>
+                            <div class="text-sm text-gray-400">Conversion Rate</div>
+                            <div class="text-xs text-hub-green mt-1">Industry avg: 3%</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="topProduct">-</div>
+                            <div class="text-sm text-gray-400">Top Product</div>
+                            <div class="text-xs text-gray-400 mt-1">Most purchased</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="avgOrder">₵0.00</div>
+                            <div class="text-sm text-gray-400">Avg Order Value</div>
+                            <div class="text-xs text-hub-green mt-1">+₵2.50 this month</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Store Analytics Chart -->
+                    <div class="mt-6">
+                        <canvas id="storeAnalyticsChart" height="150"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Marketing Tools -->
+                <div class="card">
+                    <h2><i class="ri-megaphone-line"></i> Marketing Tools</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <button class="btn btn-secondary" onclick="generateMarketingText()">
+                            <i class="ri-message-2-line"></i>
+                            Generate Promo Text
+                        </button>
+                        <button class="btn btn-secondary" onclick="shareOnWhatsApp()">
+                            <i class="ri-whatsapp-line"></i>
+                            Share on WhatsApp
+                        </button>
+                        <button class="btn btn-primary" onclick="createPromoCode()">
+                            <i class="ri-coupon-line"></i>
+                            Create Promo Code
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile-section" class="section-hidden">
+                <!-- Profile Settings -->
+                <div class="card">
+                    <h2><i class="ri-user-3-line"></i> Profile Settings</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label>Store Name *</label>
+                            <input type="text" id="profileStoreName" class="form-control" placeholder="e.g., Best Mobile Data">
+                            <div class="text-xs text-gray-400 mt-1">This appears on your store</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="profilePhone" class="form-control" placeholder="e.g., 0241234567">
+                        </div>
+                        <div class="form-group">
+                            <label>MoMo Number *</label>
+                            <input type="tel" id="profileMomo" class="form-control" placeholder="For withdrawals">
+                            <div class="text-xs text-gray-400 mt-1">Must match your MoMo account</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="profileEmail" class="form-control" placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label>Referral Code</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="profileReferral" class="form-control" readonly>
+                                <button class="btn btn-secondary" onclick="copyReferralCode()">
+                                    <i class="ri-file-copy-line"></i>
+                                </button>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">Share to earn referral bonuses</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Agent Tier</label>
+                            <div class="flex items-center gap-2 mt-2">
+                                <span class="px-3 py-1 bg-hub-green/20 text-hub-green rounded-full text-sm font-semibold" id="agentTier">Bronze</span>
+                                <span class="text-xs text-gray-400" id="tierInfo">Upgrade to earn higher margins</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 mt-6">
+                        <button class="btn btn-primary" onclick="updateProfile()">
+                            <i class="ri-save-line"></i> Update Profile
+                        </button>
+                        <button class="btn btn-secondary" onclick="changePassword()">
+                            <i class="ri-lock-line"></i> Change Password
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Agent Statistics -->
+                <div class="card">
+                    <h2><i class="ri-award-line"></i> Agent Statistics</h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="daysActive">0</div>
+                            <div class="text-sm text-gray-400">Days Active</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="referralEarnings">₵0.00</div>
+                            <div class="text-sm text-gray-400">Referral Earnings</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="successRate">0%</div>
+                            <div class="text-sm text-gray-400">Success Rate</div>
+                        </div>
+                        <div class="text-center p-4 rounded-lg bg-white/5">
+                            <div class="text-2xl font-bold text-hub-green" id="responseTime">-</div>
+                            <div class="text-sm text-gray-400">Avg Response Time</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Registration Info -->
+                <div class="card bg-gradient-to-r from-hub-green/10 to-transparent border-hub-green/30">
+                    <h2><i class="ri-shield-check-line"></i> Account Information</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <div class="text-sm text-gray-400">Registration Date</div>
+                            <div class="font-semibold" id="registrationDate">Loading...</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">Registration Fee</div>
+                            <div class="font-semibold text-hub-green">₵45.00 (Paid)</div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">Account Status</div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-hub-green rounded-full"></span>
+                                <span class="font-semibold" id="accountStatus">Active</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">Last Login</div>
+                            <div class="font-semibold" id="lastLogin">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-white/5 rounded-lg">
+                        <div class="text-sm text-gray-400">Registration Benefits:</div>
+                        <ul class="text-sm text-gray-300 mt-1 space-y-1">
+                            <li>• ₵45 one-time registration fee</li>
+                            <li>• Access to all data bundles</li>
+                            <li>• Real-time dashboard</li>
+                            <li>• 24/7 support</li>
+                            <li>• Marketing tools</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <div class="text-hub-green font-semibold" id="loadingText">Loading dashboard...</div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <!-- Modals -->
+    <div id="previewPriceModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div class="bg-hub-dark border border-white/10 rounded-lg max-w-2xl w-full max-h-[80vh] overflow-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Preview Price Changes</h3>
+                    <button class="text-gray-400 hover:text-white" onclick="closePreviewModal()">
+                        <i class="ri-close-line text-2xl"></i>
+                    </button>
+                </div>
+                <div id="previewContent"></div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button class="btn btn-secondary" onclick="closePreviewModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="applyPreviewChanges()">Apply Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <!-- Main JavaScript -->
+    <script>
+        // Agent Dashboard Main JavaScript
+        class AgentDashboard {
+            constructor() {
+                this.api = window.AgentAPI || this.createMockAPI();
+                this.pricing = window.AgentPricingManager || this.createMockPricingManager();
+                this.currentSection = 'dashboard';
+                this.agentData = null;
+                this.products = [];
+                this.chart = null;
+                this.storeChart = null;
+                this.qrcode = null;
+                this.initialize();
+            }
+
+            createMockAPI() {
+                console.warn('Using mock API - implement real API endpoints');
+                return {
+                    isAuthenticated: () => {
+                        const token = localStorage.getItem('agent_token');
+                        return !!token;
+                    },
+                    
+                    getDashboard: async () => {
+                        const mockData = {
+                            success: true,
+                            data: {
+                                stats: {
+                                    totalEarnings: 2450.75,
+                                    totalSales: 89,
+                                    availableBalance: 675.50,
+                                    monthlyEarnings: 420.25,
+                                    lastMonthEarnings: 375.00,
+                                    todaySales: 8,
+                                    conversionRate: 4.2,
+                                    avgOrderValue: 12.75
+                                },
+                                agent: {
+                                    id: "AGT-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                                    storeName: "Premium Mobile Data",
+                                    phone: "+233241234567",
+                                    momoNumber: "0241234567",
+                                    email: "agent@example.com",
+                                    referralCode: "AGENT" + Math.floor(1000 + Math.random() * 9000),
+                                    tier: "silver",
+                                    registrationDate: "2024-01-15",
+                                    lastLogin: new Date().toISOString(),
+                                    status: "active",
+                                    daysActive: 45,
+                                    referralEarnings: 125.50,
+                                    successRate: 96.5,
+                                    responseTime: "2.5 mins"
+                                },
+                                recentOrders: [
+                                    {
+                                        id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+                                        network: "mtn",
+                                        amount: 15.00,
+                                        phone: "0247654321",
+                                        plan: "2GB 30 days",
+                                        agentProfit: 1.25,
+                                        status: "completed",
+                                        createdAt: new Date().toISOString()
+                                    },
+                                    {
+                                        id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+                                        network: "vodafone",
+                                        amount: 8.00,
+                                        phone: "0241122334",
+                                        plan: "1GB 7 days",
+                                        agentProfit: 0.85,
+                                        status: "completed",
+                                        createdAt: new Date(Date.now() - 3600000).toISOString()
+                                    },
+                                    {
+                                        id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+                                        network: "airteltigo",
+                                        amount: 12.00,
+                                        phone: "0245566778",
+                                        plan: "1.5GB 30 days",
+                                        agentProfit: 1.05,
+                                        status: "completed",
+                                        createdAt: new Date(Date.now() - 7200000).toISOString()
+                                    },
+                                    {
+                                        id: "ORD-" + Math.floor(100000 + Math.random() * 900000),
+                                        network: "telecel",
+                                        amount: 6.00,
+                                        phone: "0249988776",
+                                        plan: "500MB 30 days",
+                                        agentProfit: 0.65,
+                                        status: "completed",
+                                        createdAt: new Date(Date.now() - 10800000).toISOString()
+                                    }
+                                ],
+                                recentWithdrawals: [
+                                    {
+                                        id: "WD-" + Math.floor(100000 + Math.random() * 900000),
+                                        amount: 250.00,
+                                        agentMomo: "0241234567",
+                                        status: "completed",
+                                        fee: 0.50,
+                                        netAmount: 249.50,
+                                        createdAt: new Date(Date.now() - 172800000).toISOString()
+                                    },
+                                    {
+                                        id: "WD-" + Math.floor(100000 + Math.random() * 900000),
+                                        amount: 150.00,
+                                        agentMomo: "0241234567",
+                                        status: "pending",
+                                        fee: 0.50,
+                                        netAmount: 149.50,
+                                        createdAt: new Date(Date.now() - 86400000).toISOString()
+                                    }
+                                ],
+                                products: [
+                                    {
+                                        code: "MTN-1GB",
+                                        name: "1GB Data Bundle",
+                                        operator: "MTN",
+                                        data_amount: "1GB",
+                                        validity: "30 days",
+                                        basePrice: 9.25,
+                                        defaultAgentPrice: 10.00,
+                                        agentPrice: 10.00,
+                                        markup: 0.75,
+                                        margin: 8.1,
+                                        category: "popular"
+                                    },
+                                    {
+                                        code: "MTN-2GB",
+                                        name: "2GB Data Bundle",
+                                        operator: "MTN",
+                                        data_amount: "2GB",
+                                        validity: "30 days",
+                                        basePrice: 13.75,
+                                        defaultAgentPrice: 15.00,
+                                        agentPrice: 15.00,
+                                        markup: 1.25,
+                                        margin: 9.1,
+                                        category: "popular"
+                                    },
+                                    {
+                                        code: "VOD-500MB",
+                                        name: "500MB Data Bundle",
+                                        operator: "Vodafone",
+                                        data_amount: "500MB",
+                                        validity: "7 days",
+                                        basePrice: 4.55,
+                                        defaultAgentPrice: 5.00,
+                                        agentPrice: 5.00,
+                                        markup: 0.45,
+                                        margin: 9.9,
+                                        category: "budget"
+                                    },
+                                    {
+                                        code: "AT-1.5GB",
+                                        name: "1.5GB Data Bundle",
+                                        operator: "AirtelTigo",
+                                        data_amount: "1.5GB",
+                                        validity: "30 days",
+                                        basePrice: 10.95,
+                                        defaultAgentPrice: 12.00,
+                                        agentPrice: 12.00,
+                                        markup: 1.05,
+                                        margin: 9.6,
+                                        category: "standard"
+                                    },
+                                    {
+                                        code: "TEL-500MB",
+                                        name: "500MB Data Bundle",
+                                        operator: "Telecel",
+                                        data_amount: "500MB",
+                                        validity: "30 days",
+                                        basePrice: 5.35,
+                                        defaultAgentPrice: 6.00,
+                                        agentPrice: 6.00,
+                                        markup: 0.65,
+                                        margin: 12.1,
+                                        category: "budget"
+                                    }
+                                ],
+                                storeStats: {
+                                    visits: 2450,
+                                    conversionRate: 4.2,
+                                    topProduct: "MTN-1GB",
+                                    avgOrder: 12.75,
+                                    weeklyVisits: [120, 145, 130, 160, 180, 155, 140]
+                                },
+                                notifications: [
+                                    {
+                                        id: 1,
+                                        title: "Welcome Bonus!",
+                                        message: "You've earned ₵10 welcome bonus",
+                                        type: "success",
+                                        read: false,
+                                        createdAt: new Date(Date.now() - 86400000).toISOString()
+                                    },
+                                    {
+                                        id: 2,
+                                        title: "Withdrawal Processed",
+                                        message: "Your withdrawal of ₵250 has been completed",
+                                        type: "info",
+                                        read: true,
+                                        createdAt: new Date(Date.now() - 172800000).toISOString()
+                                    }
+                                ]
+                            }
+                        };
+                        return mockData;
+                    },
+                    
+                    updatePrices: async (prices) => {
+                        console.log('Updating prices:', prices);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return { 
+                            success: true, 
+                            message: 'Prices updated successfully',
+                            updated: prices.length
+                        };
+                    },
+                    
+                    requestWithdrawal: async (data) => {
+                        console.log('Withdrawal request:', data);
+                        if (data.amount < 15) {
+                            return { 
+                                success: false, 
+                                message: 'Minimum withdrawal amount is ₵15' 
+                            };
+                        }
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return { 
+                            success: true, 
+                            message: 'Withdrawal request submitted successfully',
+                            transactionId: "TX" + Date.now()
+                        };
+                    },
+                    
+                    updateProfile: async (profile) => {
+                        console.log('Updating profile:', profile);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return { 
+                            success: true, 
+                            message: 'Profile updated successfully'
+                        };
+                    },
+                    
+                    changePassword: async (passwords) => {
+                        console.log('Changing password:', passwords);
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        return { 
+                            success: true, 
+                            message: 'Password changed successfully'
+                        };
+                    },
+                    
+                    logout: () => {
+                        localStorage.removeItem('agent_token');
+                        console.log('Logged out');
+                    }
+                };
+            }
+
+            createMockPricingManager() {
+                return {
+                    getPricingInsights: (products) => {
+                        if (!products || products.length === 0) {
+                            return {
+                                totalProducts: 0,
+                                totalPotentialProfit: 0,
+                                averageMargin: 0,
+                                highestMargin: { margin: 0, product: "N/A" },
+                                lowestMargin: { margin: 0, product: "N/A" }
+                            };
+                        }
+                        
+                        const totalProfit = products.reduce((sum, p) => sum + (p.agentPrice - p.basePrice), 0);
+                        const avgMargin = products.reduce((sum, p) => {
+                            const margin = ((p.agentPrice - p.basePrice) / p.basePrice) * 100;
+                            return sum + margin;
+                        }, 0) / products.length;
+                        
+                        const margins = products.map(p => ({
+                            margin: ((p.agentPrice - p.basePrice) / p.basePrice) * 100,
+                            product: p.name
+                        }));
+                        
+                        margins.sort((a, b) => b.margin - a.margin);
+                        
+                        return {
+                            totalProducts: products.length,
+                            totalPotentialProfit: totalProfit,
+                            averageMargin: avgMargin,
+                            highestMargin: margins[0],
+                            lowestMargin: margins[margins.length - 1],
+                            competitiveRange: { min: 8, max: 12 },
+                            premiumRange: { min: 15, max: 20 }
+                        };
+                    },
+                    
+                    applyGlobalMargin: (products, margin) => {
+                        if (!products || !margin) return products;
+                        
+                        return products.map(product => {
+                            const newPrice = product.basePrice * (1 + margin / 100);
+                            const newMargin = ((newPrice - product.basePrice) / product.basePrice) * 100;
+                            return {
+                                ...product,
+                                agentPrice: parseFloat(newPrice.toFixed(2)),
+                                markup: parseFloat((newPrice - product.basePrice).toFixed(2)),
+                                margin: parseFloat(newMargin.toFixed(1))
+                            };
+                        });
+                    },
+                    
+                    applyCompetitivePricing: (products) => {
+                        if (!products) return products;
+                        
+                        return products.map(product => {
+                            const margin = 10 + (Math.random() * 4 - 2); // 8-12% range
+                            const newPrice = product.basePrice * (1 + margin / 100);
+                            return {
+                                ...product,
+                                agentPrice: parseFloat(newPrice.toFixed(2)),
+                                markup: parseFloat((newPrice - product.basePrice).toFixed(2)),
+                                margin: parseFloat(margin.toFixed(1))
+                            };
+                        });
+                    },
+                    
+                    applyPremiumPricing: (products) => {
+                        if (!products) return products;
+                        
+                        return products.map(product => {
+                            const margin = 17.5 + (Math.random() * 5 - 2.5); // 15-20% range
+                            const newPrice = product.basePrice * (1 + margin / 100);
+                            return {
+                                ...product,
+                                agentPrice: parseFloat(newPrice.toFixed(2)),
+                                markup: parseFloat((newPrice - product.basePrice).toFixed(2)),
+                                margin: parseFloat(margin.toFixed(1))
+                            };
+                        });
+                    },
+                    
+                    adjustAllPrices: (products, percentage) => {
+                        if (!products || !percentage) return products;
+                        
+                        return products.map(product => {
+                            const newPrice = product.agentPrice * (1 + percentage / 100);
+                            const newMargin = ((newPrice - product.basePrice) / product.basePrice) * 100;
+                            return {
+                                ...product,
+                                agentPrice: parseFloat(newPrice.toFixed(2)),
+                                markup: parseFloat((newPrice - product.basePrice).toFixed(2)),
+                                margin: parseFloat(newMargin.toFixed(1))
+                            };
+                        });
+                    },
+                    
+                    resetToDefaults: (products) => {
+                        if (!products) return products;
+                        
+                        return products.map(product => ({
+                            ...product,
+                            agentPrice: product.defaultAgentPrice,
+                            markup: parseFloat((product.defaultAgentPrice - product.basePrice).toFixed(2)),
+                            margin: parseFloat((((product.defaultAgentPrice - product.basePrice) / product.basePrice) * 100).toFixed(1))
+                        }));
+                    },
+                    
+                    exportPricingSettings: (products) => {
+                        if (!products) return;
+                        
+                        const exportData = {
+                            exportedAt: new Date().toISOString(),
+                            agent: this.agentData?.agent?.storeName || 'Unknown Agent',
+                            products: products.map(p => ({
+                                code: p.code,
+                                name: p.name,
+                                basePrice: p.basePrice,
+                                agentPrice: p.agentPrice,
+                                margin: p.margin,
+                                operator: p.operator
+                            }))
+                        };
+                        
+                        const dataStr = JSON.stringify(exportData, null, 2);
+                        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                        
+                        const exportFileDefaultName = `pricing-export-${new Date().toISOString().split('T')[0]}.json`;
+                        
+                        const linkElement = document.createElement('a');
+                        linkElement.setAttribute('href', dataUri);
+                        linkElement.setAttribute('download', exportFileDefaultName);
+                        linkElement.click();
+                        
+                        return exportData;
+                    },
+                    
+                    importPricingSettings: (file, currentProducts) => {
+                        return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                try {
+                                    const importedData = JSON.parse(e.target.result);
+                                    console.log('Imported data:', importedData);
+                                    
+                                    // Update products with imported prices
+                                    const updatedProducts = currentProducts.map(product => {
+                                        const importedProduct = importedData.products.find(p => p.code === product.code);
+                                        if (importedProduct) {
+                                            return {
+                                                ...product,
+                                                agentPrice: importedProduct.agentPrice,
+                                                markup: parseFloat((importedProduct.agentPrice - product.basePrice).toFixed(2)),
+                                                margin: importedProduct.margin
+                                            };
+                                        }
+                                        return product;
+                                    });
+                                    
+                                    resolve(updatedProducts);
+                                } catch (error) {
+                                    reject(new Error('Invalid file format'));
+                                }
+                            };
+                            reader.readAsText(file);
+                        });
+                    }
+                };
+            }
+
+            async initialize() {
+                // Check authentication
+                if (!this.api.isAuthenticated()) {
+                    window.location.href = 'agent-login.html';
+                    return;
+                }
+
+                await this.loadDashboard();
+                this.setupEventListeners();
+                this.setupNavigation();
+                this.setupRealTimeUpdates();
+            }
+
+            async loadDashboard() {
+                this.showLoading('Loading dashboard...');
+                
+                try {
+                    const response = await this.api.getDashboard();
+                    
+                    if (response.success) {
+                        this.agentData = response.data;
+                        this.products = response.data.products;
+                        this.updateDashboard(response.data);
+                        this.createQRCode();
+                        this.setupNotifications();
+                    } else {
+                        this.showNotification('Failed to load dashboard: ' + response.message, 'error');
+                    }
+                } catch (error) {
+                    this.showNotification('Network error: ' + error.message, 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            updateDashboard(data) {
+                // Update stats
+                document.getElementById('totalEarnings').textContent = `₵${data.stats.totalEarnings.toFixed(2)}`;
+                document.getElementById('totalSales').textContent = data.stats.totalSales;
+                document.getElementById('availableBalance').textContent = `₵${data.stats.availableBalance.toFixed(2)}`;
+                document.getElementById('monthlyEarnings').textContent = `₵${data.stats.monthlyEarnings.toFixed(2)}`;
+                document.getElementById('availableBalanceDisplay').textContent = `₵${data.stats.availableBalance.toFixed(2)}`;
+
+                // Update agent info
+                document.getElementById('storeName').textContent = data.agent.storeName;
+                document.getElementById('agentId').textContent = data.agent.id;
+                document.getElementById('agentStatus').textContent = data.agent.status;
+                document.getElementById('agentTier').textContent = this.capitalizeFirstLetter(data.agent.tier);
+                document.getElementById('registrationDate').textContent = new Date(data.agent.registrationDate).toLocaleDateString();
+                document.getElementById('lastLogin').textContent = new Date(data.agent.lastLogin).toLocaleString();
+                document.getElementById('daysActive').textContent = data.agent.daysActive;
+                document.getElementById('referralEarnings').textContent = `₵${data.agent.referralEarnings.toFixed(2)}`;
+                document.getElementById('successRate').textContent = `${data.agent.successRate}%`;
+                document.getElementById('responseTime').textContent = data.agent.responseTime;
+
+                // Calculate trends
+                const earningsTrend = ((data.stats.monthlyEarnings - data.stats.lastMonthEarnings) / data.stats.lastMonthEarnings * 100);
+                document.getElementById('earningsTrend').innerHTML = `
+                    <i class="ri-arrow-${earningsTrend >= 0 ? 'up' : 'down'}-line"></i>
+                    ${Math.abs(earningsTrend).toFixed(1)}% from last month
+                `;
+                document.getElementById('earningsTrend').className = `trend ${earningsTrend >= 0 ? 'positive' : 'negative'}`;
+
+                // Update store link
+                const storeLink = `${window.location.origin}/store/${data.agent.referralCode}`;
+                document.getElementById('storeLink').value = storeLink;
+
+                // Update profile form
+                document.getElementById('profileStoreName').value = data.agent.storeName;
+                document.getElementById('profilePhone').value = data.agent.phone;
+                document.getElementById('profileMomo').value = data.agent.momoNumber;
+                document.getElementById('profileEmail').value = data.agent.email || '';
+                document.getElementById('profileReferral').value = data.agent.referralCode;
+
+                // Update MoMo number in withdrawal
+                document.getElementById('withdrawMomo').value = data.agent.momoNumber;
+
+                // Update store stats
+                document.getElementById('storeVisits').textContent = data.storeStats.visits.toLocaleString();
+                document.getElementById('conversionRate').textContent = `${data.storeStats.conversionRate}%`;
+                document.getElementById('topProduct').textContent = this.getProductName(data.storeStats.topProduct);
+                document.getElementById('avgOrder').textContent = `₵${data.storeStats.avgOrder.toFixed(2)}`;
+
+                // Update recent sales
+                this.updateRecentSales(data.recentOrders);
+
+                // Update withdrawal history
+                this.updateWithdrawalHistory(data.recentWithdrawals);
+
+                // Load pricing form
+                this.loadPricingForm(data.products);
+
+                // Load store preview
+                this.loadStorePreview(data.products.slice(0, 3));
+
+                // Load pricing insights
+                this.loadPricingInsights(data.products);
+
+                // Load top products
+                this.loadTopProducts(data.products.slice(0, 3));
+
+                // Initialize chart
+                this.initializeEarningsChart(data.recentOrders);
+
+                // Initialize store analytics chart
+                this.initializeStoreAnalyticsChart(data.storeStats.weeklyVisits);
+
+                // Update welcome message
+                const hour = new Date().getHours();
+                let greeting = 'Good ';
+                if (hour < 12) greeting += 'Morning';
+                else if (hour < 18) greeting += 'Afternoon';
+                else greeting += 'Evening';
+                
+                document.getElementById('welcomeMessage').textContent = 
+                    `${greeting}, ${data.agent.storeName}!`;
+            }
+
+            updateRecentSales(orders) {
+                const container = document.getElementById('recentSales');
+                
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="ri-shopping-bag-line text-4xl mb-3"></i>
+                            <p>No sales yet</p>
+                            <p class="text-sm mt-2">Share your store link to get started!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = orders.map(order => `
+                    <div class="flex justify-between items-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer" onclick="viewOrder('${order.id}')">
+                        <div>
+                            <div class="font-semibold flex items-center gap-2">
+                                <span class="network-badge ${order.network}">${order.network.toUpperCase()}</span>
+                                <span>₵${order.amount.toFixed(2)}</span>
+                                <span class="text-xs px-2 py-1 rounded ${order.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}">
+                                    ${order.status}
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-400">${order.phone} • ${order.plan}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-hub-green font-semibold">+₵${order.agentProfit.toFixed(2)}</div>
+                            <div class="text-xs text-gray-400">${this.formatTimeAgo(order.createdAt)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updateWithdrawalHistory(withdrawals) {
+                const container = document.getElementById('withdrawalHistory');
+                
+                if (!withdrawals || withdrawals.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="ri-history-line text-4xl mb-3"></i>
+                            <p>No withdrawals yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Update stats
+                const totalWithdrawn = withdrawals
+                    .filter(w => w.status === 'completed')
+                    .reduce((sum, w) => sum + w.amount, 0);
+                
+                const pendingWithdrawals = withdrawals
+                    .filter(w => w.status === 'pending')
+                    .reduce((sum, w) => sum + w.amount, 0);
+
+                document.getElementById('totalWithdrawn').textContent = `₵${totalWithdrawn.toFixed(2)}`;
+                document.getElementById('pendingWithdrawals').textContent = `₵${pendingWithdrawals.toFixed(2)}`;
+                document.getElementById('withdrawalCount').textContent = withdrawals.length;
+
+                // Update history
+                container.innerHTML = withdrawals.map(wd => `
+                    <div class="flex justify-between items-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                        <div>
+                            <div class="font-semibold">₵${wd.amount.toFixed(2)}</div>
+                            <div class="text-sm text-gray-400">${wd.agentMomo}</div>
+                            <div class="text-xs text-gray-400 mt-1">Fee: ₵${wd.fee?.toFixed(2) || '0.00'}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="withdrawal-status ${wd.status}">${wd.status}</div>
+                            <div class="text-xs text-gray-400">${this.formatTimeAgo(wd.createdAt)}</div>
+                            <div class="text-xs text-hub-green mt-1">Net: ₵${wd.netAmount?.toFixed(2) || wd.amount.toFixed(2)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadPricingForm(products) {
+                const table = document.getElementById('pricingTable');
+                
+                table.innerHTML = products.map(product => `
+                    <div class="pricing-row">
+                        <div>
+                            <div class="font-semibold flex items-center gap-2">
+                                <span class="network-badge ${product.operator.toLowerCase()}">${product.operator}</span>
+                                <span>${product.name}</span>
+                            </div>
+                            <div class="text-xs text-gray-400">${product.data_amount} • ${product.validity}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-semibold">₵${product.basePrice.toFixed(2)}</div>
+                            <div class="text-xs text-gray-400">Base</div>
+                        </div>
+                        <div>
+                            <input type="number" 
+                                   data-product-code="${product.code}"
+                                   value="${product.agentPrice.toFixed(2)}" 
+                                   min="${product.basePrice}"
+                                   max="${product.basePrice * 2}"
+                                   step="0.1"
+                                   class="agent-price-input price-input w-full"
+                                   onchange="updateProductPrice('${product.code}', this.value)">
+                        </div>
+                        <div class="text-center">
+                            <div class="font-semibold text-hub-green profit-display" data-profit-for="${product.code}">
+                                ₵${product.markup.toFixed(2)}
+                            </div>
+                            <div class="text-xs text-gray-400">Profit</div>
+                        </div>
+                        <div>
+                            <input type="number" 
+                                   data-product-code="${product.code}"
+                                   value="${product.margin.toFixed(1)}" 
+                                   min="0"
+                                   max="50"
+                                   step="0.1"
+                                   class="margin-input price-input w-full"
+                                   onchange="updateProductMargin('${product.code}', this.value)">
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="btn btn-secondary text-sm px-2" onclick="resetProductPrice('${product.code}')" title="Reset to default">
+                                <i class="ri-refresh-line"></i>
+                            </button>
+                            <button class="btn btn-secondary text-sm px-2" onclick="copyProductPrice('${product.code}')" title="Copy price">
+                                <i class="ri-file-copy-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadStorePreview(products) {
+                const container = document.getElementById('storePreview');
+                
+                container.innerHTML = products.map(product => `
+                    <div class="store-preview-card">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="text-sm text-gray-400">${product.operator}</div>
+                                <div class="text-xl font-bold">${product.name}</div>
+                                <div class="text-gray-400 text-sm mt-1">${product.data_amount} • ${product.validity}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-black text-hubGreen">₵${product.agentPrice.toFixed(2)}</div>
+                                <div class="text-xs text-gray-400">You earn: ₵${product.markup.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-xs text-gray-400">Base Price</div>
+                                <div class="text-sm line-through text-gray-500">₵${product.basePrice.toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-400">Your Margin</div>
+                                <div class="text-sm font-semibold text-hubGreen">${product.margin.toFixed(1)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadTopProducts(products) {
+                const container = document.getElementById('topProducts');
+                
+                container.innerHTML = products.map((product, index) => `
+                    <div class="p-4 rounded-lg bg-white/5">
+                        <div class="flex items-start justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-bold text-gray-400">#${index + 1}</span>
+                                <span class="network-badge ${product.operator.toLowerCase()} text-xs">${product.operator}</span>
+                            </div>
+                            <div class="text-hub-green font-bold">₵${product.agentPrice.toFixed(2)}</div>
+                        </div>
+                        <div class="font-semibold">${product.name}</div>
+                        <div class="text-sm text-gray-400 mt-1">${product.data_amount} • ${product.validity}</div>
+                        <div class="mt-3 flex justify-between items-center">
+                            <span class="text-xs text-gray-400">Earns you:</span>
+                            <span class="text-sm font-semibold text-hub-green">₵${product.markup.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadPricingInsights(products) {
+                const insights = this.pricing.getPricingInsights(products);
+                const container = document.getElementById('pricingInsights');
+                
+                // Update total potential profit
+                document.getElementById('totalPotentialProfit').textContent = `₵${insights.totalPotentialProfit.toFixed(2)}`;
+                
+                container.innerHTML = `
+                    <div class="text-center p-4 rounded-lg bg-white/5">
+                        <div class="text-2xl font-bold text-hubGreen">${insights.totalProducts}</div>
+                        <div class="text-sm text-gray-400">Total Products</div>
+                        <div class="text-xs text-gray-400 mt-1">All networks</div>
+                    </div>
+                    <div class="text-center p-4 rounded-lg bg-white/5">
+                        <div class="text-2xl font-bold text-hubGreen">₵${insights.totalPotentialProfit.toFixed(2)}</div>
+                        <div class="text-sm text-gray-400">Total Profit</div>
+                        <div class="text-xs text-gray-400 mt-1">If all sold once</div>
+                    </div>
+                    <div class="text-center p-4 rounded-lg bg-white/5">
+                        <div class="text-2xl font-bold text-hubGreen">${insights.averageMargin.toFixed(1)}%</div>
+                        <div class="text-sm text-gray-400">Avg Margin</div>
+                        <div class="text-xs ${insights.averageMargin >= insights.competitiveRange.min ? 'text-hub-green' : 'text-yellow-400'} mt-1">
+                            ${insights.averageMargin >= insights.competitiveRange.min ? 'Competitive' : 'Low'}
+                        </div>
+                    </div>
+                    <div class="text-center p-4 rounded-lg bg-white/5">
+                        <div class="text-2xl font-bold text-hubGreen">${insights.highestMargin.margin.toFixed(1)}%</div>
+                        <div class="text-sm text-gray-400">Best Margin</div>
+                        <div class="text-xs text-gray-400 truncate mt-1" title="${insights.highestMargin.product}">
+                            ${insights.highestMargin.product}
+                        </div>
+                    </div>
+                `;
+            }
+
+            setupEventListeners() {
+                // Real-time price updates
+                document.addEventListener('input', (e) => {
+                    if (e.target.classList.contains('agent-price-input')) {
+                        const productCode = e.target.dataset.productCode;
+                        const newPrice = parseFloat(e.target.value);
+                        this.updateProductDisplay(productCode, newPrice);
+                    }
+                });
+
+                // Withdrawal amount calculation
+                const withdrawAmountInput = document.getElementById('withdrawAmount');
+                if (withdrawAmountInput) {
+                    withdrawAmountInput.addEventListener('input', () => {
+                        this.calculateWithdrawal();
+                    });
+                }
+
+                // Real-time balance updates
+                setInterval(() => {
+                    this.updateLiveStats();
+                }, 30000); // Every 30 seconds
+            }
+
+            setupRealTimeUpdates() {
+                // Simulate real-time updates for demo
+                setInterval(() => {
+                    if (this.agentData) {
+                        // Randomly update stats
+                        const randomSale = Math.random() > 0.7;
+                        if (randomSale) {
+                            this.simulateNewSale();
+                        }
+                    }
+                }, 10000); // Every 10 seconds
+            }
+
+            simulateNewSale() {
+                if (!this.agentData) return;
+
+                const networks = ['mtn', 'vodafone', 'airteltigo', 'telecel'];
+                const network = networks[Math.floor(Math.random() * networks.length)];
+                const amount = 5 + Math.random() * 15;
+                const profit = amount * 0.08; // 8% profit
+
+                // Update stats
+                this.agentData.stats.totalSales += 1;
+                this.agentData.stats.totalEarnings += profit;
+                this.agentData.stats.availableBalance += profit;
+                this.agentData.stats.monthlyEarnings += profit;
+
+                // Update UI
+                this.updateDashboard(this.agentData);
+
+                // Show notification
+                this.showNotification(`New sale! ₵${amount.toFixed(2)} ${network.toUpperCase()} bundle`, 'success');
+            }
+
+            setupNavigation() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.nav-btn').forEach(b => {
+                            b.classList.remove('btn-agent-primary');
+                            b.classList.add('btn-agent-secondary');
+                        });
+                        this.classList.remove('btn-agent-secondary');
+                        this.classList.add('btn-agent-primary');
+                    });
+                });
+            }
+
+            setupNotifications() {
+                if (!this.agentData?.notifications) return;
+
+                const unreadCount = this.agentData.notifications.filter(n => !n.read).length;
+                const badge = document.querySelector('.notification-badge');
+                if (badge && unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.classList.remove('hidden');
+                }
+            }
+
+            createQRCode() {
+                const storeLink = document.getElementById('storeLink')?.value;
+                if (!storeLink) return;
+
+                const qrcodeDiv = document.getElementById('qrcode');
+                if (qrcodeDiv && !this.qrcode) {
+                    this.qrcode = new QRCode(qrcodeDiv, {
+                        text: storeLink,
+                        width: 128,
+                        height: 128,
+                        colorDark: "#00e07a",
+                        colorLight: "#0a0f1c",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                }
+            }
+
+            // Section Management
+            showSection(sectionName) {
+                // Hide all sections
+                document.querySelectorAll('section').forEach(sec => {
+                    sec.classList.add('section-hidden');
+                    sec.classList.remove('section-active', 'fade-in');
+                });
+                
+                // Show target section
+                const targetSection = document.getElementById(`${sectionName}-section`);
+                if (targetSection) {
+                    targetSection.classList.remove('section-hidden');
+                    targetSection.classList.add('section-active', 'fade-in');
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        targetSection.classList.add('fade-in');
+                    }, 10);
+                }
+                
+                this.currentSection = sectionName;
+
+                // Section-specific initialization
+                switch(sectionName) {
+                    case 'pricing':
+                        this.loadPricingInsights(this.products);
+                        break;
+                    case 'store':
+                        this.createQRCode();
+                        break;
+                    case 'withdraw':
+                        this.calculateWithdrawal();
+                        break;
+                }
+            }
+
+            // Product Price Management
+            updateProductPrice(productCode, newPrice) {
+                const product = this.products.find(p => p.code === productCode);
+                if (!product) return;
+
+                newPrice = parseFloat(newPrice);
+                if (isNaN(newPrice) || newPrice < product.basePrice) {
+                    this.showNotification(`Price must be at least ₵${product.basePrice.toFixed(2)}`, 'error');
+                    return;
+                }
+
+                product.agentPrice = newPrice;
+                product.markup = parseFloat((newPrice - product.basePrice).toFixed(2));
+                product.margin = parseFloat(((product.markup / product.basePrice) * 100).toFixed(1));
+
+                // Update display
+                this.updateProductDisplay(productCode, newPrice);
+                
+                // Update insights
+                this.loadPricingInsights(this.products);
+                
+                // Update store preview if visible
+                if (this.currentSection === 'pricing') {
+                    this.loadStorePreview(this.products.slice(0, 3));
+                }
+            }
+
+            updateProductMargin(productCode, newMargin) {
+                const product = this.products.find(p => p.code === productCode);
+                if (!product) return;
+
+                newMargin = parseFloat(newMargin);
+                if (isNaN(newMargin) || newMargin < 0 || newMargin > 50) {
+                    this.showNotification('Margin must be between 0-50%', 'error');
+                    return;
+                }
+
+                const newPrice = product.basePrice * (1 + newMargin / 100);
+                product.agentPrice = parseFloat(newPrice.toFixed(2));
+                product.markup = parseFloat((newPrice - product.basePrice).toFixed(2));
+                product.margin = newMargin;
+
+                // Update inputs
+                const priceInput = document.querySelector(`.agent-price-input[data-product-code="${productCode}"]`);
+                const marginInput = document.querySelector(`.margin-input[data-product-code="${productCode}"]`);
+                
+                if (priceInput) priceInput.value = product.agentPrice.toFixed(2);
+                if (marginInput) marginInput.value = product.margin.toFixed(1);
+
+                // Update profit display
+                const profitDisplay = document.querySelector(`.profit-display[data-profit-for="${productCode}"]`);
+                if (profitDisplay) {
+                    profitDisplay.textContent = `₵${product.markup.toFixed(2)}`;
+                }
+
+                // Update insights
+                this.loadPricingInsights(this.products);
+            }
+
+            updateProductDisplay(productCode, newPrice) {
+                const product = this.products.find(p => p.code === productCode);
+                if (!product) return;
+
+                // Calculate new values
+                const markup = newPrice - product.basePrice;
+                const margin = (markup / product.basePrice) * 100;
+
+                // Update margin input
+                const marginInput = document.querySelector(`.margin-input[data-product-code="${productCode}"]`);
+                if (marginInput) {
+                    marginInput.value = margin.toFixed(1);
+                }
+
+                // Update profit display
+                const profitDisplay = document.querySelector(`.profit-display[data-profit-for="${productCode}"]`);
+                if (profitDisplay) {
+                    profitDisplay.textContent = `₵${markup.toFixed(2)}`;
+                }
+            }
+
+            // API Methods
+            async saveAllPrices() {
+                this.showLoading('Saving prices...');
+                
+                try {
+                    const prices = this.products.map(p => ({
+                        code: p.code,
+                        agentPrice: p.agentPrice,
+                        margin: p.margin
+                    }));
+
+                    const response = await this.api.updatePrices(prices);
+                    
+                    if (response.success) {
+                        this.showNotification(`Successfully updated ${response.updated} prices`, 'success');
+                    } else {
+                        this.showNotification('Failed to update prices: ' + response.message, 'error');
+                    }
+                } catch (error) {
+                    this.showNotification('Failed to update prices', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async requestWithdrawal() {
+                const amount = parseFloat(document.getElementById('withdrawAmount').value);
+                const momoNumber = document.getElementById('withdrawMomo').value;
+                
+                if (!amount || amount < 15) {
+                    this.showNotification('Minimum withdrawal amount is ₵15', 'error');
+                    return;
+                }
+
+                if (!momoNumber || momoNumber.length < 10) {
+                    this.showNotification('Please enter a valid MoMo number', 'error');
+                    return;
+                }
+
+                this.showLoading('Processing withdrawal...');
+                
+                try {
+                    const response = await this.api.requestWithdrawal({
+                        amount,
+                        momoNumber
+                    });
+                    
+                    if (response.success) {
+                        this.showNotification(`Withdrawal request submitted! Transaction ID: ${response.transactionId}`, 'success');
+                        document.getElementById('withdrawAmount').value = '';
+                        await this.loadDashboard(); // Reload data
+                    } else {
+                        this.showNotification('Withdrawal failed: ' + response.message, 'error');
+                    }
+                } catch (error) {
+                    this.showNotification('Withdrawal request failed', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async updateProfile() {
+                const storeName = document.getElementById('profileStoreName').value;
+                const phone = document.getElementById('profilePhone').value;
+                const momoNumber = document.getElementById('profileMomo').value;
+                const email = document.getElementById('profileEmail').value;
+
+                if (!storeName || !phone || !momoNumber) {
+                    this.showNotification('Please fill all required fields', 'error');
+                    return;
+                }
+
+                this.showLoading('Updating profile...');
+                
+                try {
+                    const response = await this.api.updateProfile({ 
+                        storeName, 
+                        phone, 
+                        momoNumber,
+                        email 
+                    });
+                    
+                    if (response.success) {
+                        this.showNotification('Profile updated successfully!', 'success');
+                        await this.loadDashboard(); // Reload data
+                    } else {
+                        this.showNotification('Failed to update profile: ' + response.message, 'error');
+                    }
+                } catch (error) {
+                    this.showNotification('Failed to update profile', 'error');
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            // Utility Methods
+            copyStoreLink() {
+                const linkInput = document.getElementById('storeLink');
+                linkInput.select();
+                document.execCommand('copy');
+                this.showNotification('Store link copied to clipboard!', 'success');
+            }
+
+            openStore() {
+                const storeLink = document.getElementById('storeLink').value;
+                if (storeLink) {
+                    window.open(storeLink, '_blank');
+                }
+            }
+
+            downloadQRCode() {
+                const qrcodeCanvas = document.querySelector('#qrcode canvas');
+                if (qrcodeCanvas) {
+                    const link = document.createElement('a');
+                    link.download = 'store-qrcode.png';
+                    link.href = qrcodeCanvas.toDataURL('image/png');
+                    link.click();
+                    this.showNotification('QR code downloaded!', 'success');
+                }
+            }
+
+            copyReferralCode() {
+                const referralInput = document.getElementById('profileReferral');
+                referralInput.select();
+                document.execCommand('copy');
+                this.showNotification('Referral code copied!', 'success');
+            }
+
+            calculateWithdrawal() {
+                const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+                const fee = 0.50; // Fixed fee of ₵0.50
+                const netAmount = amount > 0 ? amount - fee : 0;
+
+                document.getElementById('withdrawalFee').textContent = `₵${fee.toFixed(2)}`;
+                document.getElementById('receiveAmount').textContent = `₵${netAmount.toFixed(2)}`;
+
+                // Update button state
+                const withdrawBtn = document.querySelector('#withdraw-section .btn-primary');
+                if (withdrawBtn) {
+                    withdrawBtn.disabled = amount < 15;
+                }
+            }
+
+            // Pricing Strategy Methods
+            applyGlobalMargin() {
+                const margin = parseFloat(document.getElementById('globalMargin').value);
+                if (!margin || margin < 0 || margin > 50) {
+                    this.showNotification('Please enter a valid margin between 0-50%', 'error');
+                    return;
+                }
+
+                this.products = this.pricing.applyGlobalMargin(this.products, margin);
+                this.loadPricingForm(this.products);
+                this.loadPricingInsights(this.products);
+                this.showNotification(`Applied ${margin}% margin to all products`, 'success');
+            }
+
+            adjustAllPrices(percentage) {
+                if (!percentage) return;
+
+                this.products = this.pricing.adjustAllPrices(this.products, percentage);
+                this.loadPricingForm(this.products);
+                this.loadPricingInsights(this.products);
+                
+                const action = percentage > 0 ? 'increased' : 'decreased';
+                this.showNotification(`All prices ${action} by ${Math.abs(percentage)}%`, 'success');
+            }
+
+            applyCompetitivePricing() {
+                this.products = this.pricing.applyCompetitivePricing(this.products);
+                this.loadPricingForm(this.products);
+                this.loadPricingInsights(this.products);
+                this.showNotification('Applied competitive pricing strategy (8-12% margin)', 'success');
+            }
+
+            applyPremiumPricing() {
+                this.products = this.pricing.applyPremiumPricing(this.products);
+                this.loadPricingForm(this.products);
+                this.loadPricingInsights(this.products);
+                this.showNotification('Applied premium pricing strategy (15-20% margin)', 'success');
+            }
+
+            resetToDefaults() {
+                if (confirm('Are you sure you want to reset all prices to default margins?')) {
+                    this.products = this.pricing.resetToDefaults(this.products);
+                    this.loadPricingForm(this.products);
+                    this.loadPricingInsights(this.products);
+                    this.showNotification('All prices reset to defaults', 'success');
+                }
+            }
+
+            exportPricing() {
+                const exported = this.pricing.exportPricingSettings(this.products);
+                if (exported) {
+                    this.showNotification('Pricing exported successfully!', 'success');
+                }
+            }
+
+            async handleFileImport(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                this.showLoading('Importing prices...');
+                
+                try {
+                    this.products = await this.pricing.importPricingSettings(file, this.products);
+                    this.loadPricingForm(this.products);
+                    this.loadPricingInsights(this.products);
+                    this.showNotification('Prices imported successfully!', 'success');
+                } catch (error) {
+                    this.showNotification('Failed to import prices: ' + error.message, 'error');
+                } finally {
+                    this.hideLoading();
+                    event.target.value = ''; // Reset file input
+                }
+            }
+
+            previewPriceChanges() {
+                // This would compare current prices with proposed changes
+                // For now, just show current prices
+                const modal = document.getElementById('previewPriceModal');
+                const content = document.getElementById('previewContent');
+                
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <h4 class="font-semibold">Proposed Price Changes</h4>
+                        <div class="space-y-2">
+                            ${this.products.slice(0, 5).map(p => `
+                                <div class="flex justify-between items-center p-2 bg-white/5 rounded">
+                                    <span>${p.name}</span>
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-gray-400 line-through">₵${p.basePrice.toFixed(2)}</span>
+                                        <span class="text-hub-green">→</span>
+                                        <span class="font-bold">₵${p.agentPrice.toFixed(2)}</span>
+                                        <span class="text-sm ${p.margin >= 10 ? 'text-hub-green' : 'text-yellow-400'}">
+                                            (${p.margin.toFixed(1)}%)
+                                        </span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="p-3 bg-hub-green/10 rounded">
+                            <div class="flex justify-between">
+                                <span>Average Margin:</span>
+                                <span class="font-bold">${this.pricing.getPricingInsights(this.products).averageMargin.toFixed(1)}%</span>
+                            </div>
+                            <div class="flex justify-between mt-1">
+                                <span>Total Potential Profit:</span>
+                                <span class="font-bold text-hub-green">₵${this.pricing.getPricingInsights(this.products).totalPotentialProfit.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+            }
+
+            closePreviewModal() {
+                document.getElementById('previewPriceModal').classList.add('hidden');
+            }
+
+            applyPreviewChanges() {
+                this.saveAllPrices();
+                this.closePreviewModal();
+            }
+
+            // Chart Methods
+            initializeEarningsChart(orders) {
+                const ctx = document.getElementById('earningsChart')?.getContext('2d');
+                if (!ctx) return;
+
+                // Destroy existing chart
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+
+                // Group orders by date for last 7 days
+                const last7Days = [...Array(7)].map((_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                }).reverse();
+
+                const earningsByDate = {};
+                last7Days.forEach(date => {
+                    earningsByDate[date] = 0;
+                });
+
+                orders?.forEach(order => {
+                    const date = new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                    if (earningsByDate.hasOwnProperty(date)) {
+                        earningsByDate[date] += order.agentProfit || 0;
+                    }
+                });
+
+                const data = last7Days.map(date => earningsByDate[date]);
+
+                this.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: last7Days,
+                        datasets: [{
+                            label: 'Daily Earnings (₵)',
+                            data: data,
+                            borderColor: '#00e07a',
+                            backgroundColor: 'rgba(0,224,122,0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#00e07a',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { 
+                                    color: '#e6eef6',
+                                    font: { size: 12 }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(10, 15, 28, 0.9)',
+                                titleColor: '#e6eef6',
+                                bodyColor: '#e6eef6',
+                                borderColor: '#00e07a',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `₵${context.raw.toFixed(2)}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { 
+                                    color: 'rgba(255,255,255,0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: { 
+                                    color: '#e6eef6',
+                                    font: { size: 11 }
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { 
+                                    color: 'rgba(255,255,255,0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: { 
+                                    color: '#e6eef6',
+                                    font: { size: 11 },
+                                    callback: function(value) {
+                                        return '₵' + value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            initializeStoreAnalyticsChart(weeklyVisits) {
+                const ctx = document.getElementById('storeAnalyticsChart')?.getContext('2d');
+                if (!ctx) return;
+
+                // Destroy existing chart
+                if (this.storeChart) {
+                    this.storeChart.destroy();
+                }
+
+                const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                this.storeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: days,
+                        datasets: [{
+                            label: 'Store Visits',
+                            data: weeklyVisits || [120, 145, 130, 160, 180, 155, 140],
+                            backgroundColor: 'rgba(0,224,122,0.3)',
+                            borderColor: '#00e07a',
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { 
+                                    display: false
+                                },
+                                ticks: { 
+                                    color: '#e6eef6'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { 
+                                    color: 'rgba(255,255,255,0.05)'
+                                },
+                                ticks: { 
+                                    color: '#e6eef6',
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateChart() {
+                // This would update chart based on selected period
+                // For now, just reload with current data
+                if (this.agentData?.recentOrders) {
+                    this.initializeEarningsChart(this.agentData.recentOrders);
+                }
+            }
+
+            updateLiveStats() {
+                // Simulate live updates
+                if (this.agentData) {
+                    // Random small fluctuations
+                    const fluctuation = 1 + (Math.random() * 0.1 - 0.05);
+                    const balance = this.agentData.stats.availableBalance * fluctuation;
+                    
+                    document.getElementById('availableBalance').textContent = `₵${balance.toFixed(2)}`;
+                    document.getElementById('availableBalanceDisplay').textContent = `₵${balance.toFixed(2)}`;
+                }
+            }
+
+            // UI Methods
+            showLoading(message = 'Loading...') {
+                const overlay = document.getElementById('loadingOverlay');
+                const text = document.getElementById('loadingText');
+                
+                if (overlay && text) {
+                    text.textContent = message;
+                    overlay.classList.remove('hidden');
+                }
+            }
+
+            hideLoading() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                }
+            }
+
+            showNotification(message, type = 'info') {
+                const container = document.getElementById('notificationContainer');
+                if (!container) return;
+
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="ri-${type === 'error' ? 'close-circle' : type === 'warning' ? 'error-warning' : 'check-circle'}-line"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                container.appendChild(notification);
+
+                // Show notification
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 5000);
+            }
+
+            toggleNotifications() {
+                const dropdown = document.getElementById('notificationDropdown');
+                if (dropdown) {
+                    dropdown.classList.toggle('hidden');
+                    
+                    if (!dropdown.classList.contains('hidden')) {
+                        this.loadNotifications();
+                    }
+                }
+            }
+
+            loadNotifications() {
+                const dropdown = document.getElementById('notificationDropdown');
+                if (!dropdown || !this.agentData?.notifications) return;
+
+                dropdown.innerHTML = `
+                    <div class="p-3 border-b border-white/10">
+                        <div class="font-semibold">Notifications</div>
+                    </div>
+                    <div class="max-h-64 overflow-y-auto">
+                        ${this.agentData.notifications.map(notif => `
+                            <div class="p-3 border-b border-white/5 hover:bg-white/5 cursor-pointer ${notif.read ? '' : 'bg-blue-500/5'}" 
+                                 onclick="markNotificationAsRead(${notif.id})">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-semibold text-sm">${notif.title}</div>
+                                    <span class="text-xs text-gray-400">${this.formatTimeAgo(notif.createdAt)}</span>
+                                </div>
+                                <div class="text-sm text-gray-400 mt-1">${notif.message}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${this.agentData.notifications.length === 0 ? `
+                        <div class="p-4 text-center text-gray-400">
+                            <i class="ri-notification-off-line text-2xl mb-2"></i>
+                            <div>No notifications</div>
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            markNotificationAsRead(notificationId) {
+                // Mark notification as read
+                if (this.agentData?.notifications) {
+                    const notification = this.agentData.notifications.find(n => n.id === notificationId);
+                    if (notification) {
+                        notification.read = true;
+                        this.setupNotifications(); // Update badge
+                        this.toggleNotifications(); // Close dropdown
+                    }
+                }
+            }
+
+            logout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    this.api.logout();
+                    window.location.href = 'agent-login.html';
+                }
+            }
+
+            // Helper Methods
+            formatTimeAgo(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return 'just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                if (diffDays < 7) return `${diffDays}d ago`;
+                return date.toLocaleDateString();
+            }
+
+            capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            getProductName(productCode) {
+                const product = this.products.find(p => p.code === productCode);
+                return product ? product.name : productCode;
+            }
+
+            refreshStorePreview() {
+                this.loadStorePreview(this.products.slice(0, 3));
+                this.showNotification('Store preview refreshed', 'success');
+            }
+
+            loadRecentSales() {
+                if (this.agentData?.recentOrders) {
+                    this.updateRecentSales(this.agentData.recentOrders);
+                    this.showNotification('Sales data refreshed', 'success');
+                }
+            }
+
+            loadWithdrawalHistory() {
+                if (this.agentData?.recentWithdrawals) {
+                    this.updateWithdrawalHistory(this.agentData.recentWithdrawals);
+                }
+            }
+
+            generateMarketingText() {
+                const storeName = this.agentData?.agent?.storeName || 'My Store';
+                const referralCode = this.agentData?.agent?.referralCode || 'YOURCODE';
+                const storeLink = document.getElementById('storeLink')?.value || '#';
+                
+                const texts = [
+                    `🚀 Get CHEAP data bundles from ${storeName}! \nMTN, Vodafone, AirtelTigo, Telecel \nVisit: ${storeLink}`,
+                    `📱 Need data? ${storeName} has the BEST prices! \nInstant delivery • 24/7 service \nUse code ${referralCode} for best deals: ${storeLink}`,
+                    `⚡ Super-fast data bundles at agent prices! \nNo delays • Reliable service \nShop now: ${storeLink}`
+                ];
+                
+                const randomText = texts[Math.floor(Math.random() * texts.length)];
+                this.copyToClipboard(randomText);
+                this.showNotification('Promo text copied to clipboard!', 'success');
+            }
+
+            shareOnWhatsApp() {
+                const storeLink = document.getElementById('storeLink')?.value || '#';
+                const text = encodeURIComponent(`Get cheap data bundles! Visit: ${storeLink}`);
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            }
+
+            createPromoCode() {
+                const promoCode = 'DATA' + Math.floor(100 + Math.random() * 900);
+                this.showNotification(`Promo code created: ${promoCode} (5% discount)`, 'success');
+            }
+
+            changePassword() {
+                const oldPassword = prompt('Enter current password:');
+                if (!oldPassword) return;
+
+                const newPassword = prompt('Enter new password:');
+                if (!newPassword || newPassword.length < 6) {
+                    this.showNotification('Password must be at least 6 characters', 'error');
+                    return;
+                }
+
+                const confirmPassword = prompt('Confirm new password:');
+                if (newPassword !== confirmPassword) {
+                    this.showNotification('Passwords do not match', 'error');
+                    return;
+                }
+
+                this.api.changePassword({
+                    oldPassword,
+                    newPassword
+                }).then(response => {
+                    if (response.success) {
+                        this.showNotification('Password changed successfully', 'success');
+                    } else {
+                        this.showNotification(response.message, 'error');
+                    }
+                });
+            }
+
+            copyToClipboard(text) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+
+            viewOrder(orderId) {
+                // In a real app, this would open an order details modal
+                console.log('Viewing order:', orderId);
+                this.showNotification(`Viewing order ${orderId}`, 'info');
+            }
+
+            resetProductPrice(productCode) {
+                const product = this.products.find(p => p.code === productCode);
+                if (!product) return;
+
+                this.updateProductPrice(productCode, product.defaultAgentPrice);
+                this.showNotification(`${product.name} price reset to default`, 'success');
+            }
+
+            copyProductPrice(productCode) {
+                const product = this.products.find(p => p.code === productCode);
+                if (!product) return;
+
+                this.copyToClipboard(`₵${product.agentPrice.toFixed(2)}`);
+                this.showNotification('Price copied to clipboard', 'success');
+            }
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('active') &&
+                !sidebar.contains(e.target) && 
+                !mobileBtn.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Global functions for HTML onclick attributes
+        function showSection(section) {
+            window.agentDashboard.showSection(section);
+        }
+
+        function copyStoreLink() {
+            window.agentDashboard.copyStoreLink();
+        }
+
+        function openStore() {
+            window.agentDashboard.openStore();
+        }
+
+        function saveAllPrices() {
+            window.agentDashboard.saveAllPrices();
+        }
+
+        function requestWithdrawal() {
+            window.agentDashboard.requestWithdrawal();
+        }
+
+        function updateProfile() {
+            window.agentDashboard.updateProfile();
+        }
+
+        function applyGlobalMargin() {
+            window.agentDashboard.applyGlobalMargin();
+        }
+
+        function applyCompetitivePricing() {
+            window.agentDashboard.applyCompetitivePricing();
+        }
+
+        function applyPremiumPricing() {
+            window.agentDashboard.applyPremiumPricing();
+        }
+
+        function exportPricing() {
+            window.agentDashboard.exportPricing();
+        }
+
+        function importPricing() {
+            document.getElementById('importFile').click();
+        }
+
+        function handleFileImport(event) {
+            window.agentDashboard.handleFileImport(event);
+        }
+
+        function adjustAllPrices(percentage) {
+            window.agentDashboard.adjustAllPrices(percentage);
+        }
+
+        function resetToDefaults() {
+            window.agentDashboard.resetToDefaults();
+        }
+
+        function logout() {
+            window.agentDashboard.logout();
+        }
+
+        function loadDashboard() {
+            window.agentDashboard.loadDashboard();
+        }
+
+        function calculateWithdrawal() {
+            window.agentDashboard.calculateWithdrawal();
+        }
+
+        function toggleNotifications() {
+            window.agentDashboard.toggleNotifications();
+        }
+
+        function markNotificationAsRead(id) {
+            window.agentDashboard.markNotificationAsRead(id);
+        }
+
+        function updateProductPrice(code, price) {
+            window.agentDashboard.updateProductPrice(code, price);
+        }
+
+        function updateProductMargin(code, margin) {
+            window.agentDashboard.updateProductMargin(code, margin);
+        }
+
+        function resetProductPrice(code) {
+            window.agentDashboard.resetProductPrice(code);
+        }
+
+        function copyProductPrice(code) {
+            window.agentDashboard.copyProductPrice(code);
+        }
+
+        function previewPriceChanges() {
+            window.agentDashboard.previewPriceChanges();
+        }
+
+        function closePreviewModal() {
+            window.agentDashboard.closePreviewModal();
+        }
+
+        function applyPreviewChanges() {
+            window.agentDashboard.applyPreviewChanges();
+        }
+
+        function refreshStorePreview() {
+            window.agentDashboard.refreshStorePreview();
+        }
+
+        function loadRecentSales() {
+            window.agentDashboard.loadRecentSales();
+        }
+
+        function loadWithdrawalHistory() {
+            window.agentDashboard.loadWithdrawalHistory();
+        }
+
+        function updateChart() {
+            window.agentDashboard.updateChart();
+        }
+
+        function generateMarketingText() {
+            window.agentDashboard.generateMarketingText();
+        }
+
+        function shareOnWhatsApp() {
+            window.agentDashboard.shareOnWhatsApp();
+        }
+
+        function createPromoCode() {
+            window.agentDashboard.createPromoCode();
+        }
+
+        function changePassword() {
+            window.agentDashboard.changePassword();
+        }
+
+        function downloadQRCode() {
+            window.agentDashboard.downloadQRCode();
+        }
+
+        function copyReferralCode() {
+            window.agentDashboard.copyReferralCode();
+        }
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            window.agentDashboard = new AgentDashboard();
+            
+            // Auto-hide loading after 3 seconds (fallback)
+            setTimeout(() => {
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay && !loadingOverlay.classList.contains('hidden')) {
+                    loadingOverlay.classList.add('hidden');
+                }
+            }, 3000);
+        });
+
+        // Handle page visibility for real-time updates
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && window.agentDashboard) {
+                window.agentDashboard.updateLiveStats();
+            }
+        });
+    </script>
+</body>
+</html>
