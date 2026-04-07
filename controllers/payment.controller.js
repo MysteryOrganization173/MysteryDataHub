@@ -121,7 +121,7 @@ export const initializePayment = async (req, res) => {
     let paystackRes;
     try {
       paystackRes = await axios.post(
-        console.log("🔥 PAYSTACK RESPONSE FULL:", JSON.stringify(paystackRes.data, null, 2));
+       console.log("PAYSTACK RESPONSE:", paystackRes.data);
         `${paystackBase()}/transaction/initialize`,
         {
           email,
