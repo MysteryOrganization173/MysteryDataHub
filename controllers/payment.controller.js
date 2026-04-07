@@ -118,40 +118,51 @@ export const initializePayment = async (req, res) => {
       deliveryStatus: 'pending'
     });
 
-    let paystackRes;
-    try {
-      paystackRes = await axios.post(
-       console.log("PAYSTACK RESPONSE:", paystackRes.data);
-        `${paystackBase()}/transaction/initialize`,
-        {
-          email,
-          amount: Math.round(amountGHS * 100),
-          currency: 'GHS',
-          reference,
-          callback_url,
-          metadata: {
-            phone: phoneNorm,
-            bundle: bundleCode,
-            network: bundleDoc.operator,
-            custom_fields: [
-              { display_name: 'Phone', variable_name: 'phone', value: phoneNorm },
-              { display_name: 'Bundle', variable_name: 'bundle', value: bundleCode }
-            ]
-          }
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    } catch (e) {
+let paystackRes;
+try {
+  paystackRes = await axios.post(
+    `${paystackBase()}/transaction/initialize`,
+    {
+      email,
+      amount: Math.round(amountGHS * 100),
+      currency: 'GHS',
+      reference,
+      callback_url,
+      metadata: {
+        phone: phoneNorm,
+        bundle: bundleCode,
+        network: bundleDoc.operator,
+        custom_fields: [
+          { display_name: 'Phone', variable_name: 'phone', value: phoneNorm },
+          { display_name: 'Bundle', variable_name: 'bundle', value: bundleCode }
+        ]
+      }
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  // ✅ LOG AFTER the request completes
+  console.log("🔥 PAYSTACK RESPONSE:", paystackRes.data);
+
+} catch (e) {
   console.error("❌ PAYSTACK ERROR FULL:", {
     message: e.message,
     data: e.response?.data,
     status: e.response?.status
   });
+
+  await Order.deleteOne({ reference });
+
+  return res.status(500).json({
+    success: false,
+    message: e.response?.data?.message || e.message
+  });
+}
 
   await Order.deleteOne({ reference });
 
