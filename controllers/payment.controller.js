@@ -121,6 +121,7 @@ export const initializePayment = async (req, res) => {
     let paystackRes;
     try {
       paystackRes = await axios.post(
+        console.log("🔥 PAYSTACK RESPONSE FULL:", JSON.stringify(paystackRes.data, null, 2));
         `${paystackBase()}/transaction/initialize`,
         {
           email,
@@ -146,9 +147,19 @@ export const initializePayment = async (req, res) => {
         }
       );
     } catch (e) {
-      await Order.deleteOne({ reference });
-      throw e;
-    }
+  console.error("❌ PAYSTACK ERROR FULL:", {
+    message: e.message,
+    data: e.response?.data,
+    status: e.response?.status
+  });
+
+  await Order.deleteOne({ reference });
+
+  return res.status(500).json({
+    success: false,
+    message: e.response?.data?.message || e.message
+  });
+}
 
     const ps = paystackRes.data;
     if (!ps.status || !ps.data?.authorization_url) {
