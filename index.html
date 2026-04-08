@@ -558,14 +558,348 @@
             0% { opacity: 0.6; transform: scale(0.95);}
             100% { opacity: 1; transform: scale(1.2);}
         }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        .section-title {
+            font-size: clamp(1.95rem, 4vw, 2.75rem);
+            line-height: 1.05;
+        }
+
+        .section-subtitle {
+            font-size: clamp(0.98rem, 1.8vw, 1.15rem);
+        }
+
+        .promo-banner {
+            position: relative;
+            z-index: 30;
+            padding: 0.7rem 1rem;
+            font-size: clamp(0.72rem, 1.85vw, 0.92rem);
+            line-height: 1.25;
+        }
+
+        .promo-banner-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .promo-banner i {
+            font-size: 0.95rem;
+        }
+
+        .promo-code-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.28rem 0.65rem;
+            border-radius: 999px;
+            background: rgba(4, 16, 23, 0.14);
+            border: 1px solid rgba(4, 16, 23, 0.12);
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .buy-now-pill {
+            padding-right: 3.45rem !important;
+        }
+
+        .buy-now-pill .btn-flare {
+            position: absolute;
+            right: 0.35rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.9rem;
+            height: 1.9rem;
+            padding: 0 0.4rem;
+            border-radius: 999px;
+            background: rgba(255,71,87,0.95);
+            color: #fff;
+            font-size: 0.78rem;
+            line-height: 1;
+            box-shadow: 0 8px 20px rgba(255,71,87,0.3);
+        }
+
+        .hero-cta-secondary {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            color: #e6eef6 !important;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.16);
+        }
+
+        .featured-plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: clamp(0.95rem, 2vw, 1.5rem);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            min-height: 220px;
+        }
+
+        .modal-scrollable {
+            max-height: min(90vh, 760px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        .whatsapp-channel-card,
+        .whatsapp-strip {
+            background: linear-gradient(135deg, rgba(21, 30, 34, 0.82), rgba(12, 44, 30, 0.88));
+            border: 1px solid rgba(34,197,94,0.2);
+        }
+
+        .testimonial-card,
+        .agent-story-card {
+            height: 100%;
+        }
+
+        .bundle-card {
+            cursor: pointer;
+            isolation: isolate;
+        }
+
+        .bundle-card::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: 1rem;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 34%);
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .bundle-card:focus-visible {
+            outline: 2px solid rgba(0,224,122,0.9);
+            outline-offset: 4px;
+        }
+
+        .bundle-card-inner {
+            min-height: 100%;
+        }
+
+        .discount-tag {
+            right: 0.5rem;
+        }
+
+        .mtn-card {
+            background:
+                radial-gradient(circle at top right, rgba(255, 204, 0, 0.26), transparent 30%),
+                linear-gradient(135deg, rgba(51, 42, 2, 0.82), rgba(15, 18, 15, 0.92)) !important;
+        }
+
+        .airtel-card {
+            background:
+                radial-gradient(circle at top right, rgba(0, 161, 224, 0.18), transparent 28%),
+                radial-gradient(circle at bottom left, rgba(228, 0, 43, 0.2), transparent 35%),
+                linear-gradient(135deg, rgba(23, 16, 28, 0.92), rgba(18, 12, 20, 0.96)) !important;
+        }
+
+        .telecel-card {
+            background:
+                radial-gradient(circle at top right, rgba(239, 68, 68, 0.22), transparent 30%),
+                linear-gradient(135deg, rgba(42, 12, 18, 0.9), rgba(18, 11, 14, 0.96)) !important;
+        }
+
+        body.light-mode {
+            background:
+                radial-gradient(circle at top left, rgba(0,224,122,0.08), transparent 25%),
+                radial-gradient(circle at top right, rgba(157,78,221,0.1), transparent 20%),
+                linear-gradient(180deg, #fbfcfe 0%, #eef2f7 50%, #edf2f8 100%);
+            color: #162033;
+        }
+
+        body.light-mode .glass {
+            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(148,163,184,0.18);
+            box-shadow: 0 12px 36px rgba(4, 12, 22, 0.08);
+        }
+
+        body.light-mode .small-muted { color: #516074 !important; }
+        body.light-mode .text-slate-300 { color: #344256 !important; }
+        body.light-mode .text-white { color: #162033 !important; }
+        body.light-mode .bg-black\/20,
+        body.light-mode .bg-black\/30,
+        body.light-mode .bg-black\/40 { background-color: rgba(15, 23, 42, 0.05) !important; }
+        body.light-mode .border-white\/10,
+        body.light-mode .border-white\/5,
+        body.light-mode .border-white\/6 { border-color: rgba(100,116,139,0.16) !important; }
+        body.light-mode .price-tag {
+            background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(226,255,241,0.9)) !important;
+            border-left-color: #00b869 !important;
+        }
+        body.light-mode .trust-indicator,
+        body.light-mode .guarantee-badge,
+        body.light-mode .social-proof-badge,
+        body.light-mode .agent-launch-banner,
+        body.light-mode .whatsapp-channel-card,
+        body.light-mode .whatsapp-strip {
+            background: rgba(255,255,255,0.88);
+            border: 1px solid rgba(148,163,184,0.18);
+            box-shadow: 0 10px 30px rgba(15,23,42,0.06);
+        }
+        body.light-mode .promo-banner { color: #0f172a; }
+        body.light-mode .live-ticker {
+            background: linear-gradient(90deg, rgba(0,224,122,0.09), rgba(157,78,221,0.08));
+            border-left-color: rgba(0,184,105,0.55);
+        }
+        body.light-mode .hero-cta-secondary {
+            background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(240,249,255,0.92));
+            color: #162033 !important;
+            border-color: rgba(100,116,139,0.18);
+        }
+        body.light-mode .mtn-card {
+            background:
+                radial-gradient(circle at top right, rgba(255,204,0,0.28), transparent 30%),
+                linear-gradient(135deg, rgba(255,245,179,0.72), rgba(255,255,255,0.94)) !important;
+        }
+        body.light-mode .airtel-card {
+            background:
+                radial-gradient(circle at top right, rgba(14,165,233,0.18), transparent 30%),
+                radial-gradient(circle at bottom left, rgba(228,0,43,0.16), transparent 35%),
+                linear-gradient(135deg, rgba(240,249,255,0.94), rgba(255,238,243,0.92)) !important;
+        }
+        body.light-mode .telecel-card {
+            background:
+                radial-gradient(circle at top right, rgba(239,68,68,0.2), transparent 30%),
+                linear-gradient(135deg, rgba(255,241,242,0.95), rgba(255,255,255,0.92)) !important;
+        }
+
+        @media (max-width: 1024px) {
+            nav { padding-inline: 1rem !important; }
+            .mobile-hero-buttons { flex-direction: column; }
+        }
+
+        @media (max-width: 768px) {
+            .promo-banner { padding: 0.55rem 0.8rem; }
+            .promo-banner-inner { gap: 0.45rem; }
+            .promo-banner i { font-size: 0.82rem; }
+            .small-muted { font-size: 0.83rem !important; }
+            .discount-tag {
+                top: -0.55rem;
+                right: 0.65rem;
+                font-size: 0.68rem;
+                padding: 0.22rem 0.58rem;
+            }
+            .chart-container { min-height: 190px; }
+            .modal-scrollable {
+                max-height: 88vh;
+                padding: 1rem !important;
+                border-radius: 1rem !important;
+            }
+            .mobile-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .mobile-hero-stats > :first-child { grid-column: 1 / -1; }
+            .network-btn,
+            .network-filter-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 0.95rem;
+                padding: 0.85rem 1rem !important;
+            }
+            .cs-inline-bars {
+                height: 20px;
+                margin-bottom: 0.45rem;
+            }
+            .cs-inline-bars span { width: 4px; }
+            #agentComingSoonModal .cs-modal-bars span {
+                width: 6px;
+                height: 28px;
+                margin: 0 2px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            nav { gap: 0.75rem; }
+            .logo-home {
+                gap: 0.65rem !important;
+                min-width: 0;
+            }
+            .logo-home > div:last-child { min-width: 0; }
+            .logo-home .text-xl {
+                font-size: 1rem !important;
+                line-height: 1.1;
+            }
+            .buy-now-pill {
+                padding-left: 0.95rem !important;
+                padding-right: 3.15rem !important;
+            }
+            .buy-now-pill .btn-flare {
+                min-width: 1.7rem;
+                height: 1.7rem;
+                right: 0.3rem;
+                font-size: 0.72rem;
+            }
+            #home-section .max-w-7xl,
+            #bundles-section .max-w-7xl,
+            #testimonials-section .max-w-7xl,
+            #agent-section .max-w-7xl,
+            footer .max-w-7xl {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            #home-section .max-w-7xl,
+            #bundles-section .max-w-7xl,
+            #testimonials-section .max-w-7xl,
+            #agent-section .max-w-7xl {
+                padding-top: 1.15rem !important;
+                padding-bottom: 1.35rem !important;
+            }
+            #home-section h1 {
+                font-size: clamp(2.3rem, 10vw, 3.25rem) !important;
+                line-height: 0.98;
+            }
+            #home-section p.text-lg {
+                font-size: 0.98rem !important;
+                line-height: 1.55;
+            }
+            .guarantee-badge,
+            .trust-indicator,
+            .social-proof-badge { width: 100%; }
+            .featured-plans-grid,
+            #allBundles { gap: 1rem !important; }
+            .bundle-card { padding: 1rem !important; }
+            .bundle-card h3 { font-size: 1.05rem !important; }
+            .bundle-card .text-2xl { font-size: 1.5rem !important; }
+            .flash-badge,
+            .express-badge,
+            .speed-badge,
+            .standard-badge {
+                font-size: 0.62rem;
+                padding: 0.2rem 0.45rem;
+            }
+            .agent-launch-banner {
+                padding: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            .whatsapp-channel-card,
+            .whatsapp-strip { padding: 0.95rem !important; }
+            .whatsapp-channel-card .text-2xl,
+            .whatsapp-strip .text-2xl { font-size: 1.2rem !important; }
+            .section-title { margin-bottom: 0.6rem !important; }
+            .mobile-menu { padding: 1rem !important; }
+        }
     </style>
 </head>
 <body class="min-h-screen">
     <!-- Promo Banner -->
-    <div class="bg-gradient-to-r from-hubGreen to-neonPurple text-black py-2 px-4 text-center font-bold">
-        <div class="flex items-center justify-center gap-4 flex-wrap">
+    <div class="promo-banner bg-gradient-to-r from-hubGreen to-neonPurple text-black text-center font-bold">
+        <div class="promo-banner-inner">
             <i class="ri-flashlight-fill animate-bounce"></i>
-            <span>⚡ FLASH SALE: Get 20% OFF on first purchase! Use code: WELCOME20</span>
+            <span>FLASH SALE: Get 20% OFF on your first purchase.</span>
+            <span class="promo-code-pill">WELCOME20</span>
             <i class="ri-flashlight-fill animate-bounce"></i>
         </div>
     </div>
@@ -630,9 +964,9 @@
             <button onclick="switchSection('bundles')" class="px-4 py-2 rounded-full small-muted hover:bg-white/3 smooth-transition hidden md:block touch-target">
                 <i class="ri-compass-3-line mr-2"></i>Explore
             </button>
-            <button onclick="openBuyModal()" class="btn-green px-4 py-2 rounded-full font-semibold btn-enhanced smooth-transition relative touch-target">
+            <button onclick="openBuyModal()" class="btn-green buy-now-pill px-4 py-2 rounded-full font-semibold btn-enhanced smooth-transition relative touch-target">
                 <i class="ri-shopping-bag-line mr-2"></i>Buy Now
-                <span class="absolute -top-2 -right-2 bg-discountRed text-white text-xs px-2 py-1 rounded-full animate-pulse">🔥</span>
+                <span class="btn-flare animate-pulse">🔥</span>
             </button>
             
             <!-- Mobile Menu Button -->
@@ -722,7 +1056,7 @@
                     </div>
                 </div>
 
-                <div class="grid lg:grid-cols-2 gap-6 items-center py-10">
+                <div class="grid lg:grid-cols-2 gap-6 items-center py-8 md:py-10">
                     <!-- HERO LEFT -->
                     <div class="space-y-6">
                         <h1 class="text-5xl lg:text-6xl font-black leading-tight">
@@ -764,7 +1098,7 @@
                             <button onclick="openBuyModal()" class="btn-green px-6 py-3 rounded-full font-bold shadow-neon btn-enhanced smooth-transition flex-1 touch-target">
                                 <i class="ri-flashlight-line mr-2"></i>Buy Now - 20% OFF!
                             </button>
-                            <button onclick="switchSection('bundles')" class="px-6 py-3 rounded-full border border-white/6 glass small-muted hover:bg-white/5 smooth-transition flex-1 touch-target">
+                            <button onclick="switchSection('bundles')" class="hero-cta-secondary px-6 py-3 rounded-full glass font-semibold hover:bg-white/5 smooth-transition flex-1 touch-target">
                                 <i class="ri-eye-line mr-2"></i>View All Bundles
                             </button>
                         </div>
@@ -787,7 +1121,7 @@
                         </div>
 
                         <!-- Trust Indicators -->
-                        <div class="pt-4">
+                        <div class="pt-4 space-y-4">
                             <p class="text-sm small-muted mb-2">Trusted by students, businesses & streamers across Ghana:</p>
                             <div class="flex flex-wrap gap-3">
                                 <div class="trust-indicator">
@@ -803,11 +1137,23 @@
                                     <span>Streamers</span>
                                 </div>
                             </div>
+                            <a href="https://whatsapp.com/channel/0029VbBt1MGC6ZvlDJ8Biz3l" target="_blank" rel="noopener noreferrer" class="whatsapp-channel-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl p-4 smooth-transition card-hover">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-11 h-11 rounded-2xl bg-green-500/20 flex items-center justify-center shrink-0">
+                                        <i class="ri-whatsapp-line text-green-400 text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-base">Join our WhatsApp updates channel</div>
+                                        <p class="small-muted">Get promo drops, network updates, and bundle availability alerts without missing new deals.</p>
+                                    </div>
+                                </div>
+                                <span class="btn-green px-4 py-2 rounded-full font-semibold text-center whitespace-nowrap">Follow Channel</span>
+                            </a>
                         </div>
                     </div>
 
                     <!-- HERO RIGHT (Flash Deal) - FIXED DISCOUNT TAG -->
-                    <div class="glass rounded-xl p-6 neon-border card-hover smooth-transition float-animation relative bundle-card">
+                    <div class="glass rounded-xl p-6 neon-border card-hover smooth-transition float-animation relative bundle-card" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D');}">
                         <div class="discount-tag">20% OFF</div>
                         <div class="bundle-card-inner">
                             <div class="flex justify-between items-start">
@@ -876,15 +1222,14 @@
 
                 <!-- FEATURED PRODUCTS -->
                 <section class="mt-6">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                         <div>
                             <h2 class="text-2xl font-bold">🔥 Hot Deals This Week</h2>
                             <p class="small-muted">Most popular bundles with exclusive discounts</p>
                         </div>
-                        <div class="flex items-center gap-2 text-hubGreen">
-                            <i class="ri-fire-fill"></i>
-                            <span class="font-semibold">Trending Now</span>
-                        </div>
+                        <button onclick="switchSection('bundles')" class="btn-green px-5 py-3 rounded-full font-semibold btn-enhanced touch-target self-start sm:self-auto">
+                            <i class="ri-eye-line mr-2"></i>View All Bundles
+                        </button>
                     </div>
 
                     <div id="products" class="featured-plans-grid mt-6">
@@ -893,6 +1238,19 @@
                 </section>
 
                 <!-- DATA VISUALIZATION -->
+                <div class="whatsapp-strip rounded-2xl p-5 mt-10 mb-2 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div class="font-bold text-lg flex items-center gap-2">
+                            <i class="ri-megaphone-line text-green-400"></i>
+                            Product updates and support-first announcements
+                        </div>
+                        <p class="small-muted mt-1">Follow our WhatsApp channel for quick promo updates, service notices, and bundle highlights.</p>
+                    </div>
+                    <a href="https://whatsapp.com/channel/0029VbBt1MGC6ZvlDJ8Biz3l" target="_blank" rel="noopener noreferrer" class="btn-green px-5 py-3 rounded-full font-semibold touch-target whitespace-nowrap">
+                        <i class="ri-whatsapp-line mr-2"></i>Join WhatsApp Channel
+                    </a>
+                </div>
+
                 <section class="mt-12 grid md:grid-cols-3 gap-6">
                     <div class="glass p-6 rounded-xl neon-border card-hover smooth-transition">
                         <h3 class="font-bold mb-4 flex items-center gap-2">
@@ -930,8 +1288,8 @@
         <!-- TESTIMONIALS SECTION (fully preserved) -->
         <section id="testimonials-section" class="section-hidden">
             <div class="max-w-7xl mx-auto p-6 py-20">
-                <h2 class="text-4xl font-black text-center mb-4">What Our Customers Say</h2>
-                <p class="text-center small-muted mb-8">Rated 4.9/5 by 2,400+ happy users across Ghana</p>
+                <h2 class="section-title font-black text-center mb-4">What Our Customers Say</h2>
+                <p class="section-subtitle text-center small-muted mb-8">Rated 4.9/5 by 2,400+ happy users across Ghana</p>
 
                 <!-- Stats -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
@@ -970,8 +1328,8 @@
                 </div>
 
                 <!-- Testimonials Grid -->
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="glass p-6 rounded-xl neon-border card-hover">
+                <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div class="glass p-6 rounded-xl neon-border card-hover testimonial-card">
                         <div class="flex items-center gap-4 mb-4">
                             <div class="w-12 h-12 rounded-full bg-gradient-to-r from-hubGreen to-neonPurple flex items-center justify-center font-bold">
                                 KA
@@ -996,7 +1354,7 @@
                         </div>
                     </div>
 
-                    <div class="glass p-6 rounded-xl neon-border card-hover">
+                    <div class="glass p-6 rounded-xl neon-border card-hover testimonial-card">
                         <div class="flex items-center gap-4 mb-4">
                             <div class="w-12 h-12 rounded-full bg-gradient-to-r from-airtelRed to-pink-600 flex items-center justify-center font-bold">
                                 AS
@@ -1021,7 +1379,7 @@
                         </div>
                     </div>
 
-                    <div class="glass p-6 rounded-xl neon-border card-hover">
+                    <div class="glass p-6 rounded-xl neon-border card-hover testimonial-card">
                         <div class="flex items-center gap-4 mb-4">
                             <div class="w-12 h-12 rounded-full bg-gradient-to-r from-telecelBlue to-blue-600 flex items-center justify-center font-bold">
                                 KO
@@ -1043,6 +1401,81 @@
                         </p>
                         <div class="mt-4 pt-4 border-t border-white/10">
                             <div class="text-xs small-muted">Verified Purchase • Telecel Express 100GB</div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover testimonial-card">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center font-bold text-black">
+                                AF
+                            </div>
+                            <div>
+                                <div class="font-bold">Afia Mensah</div>
+                                <div class="text-sm small-muted">Nurse, Tema</div>
+                                <div class="text-yellow-400 text-sm">
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small-muted italic">
+                            "I buy late at night after shifts, so I needed something reliable. Payment was smooth and my MTN bundle landed before I even left the hospital gate."
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="text-xs small-muted">Verified Purchase • MTN Express 6GB</div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover testimonial-card">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 flex items-center justify-center font-bold text-white">
+                                YB
+                            </div>
+                            <div>
+                                <div class="font-bold">Yaw Boadi</div>
+                                <div class="text-sm small-muted">Online Seller, Kasoa</div>
+                                <div class="text-yellow-400 text-sm">
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small-muted italic">
+                            "What I like most is the clarity. The site tells you if it is instant or express, so you know what to expect. That honesty is why I keep coming back."
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="text-xs small-muted">Verified Purchase • AirtelTigo 12GB</div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-xl neon-border card-hover testimonial-card">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-red-500 flex items-center justify-center font-bold text-white">
+                                EN
+                            </div>
+                            <div>
+                                <div class="font-bold">Esi Nartey</div>
+                                <div class="text-sm small-muted">Student, Cape Coast</div>
+                                <div class="text-yellow-400 text-sm">
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-fill"></i>
+                                    <i class="ri-star-half-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small-muted italic">
+                            "The prices are student-friendly and the site works properly on my phone. I used the flash offer and it was exactly what showed on the page."
+                        </p>
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <div class="text-xs small-muted">Verified Purchase • Flash Deal 5GB</div>
                         </div>
                     </div>
                 </div>
@@ -1121,8 +1554,8 @@
         <!-- BUNDLES SECTION (fully preserved) -->
         <section id="bundles-section" class="section-hidden">
             <div class="max-w-7xl mx-auto p-6 py-20">
-                <h2 class="text-4xl font-black text-center mb-4">All Data Bundles</h2>
-                <p class="text-center small-muted mb-8">⚡ Express (5-45min) or Instant – choose your speed</p>
+                <h2 class="section-title font-black text-center mb-4">All Data Bundles</h2>
+                <p class="section-subtitle text-center small-muted mb-8">⚡ Express (5-45min) or Instant – choose your speed</p>
                 
                 <!-- Speed Guarantee Banner -->
                 <div class="glass p-6 rounded-2xl mb-12 border-2 border-hubGreen text-center">
@@ -1166,14 +1599,14 @@
         <!-- AGENT SECTION (Updated: referral removed, button links to agent-register.html, FAQ filled) -->
         <section id="agent-section" class="section-hidden">
             <div class="max-w-7xl mx-auto p-6 py-20">
-                <h2 class="text-4xl font-black text-center mb-4">Become a Certified Bundle Agent</h2>
-                <p class="text-center small-muted mb-6">Join our elite network of data bundle resellers and earn unlimited commissions</p>
+                <h2 class="section-title font-black text-center mb-4">Become a Certified Bundle Agent</h2>
+                <p class="section-subtitle text-center small-muted mb-6">Launch your own bundle resale side business with guided pricing, a simple dashboard, and a clean withdrawal flow.</p>
                 <div class="agent-launch-banner max-w-2xl mx-auto rounded-xl p-5 mb-10 text-center">
                     <div class="cs-inline-bars" aria-hidden="true">
                         <span></span><span></span><span></span><span></span>
                     </div>
                     <p class="text-hubGreen font-bold text-sm md:text-base">Agents launching soon 🚀</p>
-                    <p class="text-gray-400 text-xs md:text-sm mt-2">Agent portal under construction — stay tuned. Want to become an agent? Launching soon!</p>
+                    <p class="text-gray-400 text-xs md:text-sm mt-2">The public storefront is live now. The agent experience is being polished so resellers can launch with a smoother dashboard, pricing tools, and payout flow from day one.</p>
                 </div>
 
                 <!-- Single Agent Plan -->
@@ -1192,41 +1625,56 @@
                     <ul class="space-y-4 mb-8">
                         <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
                             <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
-                            <span class="font-semibold">Set Your Own Prices + Profit Margin</span>
+                            <span class="font-semibold">Set your own bundle prices and keep your markup</span>
                         </li>
                         <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
                             <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
-                            <span class="font-semibold">Personal Store Link & Branding</span>
+                            <span class="font-semibold">Personal store link you can share on WhatsApp, Telegram, or status</span>
                         </li>
                         <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
                             <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
-                            <span class="font-semibold">Advanced Dashboard with Analytics</span>
+                            <span class="font-semibold">Dashboard access for sales, earnings, bundle pricing, and balance tracking</span>
                         </li>
                         <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
                             <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
-                            <span class="font-semibold">Priority 24/7 Support</span>
+                            <span class="font-semibold">Priority support during onboarding and customer order follow-up</span>
                         </li>
                         <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
                             <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
-                            <span class="font-semibold">Real-time Sales Analytics</span>
+                            <span class="font-semibold">Simple withdrawal request flow to your MoMo number when balance is ready</span>
                         </li>
                         <li class="flex items-center gap-3 p-3 rounded-lg bg-white/5 card-hover smooth-transition">
                             <i class="ri-checkbox-circle-line text-green-400 text-xl"></i>
-                            <span class="font-semibold">Earn ₵15 per agent referral</span>
+                            <span class="font-semibold">Referral upside when you bring in other serious agents</span>
                         </li>
                     </ul>
+
+                    <div class="grid sm:grid-cols-3 gap-3 mb-8 text-left">
+                        <div class="glass p-4 rounded-xl">
+                            <div class="text-xs uppercase tracking-wide text-hubGreen font-bold mb-1">1. Sell</div>
+                            <p class="small-muted">Share your store link or take customer orders directly from your phone.</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl">
+                            <div class="text-xs uppercase tracking-wide text-hubGreen font-bold mb-1">2. Earn</div>
+                            <p class="small-muted">Your margin is tracked on each successful order inside your dashboard.</p>
+                        </div>
+                        <div class="glass p-4 rounded-xl">
+                            <div class="text-xs uppercase tracking-wide text-hubGreen font-bold mb-1">3. Withdraw</div>
+                            <p class="small-muted">Request payout to your MoMo number once your available balance qualifies.</p>
+                        </div>
+                    </div>
                     
                     <a href="#" role="button" title="Launching Q2 2026 — get ready!" class="coming-soon-agent-btn w-full btn-green py-4 rounded-xl font-bold text-lg btn-enhanced smooth-transition touch-target inline-block text-center" onclick="event.preventDefault(); comingSoon('Pro Agent signup');">
                         <i class="ri-star-line mr-2"></i>Become a Pro Agent - ₵45 Only!
                     </a>
-                    <p class="text-center text-sm text-gray-500 mt-4">One-time payment • Lifetime access • Unlimited earnings</p>
+                    <p class="text-center text-sm text-gray-500 mt-4">One-time payment • Dashboard access • Resell bundles with your own pricing</p>
                 </div>
 
                 <!-- Success Stories -->
                 <div class="text-center mt-16">
                     <h3 class="text-2xl font-bold mb-8">Our Successful Agents</h3>
                     <div class="grid md:grid-cols-3 gap-6">
-                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition relative">
+                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition relative agent-story-card">
                             <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">
                                 #1 Top Agent
                             </div>
@@ -1238,7 +1686,7 @@
                             <div class="text-hubGreen font-semibold text-xl">₵12,450 earned</div>
                             <div class="text-xs text-gray-500 mt-1">ROI: 27,667% • 312 sales this month</div>
                         </div>
-                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition">
+                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition agent-story-card">
                             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
                                 <i class="ri-user-3-line text-2xl text-white"></i>
                             </div>
@@ -1247,7 +1695,7 @@
                             <div class="text-hubGreen font-semibold text-xl">₵7,890 earned</div>
                             <div class="text-xs text-gray-500 mt-1">ROI: 17,533% • 189 sales</div>
                         </div>
-                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition">
+                        <div class="glass p-6 rounded-xl text-center card-hover smooth-transition agent-story-card">
                             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-400 to-cyan-500 flex items-center justify-center">
                                 <i class="ri-user-3-line text-2xl text-white"></i>
                             </div>
@@ -1268,42 +1716,42 @@
                                 <i class="ri-money-dollar-circle-line text-hubGreen"></i>
                                 How much can I earn?
                             </div>
-                            <p class="text-sm text-gray-400">Our top agents earn ₵8,000+ monthly. With just 20 sales daily at ₵15 profit each, you'll make ₵9,000 monthly!</p>
+                            <p class="text-sm text-gray-400">Your earnings depend on your markup and sales volume. The idea is simple: resell bundles, keep your margin, and grow repeat buyers over time.</p>
                         </div>
                         <div>
                             <div class="font-semibold mb-2 flex items-center gap-2">
                                 <i class="ri-bill-line text-hubGreen"></i>
                                 Is the fee one-time?
                             </div>
-                            <p class="text-sm text-gray-400">Yes! Pay ₵45 once and earn commissions forever. No monthly fees or hidden charges.</p>
+                            <p class="text-sm text-gray-400">The current offer is positioned as a one-time onboarding payment for agent access. No recurring dashboard fee is advertised on this page.</p>
                         </div>
                         <div>
                             <div class="font-semibold mb-2 flex items-center gap-2">
                                 <i class="ri-wallet-line text-hubGreen"></i>
                                 When do I get paid?
                             </div>
-                            <p class="text-sm text-gray-400">Withdraw your earnings anytime to your MoMo account. Minimum withdrawal: ₵5.</p>
+                            <p class="text-sm text-gray-400">The planned flow is simple: track available balance in your dashboard, submit a withdrawal request, and receive payment to your MoMo number once approved.</p>
                         </div>
                         <div>
                             <div class="font-semibold mb-2 flex items-center gap-2">
                                 <i class="ri-customer-service-line text-hubGreen"></i>
                                 What support do I get?
                             </div>
-                            <p class="text-sm text-gray-400">24/7 WhatsApp support, marketing materials, and sales training included.</p>
+                            <p class="text-sm text-gray-400">You get onboarding help, promotional support, and guidance on how to position bundles to customers while the agent portal matures.</p>
                         </div>
                         <div>
                             <div class="font-semibold mb-2 flex items-center gap-2">
                                 <i class="ri-smartphone-line text-hubGreen"></i>
                                 Can I resell via WhatsApp/Telegram?
                             </div>
-                            <p class="text-sm text-gray-400">Absolutely! Many agents run their own channels. We give you a store link and you can sell anywhere.</p>
+                            <p class="text-sm text-gray-400">Yes. The intended model is flexible: share your store link, post offers on status, and close sales through the channels your customers already use.</p>
                         </div>
                         <div>
                             <div class="font-semibold mb-2 flex items-center gap-2">
                                 <i class="ri-refund-line text-hubGreen"></i>
                                 What if a customer is unhappy?
                             </div>
-                            <p class="text-sm text-gray-400">We handle refunds and support – you just focus on selling. We guarantee all orders.</p>
+                            <p class="text-sm text-gray-400">Customers should still feel supported. The goal is a reseller setup where order flow is easy to manage and support stays centralized where needed.</p>
                         </div>
                     </div>
                 </div>
@@ -1328,6 +1776,18 @@
     <!-- FOOTER (added Agent Login & Admin Login) -->
     <footer class="mt-16 py-8 glass">
         <div class="max-w-7xl mx-auto px-6">
+            <div class="whatsapp-strip rounded-2xl p-5 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <div class="font-bold text-lg flex items-center gap-2">
+                        <i class="ri-whatsapp-line text-green-400"></i>
+                        Join the Mystery Bundle Hub WhatsApp channel
+                    </div>
+                    <p class="small-muted mt-1">Follow for updates, restocks, promo alerts, and quick support announcements.</p>
+                </div>
+                <a href="https://whatsapp.com/channel/0029VbBt1MGC6ZvlDJ8Biz3l" target="_blank" rel="noopener noreferrer" class="btn-green px-5 py-3 rounded-full font-semibold touch-target whitespace-nowrap">
+                    Follow Channel
+                </a>
+            </div>
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <div class="text-xl font-extrabold mb-4">Mystery <span class="accent">Bundle</span> Hub</div>
@@ -1347,6 +1807,7 @@
                     <ul class="space-y-2 text-sm small-muted">
                         <li><a href="#" onclick="switchSection('support')" class="hover:text-hubGreen">Help Center</a></li>
                         <li><a href="#" onclick="contactSupport()" class="hover:text-hubGreen">WhatsApp Support</a></li>
+                        <li><a href="https://whatsapp.com/channel/0029VbBt1MGC6ZvlDJ8Biz3l" target="_blank" rel="noopener noreferrer" class="hover:text-hubGreen">WhatsApp Channel</a></li>
                         <li><a href="#" onclick="emailSupport()" class="hover:text-hubGreen">Email Support</a></li>
                         <li><a href="#" onclick="callSupport()" class="hover:text-hubGreen">Call Us</a></li>
                     </ul>
@@ -1432,7 +1893,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email (Optional)</label>
                     <input id="emailInput" type="email" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="your@email.com" />
                 </div>
 
@@ -1534,7 +1995,11 @@
         };
 
         // Local port must match Backend PORT in .env (default 5000 if PORT unset)
-        const BASE_URL = 'https://mysterydatahub-api.onrender.com/api';
+        const BASE_URL =
+            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000/api'
+                : '/api';
+
         // ==================== NETWORK STATUS HANDLER ====================
         async function fetchNetworkStatus() {
             try {
@@ -1817,7 +2282,7 @@
                 const isInstant = product.instant || false;
                 const isExpress = product.express || false;
                 return `
-                    <div class="glass rounded-xl p-6 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative">
+                    <div class="glass rounded-xl p-6 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}');}">
                         ${product.discount ? '<div class="discount-tag">' + product.discount + '</div>' : ''}
                         <div class="bundle-card-inner">
                             <div class="flex justify-between items-start mb-4">
@@ -1880,6 +2345,10 @@
             const deliveryTime = bundle.delivery || '5-45min';
             card.className = `glass rounded-xl p-6 bundle-card card-hover smooth-transition ${borderClass} ${networkClass} relative`;
             card.setAttribute('data-network', network);
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('onclick', `if(event.target.closest('button')) return; quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}')`);
+            card.setAttribute('onkeydown', `if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}');}`);
             card.innerHTML = `
                 <div class="bundle-card-inner">
                     <div class="flex items-start justify-between mb-4">
@@ -2036,64 +2505,6 @@
             }
             await confirmPurchase(phone, email, operator, planText, productCode);
         }
-
-        async function confirmPurchase(phone, email, operator, planText, productCode) {
-            showLoading();
-            const confirmBtn = document.getElementById('confirmBuy');
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Redirecting to Paystack...';
-            try {
-                if (!productCode || String(productCode).trim() === '') {
-                    throw new Error('Please select a valid bundle');
-                }
-                const payload = { phone, bundle: productCode };
-                if (email && email !== 'customer@mysterybundlehub.com' && validateEmail(email)) {
-                    payload.email = email;
-                }
-                const payRes = await fetch(`${BASE_URL}/payment/initialize`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const payJson = await payRes.json().catch(() => ({}));
-                if (!payRes.ok) {
-                    throw new Error(payJson.message || `Payment could not start (${payRes.status})`);
-                }
-                const authUrl = payJson.data?.authorization_url;
-                const reference = payJson.data?.reference;
-                if (!authUrl) {
-                    throw new Error('No Paystack authorization URL returned');
-                }
-                try {
-                    localStorage.setItem('lastOrder', JSON.stringify({
-                        phone,
-                        operator,
-                        planText,
-                        reference,
-                        productCode
-                    }));
-                } catch (e) { /* ignore */ }
-                window.location.href = authUrl;
-            } catch (error) {
-                console.error('Payment init error:', error);
-                hideLoading();
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
-                showStatus(error.message || 'Could not start payment', 'error');
-            }
-        }
-
-        function validatePhoneNumber(phone) {
-            const phoneRegex = /^(0|\+233)[235]\d{8}$/;
-            return phoneRegex.test(phone);
-        }
-
-        function validateEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        async function verifyPayment(reference, isNewCustomer) {}
 
         // Support functions
         function contactSupport() { window.open('https://wa.me/233592066298', '_blank'); }
