@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 {
   "type": "module",
   "name": "mystery-bundle-hub-backend",
@@ -26,31 +25,3 @@
     "nodemon": "^3.0.1"
   }
 }
-=======
-{
-  "type": "module",
-  "name": "mystery-bundle-hub-backend",
-  "version": "1.0.0",
-  "description": "Backend for Mystery Bundle Hub - mobile data bundles platform",
-  "main": "src/server.js",
-  "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
-    "dotenv": "^16.3.1",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
-    "axios": "^1.5.0",
-    "cors": "^2.8.5",
-    "express-rate-limit": "^6.10.0",
-    "helmet": "^7.0.0",
-    "morgan": "^1.10.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  }
-}
->>>>>>> 17650113d203b4fa03334b3c02a071453522cc77
