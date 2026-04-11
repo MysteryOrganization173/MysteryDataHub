@@ -2006,7 +2006,7 @@
         const BASE_URL = (() => {
             const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             if (window.location.protocol === 'file:' || isLocalHost) return 'http://localhost:3000/api';
-            return 'https://mysterybundlehub.com/api';
+            return 'https://mysterydatahub-api.onrender.com/api';
         })();
         console.log('[Payment] BASE_URL resolved:', BASE_URL);
 

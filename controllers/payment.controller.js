@@ -69,7 +69,9 @@ function isValidHttpsUrl(urlString) {
 }
 
 function getPublicBaseUrl() {
-  return String(process.env.FRONTEND_URL || '').trim().replace(/\/$/, '');
+  return String(process.env.FRONTEND_URL || 'https://mysterybundlehub.com')
+    .trim()
+    .replace(/\/$/, '');
 }
 
 function getPaystackErrorMessage(error) {
@@ -172,7 +174,7 @@ export const initializePayment = async (req, res) => {
       return res.status(503).json({
         success: false,
         status: 'error',
-        message: 'FRONTEND_URL is required for Paystack callback (e.g. https://yourdomain.com)'
+        message: 'FRONTEND_URL is required for Paystack callback (e.g. https://mysterybundlehub.com)'
       });
     }
 
