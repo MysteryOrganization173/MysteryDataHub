@@ -3,7 +3,10 @@ import { initializePayment, verifyPayment, webhook } from '../controllers/paymen
 
 const router = express.Router();
 
-router.post('/initialize', initializePayment);
+router.post('/initialize', (req, res, next) => {
+  console.log('[payment.route] POST /api/payment/initialize hit');
+  return next();
+}, initializePayment);
 router.get('/verify/:reference', verifyPayment);
 router.post('/webhook', webhook);
 

@@ -1,6 +1,12 @@
 import mongoose from 'mongoose';
 
+function generateOrderId() {
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ORD-${Date.now()}-${rand}`;
+}
+
 const orderSchema = new mongoose.Schema({
+  orderId: { type: String, required: true, unique: true, index: true },
   reference: { type: String, required: true, unique: true },
   customerPhone: { type: String, required: true },
   customerEmail: String,
@@ -17,6 +23,13 @@ const orderSchema = new mongoose.Schema({
   paystackResponse: Object,
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date
+});
+
+orderSchema.pre('validate', function ensureOrderId(next) {
+  if (!this.orderId) {
+    this.orderId = generateOrderId();
+  }
+  next();
 });
 
 export const Order = mongoose.model('Order', orderSchema);

@@ -14,6 +14,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const corsOptions = { origin: process.env.CORS_ORIGIN?.split(','), credentials: true };
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -21,7 +22,8 @@ const limiter = rateLimit({
 });
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN?.split(','), credentials: true }));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(morgan('dev'));
 app.use(
   express.json({

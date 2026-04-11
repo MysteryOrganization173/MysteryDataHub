@@ -6,6 +6,14 @@ import { fulfillOrder } from '../services/fulfillment.service.js';
 
 const paystackBase = () => process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co';
 
+function paymentLog(level, stage, message, meta = {}) {
+  const payload = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
+  const text = `[payment.${stage}] ${message}${payload}`;
+  if (level === 'error') return console.error(text);
+  if (level === 'warn') return console.warn(text);
+  return console.info(text);
+}
+
 function normalizeGhanaPhone(input) {
   if (input === undefined || input === null) return null;
   let p = String(input).trim().replace(/\s/g, '');
@@ -22,6 +30,77 @@ function isValidBundleCode(code) {
 
 function isValidReferenceParam(ref) {
   return ref && typeof ref === 'string' && /^[A-Za-z0-9._-]{6,128}$/.test(ref);
+}
+
+function isValidHttpUrl(value) {
+  try {
+    const url = new URL(String(value || '').trim());
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function getFrontendBaseUrl() {
+  return String(process.env.FRONTEND_URL || '').trim().replace(/\/$/, '');
+}
+
+function generateOrderId() {
+  const rand = crypto.randomBytes(2).toString('hex').toUpperCase();
+  return `ORD-${Date.now()}-${rand}`;
+}
+
+async function createPendingOrderWithRetry(payload, maxAttempts = 3) {
+  let attempt = 0;
+  while (attempt < maxAttempts) {
+    attempt += 1;
+    const orderId = generateOrderId();
+    try {
+      return await Order.create({ ...payload, orderId });
+    } catch (err) {
+      const isDuplicateOrderId =
+        err?.code === 11000 &&
+        (err?.keyPattern?.orderId || err?.keyValue?.orderId !== undefined || /orderId/i.test(err?.message || ''));
+      if (!isDuplicateOrderId || attempt >= maxAttempts) {
+        throw err;
+      }
+      paymentLog('warn', 'initialize', 'orderId collision, retrying', { attempt, orderId });
+    }
+  }
+  throw new Error('Unable to allocate unique orderId');
+}
+
+function validateVerifiedPaymentForOrder({ reference, payment, order, stage }) {
+  if (!payment || typeof payment !== 'object') {
+    return { ok: false, status: 502, message: 'Invalid verification payload from Paystack' };
+  }
+
+  if (payment.reference !== reference) {
+    paymentLog('warn', stage, 'reference mismatch', {
+      reference,
+      paystackReference: payment.reference
+    });
+    return { ok: false, status: 409, message: 'Payment reference mismatch' };
+  }
+
+  const expectedAmount = Math.round(Number(order.amount || 0) * 100);
+  const paidAmount = Number(payment.amount || 0);
+  if (!Number.isFinite(expectedAmount) || expectedAmount <= 0 || paidAmount !== expectedAmount) {
+    paymentLog('warn', stage, 'amount mismatch', {
+      reference,
+      expectedAmount,
+      paidAmount
+    });
+    return { ok: false, status: 409, message: 'Payment amount mismatch' };
+  }
+
+  const currency = String(payment.currency || '').toUpperCase();
+  if (currency && currency !== 'GHS') {
+    paymentLog('warn', stage, 'currency mismatch', { reference, currency });
+    return { ok: false, status: 409, message: 'Payment currency mismatch' };
+  }
+
+  return { ok: true };
 }
 
 export function verifyPaystackWebhookSignature(rawBodyBuffer, signature) {
@@ -42,7 +121,8 @@ async function markOrderPaidFromPaystack(reference, paystackTransaction) {
       $set: {
         status: 'paid',
         paymentStatus: 'success',
-        paystackResponse: paystackTransaction
+        paystackResponse: paystackTransaction,
+        updatedAt: new Date()
       }
     },
     { new: true }
@@ -51,6 +131,7 @@ async function markOrderPaidFromPaystack(reference, paystackTransaction) {
 
 export const initializePayment = async (req, res) => {
   try {
+    console.log('[payment.controller] initializePayment invoked');
     if (!process.env.PAYSTACK_SECRET_KEY) {
       return res.status(503).json({
         success: false,
@@ -95,17 +176,25 @@ export const initializePayment = async (req, res) => {
       email = `customer+${reference.replace(/[^a-zA-Z0-9]/g, '')}@mysterybundlehub.com`;
     }
 
-    const publicBase = (process.env.FRONTEND_URL || process.env.BASE_URL || '').replace(/\/$/, '');
-    if (!publicBase) {
+    const frontendBase = getFrontendBaseUrl();
+    if (!frontendBase) {
       return res.status(503).json({
         success: false,
         status: 'error',
-        message: 'Set BASE_URL or FRONTEND_URL for Paystack callback (e.g. https://yoursite.com)'
+        message: 'FRONTEND_URL is required for Paystack callback (e.g. https://yourdomain.com)'
       });
     }
-    const callback_url = `${publicBase}/success.html`;
+    if (!isValidHttpUrl(frontendBase)) {
+      return res.status(500).json({
+        success: false,
+        status: 'error',
+        message: 'FRONTEND_URL must be a valid absolute URL'
+      });
+    }
+    const callback_url = `${frontendBase}/success.html`;
+    paymentLog('info', 'initialize', 'using frontend callback', { callback_url });
 
-    await Order.create({
+    await createPendingOrderWithRetry({
       reference,
       customerPhone: phoneNorm,
       customerEmail: email,
@@ -152,7 +241,11 @@ export const initializePayment = async (req, res) => {
 
     const ps = paystackRes.data;
     if (!ps.status || !ps.data?.authorization_url) {
-      console.error('Paystack initialize unexpected:', ps);
+      paymentLog('error', 'initialize', 'unexpected initialize response', {
+        reference,
+        paystackStatus: ps?.status,
+        paystackMessage: ps?.message
+      });
       await Order.deleteOne({ reference });
       return res.status(502).json({
         success: false,
@@ -172,8 +265,13 @@ export const initializePayment = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('initializePayment:', error.response?.data || error.message);
-    return res.status(500).json({
+    paymentLog('error', 'initialize', 'initialize failed', {
+      paystackStatus: error.response?.status,
+      paystackMessage: error.response?.data?.message,
+      error: error.message
+    });
+    const statusCode = error.response ? 502 : 500;
+    return res.status(statusCode).json({
       success: false,
       status: 'error',
       message: error.response?.data?.message || 'Payment initialization failed'
@@ -200,6 +298,15 @@ export const verifyPayment = async (req, res) => {
       });
     }
 
+    const existingOrder = await Order.findOne({ reference });
+    if (!existingOrder) {
+      return res.status(404).json({
+        success: false,
+        status: 'error',
+        message: 'Order not found for this payment'
+      });
+    }
+
     const paystackRes = await axios.get(
       `${paystackBase()}/transaction/verify/${encodeURIComponent(reference)}`,
       { headers: { Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}` } }
@@ -208,10 +315,29 @@ export const verifyPayment = async (req, res) => {
     const payload = paystackRes.data;
     const payment = payload?.data;
     if (!payload?.status || payment?.status !== 'success') {
+      paymentLog('warn', 'verify', 'verification not successful', {
+        reference,
+        paystackStatus: payment?.status,
+        gatewayResponse: payment?.gateway_response
+      });
       return res.status(402).json({
         success: false,
         status: 'error',
         message: payment?.gateway_response || payload?.message || 'Payment not successful'
+      });
+    }
+
+    const guard = validateVerifiedPaymentForOrder({
+      reference,
+      payment,
+      order: existingOrder,
+      stage: 'verify'
+    });
+    if (!guard.ok) {
+      return res.status(guard.status).json({
+        success: false,
+        status: 'error',
+        message: guard.message
       });
     }
 
@@ -263,16 +389,26 @@ export const verifyPayment = async (req, res) => {
       data: payment,
       order: fresh
         ? {
+            orderId: fresh.orderId,
             reference: fresh.reference,
+            status: fresh.status,
             deliveryStatus: fresh.deliveryStatus,
             bundleCode: fresh.bundleCode,
-            customerPhone: fresh.customerPhone
+            customerPhone: fresh.customerPhone,
+            network: fresh.network,
+            amount: fresh.amount,
+            createdAt: fresh.createdAt
           }
         : undefined,
       fulfillment: fulfillmentNote
     });
   } catch (error) {
-    console.error('verifyPayment:', error.response?.data || error.message);
+    paymentLog('error', 'verify', 'verification endpoint failed', {
+      reference: req?.params?.reference,
+      paystackStatus: error.response?.status,
+      paystackMessage: error.response?.data?.message,
+      error: error.message
+    });
     if (error.response?.status === 404) {
       return res.status(404).json({
         success: false,
@@ -280,7 +416,7 @@ export const verifyPayment = async (req, res) => {
         message: 'Transaction not found'
       });
     }
-    return res.status(500).json({
+    return res.status(error.response ? 502 : 500).json({
       success: false,
       status: 'error',
       message: error.response?.data?.message || error.message
@@ -292,7 +428,7 @@ export const webhook = async (req, res) => {
   try {
     const signature = req.headers['x-paystack-signature'];
     if (!verifyPaystackWebhookSignature(req.rawBody, signature)) {
-      console.warn('Paystack webhook: invalid signature');
+      paymentLog('warn', 'webhook', 'invalid signature');
       return res.sendStatus(401);
     }
 
@@ -303,6 +439,7 @@ export const webhook = async (req, res) => {
 
     const reference = event?.data?.reference;
     if (!reference || typeof reference !== 'string') {
+      paymentLog('warn', 'webhook', 'missing reference in event');
       return res.sendStatus(200);
     }
 
@@ -316,7 +453,26 @@ export const webhook = async (req, res) => {
     );
     const payment = paystackRes.data?.data;
     if (payment?.status !== 'success') {
-      console.warn('webhook: Paystack verify not success for', reference);
+      paymentLog('warn', 'webhook', 'verify not successful', {
+        reference,
+        paystackStatus: payment?.status
+      });
+      return res.sendStatus(200);
+    }
+
+    const existingOrder = await Order.findOne({ reference });
+    if (!existingOrder) {
+      paymentLog('warn', 'webhook', 'order not found', { reference });
+      return res.sendStatus(200);
+    }
+
+    const guard = validateVerifiedPaymentForOrder({
+      reference,
+      payment,
+      order: existingOrder,
+      stage: 'webhook'
+    });
+    if (!guard.ok) {
       return res.sendStatus(200);
     }
 
@@ -332,7 +488,11 @@ export const webhook = async (req, res) => {
 
     return res.sendStatus(200);
   } catch (e) {
-    console.error('webhook:', e);
+    paymentLog('error', 'webhook', 'webhook handler failed', {
+      error: e.message,
+      paystackStatus: e.response?.status,
+      paystackMessage: e.response?.data?.message
+    });
     return res.sendStatus(500);
   }
 };

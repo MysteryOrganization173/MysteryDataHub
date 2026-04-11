@@ -77,7 +77,11 @@
     <div id="paymentDetails" class="mb-6 space-y-3 text-left">
       <div class="flex justify-between">
         <span class="text-gray-400">Status:</span>
-        <span class="font-semibold text-green-500">Verified</span>
+        <span class="font-semibold text-green-500" id="verificationStatus">Verified</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-gray-400">Delivery:</span>
+        <span class="font-semibold" id="deliveryStatus">Pending</span>
       </div>
       <div class="flex justify-between">
         <span class="text-gray-400">Amount:</span>
@@ -157,10 +161,13 @@
   </div>
 
   <script>
-    const API_ORIGIN =
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:3000'
-        : '';
+    const API_BASE = (() => {
+      const fromStorage = localStorage.getItem('apiBase');
+      if (fromStorage) return fromStorage.replace(/\/$/, '');
+      return (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000/api'
+        : 'https://mysterybundlehub.com/api';
+    })();
     let paymentRef = null;
     let retryCount = 0;
     const MAX_RETRIES = 3;
@@ -184,7 +191,7 @@
         
         // Auto-retry after 5 seconds if still loading
         setTimeout(() => {
-          if (document.getElementById('loadingContainer').style.display !== 'none') {
+          if (!document.getElementById('loadingContainer').classList.contains('hidden')) {
             console.log('⏱️ Auto-retry verification...');
             retryVerification();
           }
@@ -201,7 +208,7 @@
         document.getElementById('successContainer').classList.add('hidden');
         document.getElementById('errorContainer').classList.add('hidden');
         
-        const res = await fetch(`${API_ORIGIN}/api/payment/verify/${encodeURIComponent(ref)}`, {
+        const res = await fetch(`${API_BASE}/payment/verify/${encodeURIComponent(ref)}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -240,10 +247,17 @@
         if (isSuccess) {
           console.log('🎉 Payment verified successfully');
           showSuccessState(paymentData);
+          updateStatuses(data.order);
           const note = document.getElementById('deliveryNote');
           if (data.order?.deliveryStatus === 'failed') {
             note.textContent =
               'Your payment was received, but automatic delivery reported an issue. Please contact support with your reference below.';
+            note.classList.remove('hidden');
+          } else if (data.order?.deliveryStatus === 'processing' || data.order?.deliveryStatus === 'pending') {
+            note.textContent = 'Your payment is confirmed and your data is being delivered now. This usually takes a few seconds.';
+            note.classList.remove('hidden');
+          } else if (data.order?.deliveryStatus === 'delivered') {
+            note.textContent = 'Your data has been delivered successfully. In some cases, your network may take a few extra minutes to reflect your balance.';
             note.classList.remove('hidden');
           } else {
             note.classList.add('hidden');
@@ -265,13 +279,14 @@
         console.error("❌ Verification error:", error);
         
         // Different error messages based on error type
-        let errorMessage = "Unable to verify payment. ";
-        if (error.message.includes('network') || error.message.includes('fetch')) {
-          errorMessage += "Please check your internet connection.";
-        } else if (error.message.includes('500') || error.message.includes('server')) {
-          errorMessage += "Server error. Please try again in a moment.";
-        } else {
-          errorMessage += "Please contact support.";
+        const rawMessage = String(error?.message || '').trim();
+        let errorMessage = rawMessage;
+        if (/network|fetch/i.test(rawMessage)) {
+          errorMessage = "Unable to verify payment. Please check your internet connection.";
+        } else if (/\b5\d{2}\b/.test(rawMessage) || /server/i.test(rawMessage)) {
+          errorMessage = "Server error. Please try again in a moment.";
+        } else if (!errorMessage) {
+          errorMessage = "Unable to verify payment. Please contact support.";
         }
         
         showErrorState(errorMessage);
@@ -385,6 +400,17 @@
           hour: '2-digit',
           minute: '2-digit'
         });
+      }
+    }
+
+    function updateStatuses(order) {
+      const statusEl = document.getElementById('verificationStatus');
+      const deliveryEl = document.getElementById('deliveryStatus');
+      if (statusEl) {
+        statusEl.textContent = order?.status ? order.status.toUpperCase() : 'VERIFIED';
+      }
+      if (deliveryEl) {
+        deliveryEl.textContent = order?.deliveryStatus ? order.deliveryStatus.toUpperCase() : 'PENDING';
       }
     }
 

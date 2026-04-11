@@ -34,17 +34,42 @@ function isValidReferenceParam(ref) {
   return ref && typeof ref === 'string' && /^[A-Za-z0-9._-]{6,128}$/.test(ref);
 }
 
+function generateOrderId() {
+  const rand = crypto.randomBytes(2).toString('hex').toUpperCase();
+  return `ORD-${Date.now()}-${rand}`;
+}
+
+async function createPendingOrderWithRetry(payload, maxAttempts = 3) {
+  let attempt = 0;
+  while (attempt < maxAttempts) {
+    attempt += 1;
+    const orderId = generateOrderId();
+    try {
+      return await Order.create({ ...payload, orderId });
+    } catch (err) {
+      const isDuplicateOrderId =
+        err?.code === 11000 &&
+        (err?.keyPattern?.orderId || err?.keyValue?.orderId !== undefined || /orderId/i.test(err?.message || ''));
+      if (!isDuplicateOrderId || attempt >= maxAttempts) {
+        throw err;
+      }
+      console.warn('orderId collision, retrying', { attempt, orderId });
+    }
+  }
+  throw new Error('Unable to allocate unique orderId');
+}
+
 function isValidHttpsUrl(urlString) {
   try {
     const url = new URL(urlString);
-    return url.protocol === 'https:';
+    return url.protocol === 'https:' || url.protocol === 'http:';
   } catch {
     return false;
   }
 }
 
 function getPublicBaseUrl() {
-  return (process.env.FRONTEND_URL || process.env.BASE_URL || '').replace(/\/$/, '');
+  return String(process.env.FRONTEND_URL || '').trim().replace(/\/$/, '');
 }
 
 function getPaystackErrorMessage(error) {
@@ -147,15 +172,15 @@ export const initializePayment = async (req, res) => {
       return res.status(503).json({
         success: false,
         status: 'error',
-        message: 'Set FRONTEND_URL or BASE_URL for Paystack callback (e.g. https://yoursite.com)'
+        message: 'FRONTEND_URL is required for Paystack callback (e.g. https://yourdomain.com)'
       });
     }
 
-    if (process.env.NODE_ENV === 'production' && !isValidHttpsUrl(publicBase)) {
-      return res.status(400).json({
+    if (!isValidHttpsUrl(publicBase)) {
+      return res.status(500).json({
         success: false,
         status: 'error',
-        message: 'FRONTEND_URL must use HTTPS in production'
+        message: 'FRONTEND_URL must be a valid absolute URL'
       });
     }
 
@@ -168,7 +193,7 @@ export const initializePayment = async (req, res) => {
       callback_url
     });
 
-    await Order.create({
+    await createPendingOrderWithRetry({
       reference,
       customerPhone: phoneNorm,
       customerEmail: email,
@@ -365,10 +390,15 @@ export const verifyPayment = async (req, res) => {
       data: payment,
       order: fresh
         ? {
+            orderId: fresh.orderId,
             reference: fresh.reference,
+            status: fresh.status,
             deliveryStatus: fresh.deliveryStatus,
             bundleCode: fresh.bundleCode,
-            customerPhone: fresh.customerPhone
+            customerPhone: fresh.customerPhone,
+            network: fresh.network,
+            amount: fresh.amount,
+            createdAt: fresh.createdAt
           }
         : undefined,
       fulfillment: fulfillmentNote

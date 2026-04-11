@@ -55,6 +55,12 @@ export const fulfillOrder = async (order) => {
       throw new Error('SuccessBizHub not configured');
     }
 
+    console.log('Sending order to SuccessBizHub:', {
+      reference: locked.reference,
+      endpoint: `${base}/order/${networkParam}`,
+      payload
+    });
+
     const response = await axios.post(
       `${base}/order/${networkParam}`,
       payload,

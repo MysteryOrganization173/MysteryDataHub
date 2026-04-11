@@ -947,6 +947,11 @@
         <ul class="hidden md:flex items-center gap-6 text-white/90">
             <li class="nav-item cursor-pointer smooth-transition active" onclick="switchSection('home')">Home</li>
             <li class="nav-item cursor-pointer smooth-transition" onclick="switchSection('bundles')">Bundles</li>
+            <li class="nav-item cursor-pointer smooth-transition">
+                <a href="track-order.html" class="hover:text-hubGreen">
+                    <i class="ri-route-line mr-2"></i>Track Order
+                </a>
+            </li>
             <li class="nav-item cursor-pointer smooth-transition" onclick="switchSection('testimonials')">
                 <i class="ri-star-smile-line mr-2"></i>Reviews
             </li>
@@ -1000,6 +1005,9 @@
             <button class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target" onclick="switchSection('bundles'); closeMobileMenu()">
                 <i class="ri-shopping-bag-line mr-3"></i>Bundles
             </button>
+            <a href="track-order.html" class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target block">
+                <i class="ri-route-line mr-3"></i>Track Order
+            </a>
             <button class="w-full text-left text-lg py-4 border-b border-white/10 text-white hover:text-hubGreen smooth-transition touch-target" onclick="switchSection('testimonials'); closeMobileMenu()">
                 <i class="ri-star-smile-line mr-3"></i>Customer Reviews
             </button>
@@ -1898,7 +1906,7 @@
                 </div>
 
                 <div class="flex gap-3 mt-4 flex-col sm:flex-row">
-                    <button id="confirmBuy" class="btn-green px-5 py-3 rounded-lg font-bold flex-1 hover:scale-105 transition-transform btn-enhanced touch-target">
+                    <button id="confirmBuy" type="button" onclick="onPayNowClicked(event)" class="btn-green px-5 py-3 rounded-lg font-bold flex-1 hover:scale-105 transition-transform btn-enhanced touch-target">
                         <i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF
                     </button>
                     <button onclick="closeBuyModal()" class="px-5 py-3 rounded-lg border border-white/6 glass text-gray-400 hover:bg-white/5 transition-colors flex-1 touch-target">Cancel</button>
@@ -1994,11 +2002,13 @@
             ]
         };
 
-        // Local port must match Backend PORT in .env (default 5000 if PORT unset)
-        const BASE_URL =
-            window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? 'http://localhost:3000/api'
-                : '/api';
+        // Resolve API host for local and production
+        const BASE_URL = (() => {
+            const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (window.location.protocol === 'file:' || isLocalHost) return 'http://localhost:3000/api';
+            return 'https://mysterybundlehub.com/api';
+        })();
+        console.log('[Payment] BASE_URL resolved:', BASE_URL);
 
         // ==================== NETWORK STATUS HANDLER ====================
         async function fetchNetworkStatus() {
@@ -2147,11 +2157,24 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('mobileMenuToggle').addEventListener('click', openMobileMenu);
-            document.getElementById('closeMobileMenu').addEventListener('click', closeMobileMenu);
-            document.getElementById('opSelect').addEventListener('change', updatePlanOptions);
-            document.getElementById('confirmBuy').addEventListener('click', handlePurchase);
-            document.getElementById('buyModal').addEventListener('click', function(e) {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', openMobileMenu);
+            else console.warn('[UI] #mobileMenuToggle not found');
+
+            const closeMobileMenuBtn = document.getElementById('closeMobileMenu');
+            if (closeMobileMenuBtn) closeMobileMenuBtn.addEventListener('click', closeMobileMenu);
+            else console.warn('[UI] #closeMobileMenu not found');
+
+            const opSelect = document.getElementById('opSelect');
+            if (opSelect) opSelect.addEventListener('change', updatePlanOptions);
+            else console.warn('[UI] #opSelect not found');
+
+            const buyModal = document.getElementById('buyModal');
+            if (!buyModal) {
+                console.warn('[UI] #buyModal not found');
+                return;
+            }
+            buyModal.addEventListener('click', function(e) {
                 if (e.target === this) closeBuyModal();
             });
             document.addEventListener('keydown', function(e) {
@@ -2482,6 +2505,99 @@
             }
         }
 
+        async function onPayNowClicked(event) {
+            if (event) event.preventDefault();
+            console.log('[Payment] Pay Now clicked');
+            try {
+                await handlePurchase();
+            } catch (err) {
+                console.error('[Payment] Unhandled click error:', err);
+                showStatus(err?.message || 'Unable to start payment. Please try again.', 'error');
+            }
+        }
+
+        function validatePhoneNumber(phone) {
+            const cleaned = String(phone || '').replace(/\D/g, '');
+            const normalized = cleaned.length === 12 && cleaned.startsWith('233')
+                ? `0${cleaned.slice(3)}`
+                : cleaned;
+
+            return /^0[235]\d{8}$/.test(normalized);
+        }
+
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+        }
+
+        window.validatePhoneNumber = validatePhoneNumber;
+
+        async function confirmPurchase(phone, email, operator, planText, productCode, amount) {
+            const payBtn = document.getElementById('confirmBuy');
+            let redirecting = false;
+            try {
+                showLoading();
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<i class="ri-loader-4-line mr-2 animate-spin"></i>Initializing payment...';
+                showStatus('Initializing secure payment...', 'info');
+                console.log('[Payment] Sending initialize request', {
+                    baseUrl: BASE_URL,
+                    phone,
+                    bundle: productCode
+                });
+
+                const res = await fetch(`${BASE_URL}/payment/initialize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        phone,
+                        bundle: productCode
+                    })
+                });
+
+                const payload = await res.json().catch(() => ({}));
+                const authorizationUrl = payload?.data?.authorization_url;
+                console.log('[Payment] Initialize response status:', res.status);
+                console.log('[Payment] Initialize full data:', payload);
+                if (authorizationUrl) {
+                    const reference = payload?.data?.reference;
+                    localStorage.setItem(
+                        'lastOrder',
+                        JSON.stringify({
+                            phone,
+                            email,
+                            operator,
+                            planText,
+                            productCode,
+                            amount,
+                            reference
+                        })
+                    );
+                    localStorage.setItem('apiBase', BASE_URL);
+
+                    showStatus('Redirecting to secure Paystack checkout...', 'success');
+                    redirecting = true;
+                    console.log('[Payment] Redirecting to Paystack', { authorizationUrl });
+                    window.location.href = authorizationUrl;
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error(payload?.message || 'Payment initialization failed. Please try again.');
+                }
+
+                throw new Error(payload?.message || 'Payment gateway did not return an authorization link.');
+            } catch (error) {
+                console.error('[Payment] Initialization failed', error);
+                showStatus(error?.message || 'Could not initialize payment right now.', 'error');
+            } finally {
+                hideLoading();
+                if (!redirecting) {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+                }
+            }
+        }
+
         // Purchase flow
         async function handlePurchase() {
             const phone = document.getElementById('phoneInput').value.trim();
@@ -2503,7 +2619,7 @@
                 showStatus('Please enter a valid email address', 'error');
                 return;
             }
-            await confirmPurchase(phone, email, operator, planText, productCode);
+            await confirmPurchase(phone, email, operator, planText, productCode, amount);
         }
 
         // Support functions
