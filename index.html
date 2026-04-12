@@ -87,6 +87,12 @@
             --bg-secondary: #07101a;
             --text-primary: #e6eef6;
             --glass-bg: rgba(10, 12, 15, 0.56);
+            --header-offset: 88px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--header-offset) + 0.75rem);
         }
         
         body {
@@ -95,6 +101,22 @@
             color: #e6eef6;
             overflow-x: hidden;
             transition: background 0.3s, color 0.3s;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+        }
+
+        body.ui-locked {
+            overflow: hidden !important;
+        }
+
+        button,
+        a,
+        select,
+        input {
+            touch-action: manipulation;
         }
         
         /* LIGHT MODE - enhanced readability */
@@ -205,14 +227,27 @@
             background: linear-gradient(90deg, #9d4edd, #7b2cbf) !important;
             color: white !important;
         }
+
+        .btn-green,
+        .btn-mtn,
+        .btn-airtel,
+        .btn-telecel,
+        .btn-purple {
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 14px 28px rgba(7, 14, 24, 0.2);
+        }
         
         .card-hover { 
-            transition: all 0.3s ease !important;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
         }
         
         .card-hover:hover { 
-            transform: translateY(-6px) scale(1.03) !important; 
-            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42), 0 0 18px rgba(0, 224, 122, 0.05) !important; 
+            transform: translateY(-4px) scale(1.02) !important; 
+            box-shadow: 0 20px 40px rgba(6, 12, 24, 0.26), 0 0 20px rgba(0, 224, 122, 0.04) !important; 
+        }
+
+        .card-hover:active {
+            transform: scale(0.992) !important;
         }
         
         .small-muted { 
@@ -227,30 +262,48 @@
         
         .section-hidden { display: none !important; }
         .section-active { display: block !important; }
+        [id$="-section"] { scroll-margin-top: calc(var(--header-offset) + 0.75rem); }
+        .is-hidden { display: none !important; }
         
         .network-btn { 
-            transition: all 0.3s ease !important; 
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important; 
             border: 2px solid transparent !important;
             box-shadow: 0 10px 24px rgba(8, 15, 28, 0.18);
         }
         
         .network-btn.active { 
-            transform: scale(1.05) !important; 
+            transform: scale(1.03) !important; 
             border-color: currentColor !important;
         }
         .network-btn:hover,
         .network-filter-btn:hover {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-2px) scale(1.01);
             box-shadow: 0 16px 32px rgba(4, 10, 22, 0.24);
         }
         
         .mobile-menu {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+            inset: 0 0 0 auto !important;
+            width: min(88vw, 24rem);
+            max-width: 24rem;
+            background: linear-gradient(180deg, rgba(6,16,24,0.98), rgba(10,16,29,0.98));
+            border-left: 1px solid rgba(255,255,255,0.08);
+            box-shadow: none;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateX(18px);
+            transition: transform 0.24s ease, opacity 0.24s ease, visibility 0s linear 0.24s;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .mobile-menu.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
             transform: translateX(0);
+            box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.56);
+            transition-delay: 0s;
         }
         
         .nav-item.active {
@@ -312,11 +365,85 @@
         .smooth-transition {
             transition: all 0.3s ease !important;
         }
+
+        .top-nav {
+            background: rgba(6, 16, 24, 0.78) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            box-shadow: 0 10px 30px rgba(3, 10, 19, 0.18);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .premium-modal {
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 28px 70px rgba(3, 10, 19, 0.42);
+            animation: modalRise 0.22s ease both;
+        }
+
+        .modal-stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .select-wrap {
+            position: relative;
+        }
+
+        .premium-select {
+            min-height: 3.25rem;
+            padding-right: 3rem !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            background: rgba(255,255,255,0.04) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+
+        .premium-select:focus,
+        #phoneInput:focus,
+        #emailInput:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 224, 122, 0.12);
+        }
+
+        .select-chevron {
+            position: absolute;
+            right: 0.95rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: rgba(230, 238, 246, 0.72);
+            font-size: 1.1rem;
+        }
+
+        .premium-note {
+            border: 1px solid rgba(0,224,122,0.14);
+            background: linear-gradient(135deg, rgba(0,224,122,0.1), rgba(255,255,255,0.03));
+        }
+
+        .bundle-buy-btn {
+            min-height: 2.85rem;
+            letter-spacing: 0.01em;
+        }
+
+        .network-quick-btn {
+            min-height: 2.9rem;
+        }
+
+        @keyframes modalRise {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
         
         /* Button enhancements */
         .btn-enhanced {
             position: relative;
             overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.22s ease, filter 0.22s ease !important;
         }
         
         .btn-enhanced::before {
@@ -332,6 +459,15 @@
         
         .btn-enhanced:hover::before {
             left: 100%;
+        }
+
+        .btn-enhanced:hover {
+            filter: saturate(1.04) brightness(1.02);
+            box-shadow: 0 16px 30px rgba(3, 10, 19, 0.24);
+        }
+
+        .btn-enhanced:active {
+            transform: scale(0.985);
         }
         
         /* Speed badge */
@@ -703,21 +839,21 @@
             background:
                 radial-gradient(circle at top right, rgba(255, 199, 0, 0.32), transparent 30%),
                 radial-gradient(circle at bottom left, rgba(255, 179, 0, 0.18), transparent 32%),
-                linear-gradient(135deg, rgba(60, 41, 0, 0.88), rgba(19, 18, 14, 0.95)) !important;
+                linear-gradient(135deg, rgba(82, 62, 11, 0.9), rgba(30, 28, 18, 0.9)) !important;
         }
 
         .airtel-card {
             background:
                 radial-gradient(circle at top right, rgba(229, 57, 53, 0.22), transparent 28%),
                 radial-gradient(circle at bottom left, rgba(124, 58, 237, 0.24), transparent 35%),
-                linear-gradient(135deg, rgba(33, 13, 28, 0.94), rgba(22, 11, 34, 0.98)) !important;
+                linear-gradient(135deg, rgba(60, 21, 38, 0.92), rgba(33, 19, 56, 0.92)) !important;
         }
 
         .telecel-card {
             background:
                 radial-gradient(circle at top right, rgba(0, 123, 255, 0.24), transparent 30%),
                 radial-gradient(circle at bottom left, rgba(56, 189, 248, 0.16), transparent 35%),
-                linear-gradient(135deg, rgba(8, 30, 68, 0.92), rgba(10, 20, 44, 0.97)) !important;
+                linear-gradient(135deg, rgba(16, 50, 96, 0.92), rgba(14, 32, 64, 0.92)) !important;
         }
 
         body.light-mode {
@@ -769,6 +905,35 @@
             color: #162033 !important;
             border-color: rgba(100,116,139,0.18);
         }
+        body.light-mode .top-nav {
+            background: rgba(255,255,255,0.88) !important;
+            border-bottom-color: rgba(148,163,184,0.2);
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        }
+        body.light-mode .mobile-menu {
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,247,251,0.98));
+            border-left-color: rgba(148,163,184,0.2);
+            color: #162033;
+        }
+        body.light-mode .premium-modal {
+            background: rgba(255,255,255,0.95);
+            border-color: rgba(148,163,184,0.18);
+            box-shadow: 0 30px 70px rgba(15,23,42,0.12);
+        }
+        body.light-mode .premium-select,
+        body.light-mode #phoneInput,
+        body.light-mode #emailInput {
+            background: rgba(255,255,255,0.96) !important;
+            border-color: rgba(148,163,184,0.22) !important;
+            color: #162033 !important;
+        }
+        body.light-mode .select-chevron {
+            color: #475569;
+        }
+        body.light-mode .premium-note {
+            background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(255,255,255,0.95));
+            border-color: rgba(16,185,129,0.18);
+        }
         body.light-mode .mtn-card {
             background:
                 radial-gradient(circle at top right, rgba(255,199,0,0.34), transparent 30%),
@@ -788,9 +953,10 @@
         .bundle-card {
             will-change: transform, box-shadow;
             backface-visibility: hidden;
+            contain: layout paint style;
         }
         .bundle-network-group {
-            scroll-margin-top: 6rem;
+            scroll-margin-top: calc(var(--header-offset) + 0.75rem);
             transition: opacity 0.25s ease, transform 0.25s ease;
         }
         .bundle-network-group.is-hidden {
@@ -798,6 +964,7 @@
         }
         .network-section-card {
             border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 14px 34px rgba(6, 14, 24, 0.12);
         }
         .network-value-pill {
             display: inline-flex;
@@ -942,7 +1109,7 @@
             .bundle-card { padding: 1rem !important; }
             .bundle-card h3 { font-size: 1.05rem !important; }
             .bundle-card .text-2xl { font-size: 1.5rem !important; }
-            .bundle-network-group { scroll-margin-top: 5.25rem; }
+            .bundle-network-group { scroll-margin-top: calc(var(--header-offset) + 0.6rem); }
             .flash-badge,
             .express-badge,
             .speed-badge,
@@ -987,7 +1154,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="w-full py-4 px-6 flex items-center justify-between glass sticky top-0 z-50">
+    <nav class="top-nav w-full py-4 px-6 flex items-center justify-between glass sticky top-0 z-50">
         <div class="flex items-center gap-4 logo-home" onclick="switchSection('home')">
             <div class="rounded-full w-12 h-12 flex items-center justify-center bg-black/40 border border-white/5 neon-border relative">
                 <i class="ri-wifi-line text-hubGreen text-lg"></i>
@@ -1052,7 +1219,7 @@
     </nav>
 
     <!-- Mobile Menu (Dashboard removed) -->
-    <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-black/95 backdrop-blur-lg z-50 md:hidden flex flex-col p-6">
+    <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-black/95 backdrop-blur-lg z-50 md:hidden flex flex-col p-6" aria-hidden="true">
         <div class="flex justify-between items-center mb-8">
             <div class="flex items-center gap-4">
                 <div class="rounded-full w-12 h-12 flex items-center justify-center bg-black/40 border border-white/5 neon-border">
@@ -1932,14 +2099,14 @@
     </div>
 
     <!-- BUY MODAL (scrollable) -->
-    <div id="buyModal" class="fixed inset-0 hidden items-center justify-center z-50 p-4">
+    <div id="buyModal" class="fixed inset-0 hidden items-center justify-center z-50 p-4" aria-hidden="true">
         <div class="absolute inset-0 modal-backdrop bg-black/70 backdrop-blur-sm"></div>
-        <div class="relative z-10 w-full max-w-lg p-6 glass rounded-xl neon-border smooth-transition modal-scrollable">
+        <div class="premium-modal relative z-10 w-full max-w-lg p-6 glass rounded-xl neon-border smooth-transition modal-scrollable">
             <h3 class="font-bold text-xl flex items-center gap-2">
                 <i class="ri-shopping-bag-line text-hubGreen"></i>
                 Buy Data Bundle
             </h3>
-            <p class="small-muted mt-1">⚡ Enter phone number and confirm payment. Express delivery in 5-45 minutes!</p>
+            <p class="small-muted mt-1">Choose your network, confirm your details, and continue to secure Paystack checkout.</p>
 
             <!-- Discount Banner -->
             <div class="mt-4 bg-gradient-to-r from-discountRed/20 to-pink-500/20 p-3 rounded-lg border border-discountRed/30">
@@ -1950,31 +2117,46 @@
                 </div>
             </div>
 
-            <div class="mt-4 space-y-4">
+            <div class="modal-stack mt-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Network</label>
-                    <select id="opSelect" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
-                        <option value="mtn">MTN Express (5-45min delivery)</option>
-                        <option value="airteltigo">AirtelTigo (Instant delivery)</option>
-                        <option value="telecel">Telecel Express (5-45min delivery)</option>
-                    </select>
+                    <div class="select-wrap">
+                        <select id="opSelect" class="premium-select w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
+                            <option value="mtn">MTN Express (5-45min delivery)</option>
+                            <option value="airteltigo">AirtelTigo (Instant delivery)</option>
+                            <option value="telecel">Telecel Express (5-45min delivery)</option>
+                        </select>
+                        <i class="ri-arrow-down-s-line select-chevron"></i>
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Bundle Plan</label>
-                    <select id="planSelect" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
-                        <!-- Plans will be populated dynamically -->
-                    </select>
+                    <div class="select-wrap">
+                        <select id="planSelect" class="premium-select w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
+                            <!-- Plans will be populated dynamically -->
+                        </select>
+                        <i class="ri-arrow-down-s-line select-chevron"></i>
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
-                    <input id="phoneInput" type="tel" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="e.g., 0550123456" />
+                    <input id="phoneInput" type="tel" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="e.g., 0550123456 or +233550123456" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Email (Optional)</label>
-                    <input id="emailInput" type="email" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="your@email.com" />
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input id="emailInput" type="email" required class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="your@email.com" />
+                </div>
+
+                <div class="premium-note rounded-lg p-3 text-sm text-amber-200">
+                    After clicking pay, check your phone for a MoMo prompt. If not received, dial *170# and approve the transaction manually.
+                </div>
+
+                <div class="rounded-lg border border-white/10 bg-white/5 p-3 text-sm small-muted">
+                    <div>Delivery usually takes 5-45 minutes.</div>
+                    <div>If delayed, please wait a few minutes or contact support.</div>
                 </div>
 
                 <div class="flex gap-3 mt-4 flex-col sm:flex-row">
@@ -1985,6 +2167,9 @@
                 </div>
 
                 <div id="buyStatus" class="mt-3 text-center text-sm"></div>
+                <button id="retryPaymentBtn" type="button" onclick="onPayNowClicked(event)" class="mt-3 hidden w-full rounded-lg border border-hubGreen/30 bg-hubGreen/10 px-4 py-3 text-sm font-semibold text-hubGreen transition-colors hover:bg-hubGreen/20">
+                    <i class="ri-refresh-line mr-2"></i>Retry Payment
+                </button>
                 
                 <!-- Trust Indicators -->
                 <div class="grid grid-cols-3 gap-2 mt-4">
@@ -2020,7 +2205,7 @@
         const bundleData = {
             mtn: [
                 { size: '1GB', validity: '90 days', price: 5.99, code: 'MTN_1GB_90D', delivery: '5-45min', express: true },
-                { size: '2GB', validity: '90 days', price: 11.99, code: 'MTN_2GB_90D', delivery: '5-45min', express: true },
+                { size: '2GB', validity: '90 days', price: 10.99, code: 'MTN_2GB_90D', delivery: '5-45min', express: true },
                 { size: '3GB', validity: '90 days', price: 16.99, code: 'MTN_3GB_90D', delivery: '5-45min', express: true },
                 { size: '4GB', validity: '90 days', price: 22.99, code: 'MTN_4GB_90D', delivery: '5-45min', express: true },
                 { size: '5GB', validity: '90 days', price: 27.99, code: 'MTN_5GB_90D', delivery: '5-45min', express: true },
@@ -2152,6 +2337,8 @@
             agents: [],
             products: [],
             currentNetworkFilter: 'all',
+            bundlesLoaded: false,
+            pendingScrollFrame: null,
             userData: {
                 totalSpent: 0,
                 referrals: 0,
@@ -2179,7 +2366,11 @@
                 }
             }, 30000);
             setViewportHeight();
-            window.addEventListener('resize', setViewportHeight);
+            updateStickyHeaderOffset();
+            window.addEventListener('resize', () => {
+                setViewportHeight();
+                updateStickyHeaderOffset();
+            });
             // Poll network status every 45 seconds
             setInterval(fetchNetworkStatus, 45000);
             fetchNetworkStatus();
@@ -2216,6 +2407,19 @@
         function setViewportHeight() {
             let vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        function updateStickyHeaderOffset() {
+            const header = document.querySelector('.top-nav');
+            const offset = (header?.offsetHeight || 76) + 10;
+            document.documentElement.style.setProperty('--header-offset', `${offset}px`);
+        }
+
+        function syncBodyScrollLock() {
+            const isMenuOpen = document.getElementById('mobileMenu')?.classList.contains('open');
+            const isModalOpen = !document.getElementById('buyModal')?.classList.contains('hidden');
+            const isComingSoonOpen = !document.getElementById('agentComingSoonModal')?.classList.contains('hidden');
+            document.body.classList.toggle('ui-locked', Boolean(isMenuOpen || isModalOpen || isComingSoonOpen));
         }
 
         async function checkBackendConnection() {
@@ -2261,38 +2465,54 @@
                 }
             });
             document.getElementById('phoneInput').addEventListener('input', function(e) {
-                const phone = e.target.value.replace(/\D/g, '');
-                if (phone.length <= 10) {
-                    e.target.value = phone;
+                let value = String(e.target.value || '').replace(/[^\d+]/g, '');
+                if (value.includes('+')) {
+                    value = value[0] === '+' ? `+${value.slice(1).replace(/\+/g, '')}` : value.replace(/\+/g, '');
                 }
+                const maxLength = value.startsWith('+') ? 13 : 12;
+                e.target.value = value.slice(0, maxLength);
             });
             document.addEventListener('touchstart', function() {}, {passive: true});
         }
 
         function openMobileMenu() {
-            document.getElementById('mobileMenu').classList.add('open');
-            document.body.style.overflow = 'hidden';
+            const menu = document.getElementById('mobileMenu');
+            if (!menu) return;
+            menu.classList.add('open');
+            menu.setAttribute('aria-hidden', 'false');
+            syncBodyScrollLock();
         }
 
         function closeMobileMenu() {
-            document.getElementById('mobileMenu').classList.remove('open');
-            document.body.style.overflow = 'auto';
+            const menu = document.getElementById('mobileMenu');
+            if (!menu) return;
+            menu.classList.remove('open');
+            menu.setAttribute('aria-hidden', 'true');
+            syncBodyScrollLock();
         }
 
-        function switchSection(sectionName) {
-            document.querySelectorAll('[id$="-section"]').forEach(section => {
-                section.classList.add('section-hidden');
-                section.classList.remove('section-active');
-            });
+        function switchSection(sectionName, options = {}) {
+            const { scroll = true } = options;
             const targetSection = document.getElementById(sectionName + '-section');
-            if (targetSection) {
+            if (!targetSection) return;
+
+            if (appState.currentSection !== sectionName) {
+                document.querySelectorAll('[id$="-section"]').forEach(section => {
+                    section.classList.add('section-hidden');
+                    section.classList.remove('section-active');
+                });
                 targetSection.classList.remove('section-hidden');
                 targetSection.classList.add('section-active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                if (sectionName === 'bundles') {
-                    loadAllBundles();
-                }
             }
+
+            if (sectionName === 'bundles') {
+                ensureAllBundlesLoaded();
+            }
+
+            if (scroll) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
             appState.currentSection = sectionName;
             updateActiveNav(sectionName);
             closeMobileMenu();
@@ -2433,7 +2653,7 @@
                 const isInstant = product.instant || false;
                 const isExpress = product.express || false;
                 return `
-                    <div class="glass rounded-xl p-6 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}');}">
+                    <div class="glass rounded-xl p-5 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative" data-network="${product.network}" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}');}">
                         ${product.discount ? '<div class="discount-tag">' + product.discount + '</div>' : ''}
                         <div class="bundle-card-inner">
                             <div class="flex justify-between items-start mb-4">
@@ -2472,7 +2692,7 @@
                                 </span>
                             </div>
                             <button onclick="quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" 
-                                    class="w-full ${getNetworkButtonClass(product.network)} py-3 rounded-lg font-semibold btn-enhanced smooth-transition hover:scale-105 transition-transform touch-target">
+                                    class="bundle-buy-btn w-full ${getNetworkButtonClass(product.network)} py-2.5 rounded-lg text-[0.95rem] font-semibold btn-enhanced smooth-transition hover:scale-[1.02] transition-transform touch-target">
                                 <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${product.price}
                             </button>
                         </div>
@@ -2487,6 +2707,15 @@
             ['mtn', 'airteltigo', 'telecel'].forEach(network => {
                 container.appendChild(createBundleNetworkSection(network));
             });
+            appState.bundlesLoaded = true;
+        }
+
+        function ensureAllBundlesLoaded() {
+            const container = document.getElementById('allBundles');
+            if (!container) return;
+            if (!appState.bundlesLoaded || !container.children.length) {
+                loadAllBundles();
+            }
         }
 
         function createBundleNetworkSection(network) {
@@ -2508,7 +2737,7 @@
                             <h3 class="text-2xl font-black ${headingClass}">${getNetworkSectionTitle(network)}</h3>
                             <p class="small-muted mt-2 max-w-2xl">${getNetworkSectionSummary(network)}</p>
                         </div>
-                        <button type="button" class="${buttonClass} px-5 py-3 rounded-full font-semibold smooth-transition touch-target" onclick="openBuyModal('${network}')">
+                        <button type="button" class="${buttonClass} network-quick-btn px-4 py-2.5 rounded-full font-semibold smooth-transition touch-target" onclick="openBuyModal('${network}')">
                             <i class="ri-wallet-3-line mr-2"></i>Quick buy ${getNetworkDisplayName(network)}
                         </button>
                     </div>
@@ -2516,7 +2745,7 @@
             `;
 
             const grid = document.createElement('div');
-            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5';
             bundleData[network].forEach(bundle => {
                 grid.appendChild(createBundleCard(network, bundle));
             });
@@ -2533,7 +2762,7 @@
             const isExpress = bundle.express || false;
             const deliveryTime = bundle.delivery || '5-45min';
             const valueMeta = getBundleValueMeta(bundle);
-            card.className = `glass rounded-xl p-6 bundle-card card-hover smooth-transition ${borderClass} ${networkClass} relative`;
+            card.className = `glass rounded-xl p-5 bundle-card card-hover smooth-transition ${borderClass} ${networkClass} relative`;
             card.setAttribute('data-network', network);
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
@@ -2571,7 +2800,7 @@
                         </span>
                     </div>
                     <button onclick="quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}')"
-                            class="w-full ${getNetworkButtonClass(network)} py-3 rounded-lg font-semibold btn-enhanced smooth-transition hover:scale-105 transition-transform touch-target">
+                            class="bundle-buy-btn w-full ${getNetworkButtonClass(network)} py-2.5 rounded-lg text-[0.95rem] font-semibold btn-enhanced smooth-transition hover:scale-[1.02] transition-transform touch-target">
                         <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${bundle.price.toFixed(2)}
                     </button>
                 </div>
@@ -2588,56 +2817,30 @@
             }
         }
 
-        function smoothScrollToElement(element, duration = 750) {
-            if (!element) return;
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (prefersReducedMotion) {
-                element.scrollIntoView({ block: 'start' });
-                return;
+        function queueSmoothScroll(target) {
+            if (!target) return;
+            if (appState.pendingScrollFrame) {
+                window.cancelAnimationFrame(appState.pendingScrollFrame);
             }
 
-            const offset = window.innerWidth < 768 ? 86 : 110;
-            const startY = window.pageYOffset;
-            const targetY = Math.max(0, element.getBoundingClientRect().top + startY - offset);
-            const distance = targetY - startY;
-            const startTime = performance.now();
-            const easeInOutCubic = (progress) => (
-                progress < 0.5
-                    ? 4 * progress * progress * progress
-                    : 1 - Math.pow(-2 * progress + 2, 3) / 2
-            );
-
-            function step(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                window.scrollTo(0, startY + (distance * easeInOutCubic(progress)));
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            }
-
-            window.requestAnimationFrame(step);
+            appState.pendingScrollFrame = window.requestAnimationFrame(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                appState.pendingScrollFrame = null;
+            });
         }
 
         function scrollToBundleNetwork(network) {
             const target = network === 'all'
                 ? document.getElementById('bundles-section')
                 : document.getElementById(`bundle-group-${network}`);
-            smoothScrollToElement(target);
+            queueSmoothScroll(target);
         }
 
         function filterBundles(network, trigger) {
             const products = document.querySelectorAll('#products > div');
             products.forEach(product => {
-                const button = product.querySelector('button');
-                if (button && button.getAttribute('onclick')) {
-                    const onclick = button.getAttribute('onclick');
-                    if (network === 'all' || onclick.includes(`'${network}'`)) {
-                        product.style.display = 'block';
-                    } else {
-                        product.style.display = 'none';
-                    }
-                }
+                const matches = network === 'all' || product.getAttribute('data-network') === network;
+                product.classList.toggle('is-hidden', !matches);
             });
             setActiveFilterButton('.network-btn', trigger);
             appState.currentNetworkFilter = network;
@@ -2652,7 +2855,7 @@
             setActiveFilterButton('.network-filter-btn', trigger);
             appState.currentNetworkFilter = network;
             if (shouldScroll) {
-                window.setTimeout(() => scrollToBundleNetwork(network), 40);
+                scrollToBundleNetwork(network);
             }
         }
 
@@ -2662,19 +2865,15 @@
 
         function handleFeaturedNetworkClick(network, trigger) {
             filterBundles(network, trigger);
-            switchSection('bundles');
-            window.setTimeout(() => {
-                filterAllBundles(network, null, false);
-                if (network !== 'all') {
-                    const matchingFilter = document.querySelector(`.network-filter-btn[onclick*="'${network}'"]`);
-                    if (matchingFilter) {
-                        matchingFilter.classList.add('active');
-                    }
-                } else {
-                    document.querySelector('.network-filter-btn')?.classList.add('active');
-                }
-                scrollToBundleNetwork(network);
-            }, 90);
+            switchSection('bundles', { scroll: false });
+            filterAllBundles(network, null, false);
+            if (network !== 'all') {
+                const matchingFilter = document.querySelector(`.network-filter-btn[onclick*="'${network}'"]`);
+                matchingFilter?.classList.add('active');
+            } else {
+                document.querySelector('.network-filter-btn')?.classList.add('active');
+            }
+            scrollToBundleNetwork(network);
         }
 
         // Modal functions
@@ -2698,16 +2897,23 @@
                 }
             }
             modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            modal.classList.add('flex');
+            modal.setAttribute('aria-hidden', 'false');
+            syncBodyScrollLock();
             document.getElementById('buyStatus').textContent = '';
+            toggleRetryButton(false);
             document.getElementById('confirmBuy').disabled = false;
             document.getElementById('confirmBuy').innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
         }
 
         function closeBuyModal() {
-            document.getElementById('buyModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            const modal = document.getElementById('buyModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.setAttribute('aria-hidden', 'true');
+            syncBodyScrollLock();
             document.getElementById('buyStatus').textContent = '';
+            toggleRetryButton(false);
         }
 
         function quickBuy(network, size, price, code) {
@@ -2748,20 +2954,25 @@
             if (event) event.preventDefault();
             console.log('[Payment] Pay Now clicked');
             try {
+                toggleRetryButton(false);
                 await handlePurchase();
             } catch (err) {
                 console.error('[Payment] Unhandled click error:', err);
+                toggleRetryButton(true);
                 showStatus(err?.message || 'Unable to start payment. Please try again.', 'error');
             }
         }
 
-        function validatePhoneNumber(phone) {
-            const cleaned = String(phone || '').replace(/\D/g, '');
-            const normalized = cleaned.length === 12 && cleaned.startsWith('233')
-                ? `0${cleaned.slice(3)}`
-                : cleaned;
+        function normalizePhoneForBackend(phone) {
+            const cleaned = String(phone || '').trim().replace(/\D/g, '');
+            if (/^233\d{9}$/.test(cleaned)) return cleaned;
+            if (/^0\d{9}$/.test(cleaned)) return `233${cleaned.slice(1)}`;
+            return cleaned;
+        }
 
-            return /^0[235]\d{8}$/.test(normalized);
+        function validatePhoneNumber(phone) {
+            const normalized = normalizePhoneForBackend(phone);
+            return /^233[235]\d{8}$/.test(normalized);
         }
 
         function validateEmail(email) {
@@ -2770,11 +2981,18 @@
 
         window.validatePhoneNumber = validatePhoneNumber;
 
+        function toggleRetryButton(show) {
+            const retryBtn = document.getElementById('retryPaymentBtn');
+            if (!retryBtn) return;
+            retryBtn.classList.toggle('hidden', !show);
+        }
+
         async function confirmPurchase(phone, email, operator, planText, productCode, amount) {
             const payBtn = document.getElementById('confirmBuy');
             let redirecting = false;
             try {
                 showLoading();
+                toggleRetryButton(false);
                 payBtn.disabled = true;
                 payBtn.innerHTML = '<i class="ri-loader-4-line mr-2 animate-spin"></i>Initializing payment...';
                 showStatus('Initializing secure payment...', 'info');
@@ -2789,6 +3007,7 @@
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
                         phone,
+                        email,
                         bundle: productCode
                     })
                 });
@@ -2813,7 +3032,7 @@
                     );
                     localStorage.setItem('apiBase', BASE_URL);
 
-                    showStatus('Redirecting to secure Paystack checkout...', 'success');
+                    showStatus('Redirecting to secure Paystack checkout. After clicking pay, check your phone for a MoMo prompt. If not received, dial *170# and approve the transaction manually.', 'success');
                     redirecting = true;
                     console.log('[Payment] Redirecting to Paystack', { authorizationUrl });
                     window.location.href = authorizationUrl;
@@ -2827,7 +3046,8 @@
                 throw new Error(payload?.message || 'Payment gateway did not return an authorization link.');
             } catch (error) {
                 console.error('[Payment] Initialization failed', error);
-                showStatus(error?.message || 'Could not initialize payment right now.', 'error');
+                toggleRetryButton(true);
+                showStatus(error?.message || 'Could not initialize payment right now. Please try again.', 'error');
             } finally {
                 hideLoading();
                 if (!redirecting) {
@@ -2839,26 +3059,35 @@
 
         // Purchase flow
         async function handlePurchase() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            const email = document.getElementById('emailInput').value.trim() || 'customer@mysterybundlehub.com';
+            const phoneInput = document.getElementById('phoneInput');
+            const emailInput = document.getElementById('emailInput');
+            const phone = phoneInput.value.trim();
+            const email = emailInput.value.trim();
             const amount = parseFloat(document.getElementById('planSelect').value);
             const operator = document.getElementById('opSelect').value;
             const planText = document.getElementById('planSelect').options[document.getElementById('planSelect').selectedIndex].text;
             const productCode = document.getElementById('planSelect').options[document.getElementById('planSelect').selectedIndex].getAttribute('data-code');
+            const normalizedPhone = normalizePhoneForBackend(phone);
 
             if (!validatePhoneNumber(phone)) {
-                showStatus('Please enter a valid Ghanaian phone number (e.g., 0550123456)', 'error');
+                showStatus('Please enter a valid Ghanaian phone number (e.g., 0550123456 or +233550123456)', 'error');
                 return;
             }
             if (!amount || amount <= 0) {
                 showStatus('Please select a valid bundle', 'error');
                 return;
             }
-            if (!validateEmail(email) && email !== 'customer@mysterybundlehub.com') {
-                showStatus('Please enter a valid email address', 'error');
+            if (!email) {
+                showStatus('Email is required to place your order.', 'error');
+                emailInput.focus();
                 return;
             }
-            await confirmPurchase(phone, email, operator, planText, productCode, amount);
+            if (!validateEmail(email)) {
+                showStatus('Please enter a valid email address.', 'error');
+                return;
+            }
+            phoneInput.value = normalizedPhone;
+            await confirmPurchase(normalizedPhone, email, operator, planText, productCode, amount);
         }
 
         // Support functions
@@ -2874,7 +3103,7 @@
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
                 modal.setAttribute('aria-hidden', 'false');
-                document.body.style.overflow = 'hidden';
+                syncBodyScrollLock();
             }
         }
         function closeAgentComingSoon() {
@@ -2883,7 +3112,7 @@
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 modal.setAttribute('aria-hidden', 'true');
-                document.body.style.overflow = '';
+                syncBodyScrollLock();
             }
         }
         function registerAsAgent() {

@@ -20,7 +20,7 @@ const getWholesalePrice = (basePrice) => {
 const bundlesRaw = [
   // MTN Express (90 days)
   { code: 'MTN_1GB_90D', operator: 'mtn', size: '1GB', validity: '90 days', basePrice: 4.70, defaultAgentPrice: 5.50 },
-  { code: 'MTN_2GB_90D', operator: 'mtn', size: '2GB', validity: '90 days', basePrice: 9.15, defaultAgentPrice: 10.00 },
+  { code: 'MTN_2GB_90D', operator: 'mtn', size: '2GB', validity: '90 days', basePrice: 9.15, defaultAgentPrice: 10.99 },
   { code: 'MTN_3GB_90D', operator: 'mtn', size: '3GB', validity: '90 days', basePrice: 13.35, defaultAgentPrice: 14.50 },
   { code: 'MTN_4GB_90D', operator: 'mtn', size: '4GB', validity: '90 days', basePrice: 18.00, defaultAgentPrice: 19.50 },
   { code: 'MTN_5GB_90D', operator: 'mtn', size: '5GB', validity: '90 days', basePrice: 21.80, defaultAgentPrice: 23.50 },

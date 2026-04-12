@@ -33,19 +33,17 @@ function requirePaystackSecretKey(stage) {
 function normalizeGhanaPhone(input) {
   if (input === undefined || input === null) return null;
 
-  let p = String(input).trim().replace(/\s/g, '');
+  const digits = String(input).trim().replace(/\D/g, '');
 
-  if (p.startsWith('+233')) {
-    p = `0${p.slice(4)}`;
-  } else if (p.startsWith('233')) {
-    p = `0${p.slice(3)}`;
+  if (/^233[235]\d{8}$/.test(digits)) {
+    return digits;
   }
 
-  // Ghana mobile numbers typically look like:
-  // 020xxxxxxx, 024xxxxxxx, 050xxxxxxx, 055xxxxxxx, etc.
-  if (!/^0[235]\d{8}$/.test(p)) return null;
+  if (/^0[235]\d{8}$/.test(digits)) {
+    return `233${digits.slice(1)}`;
+  }
 
-  return p;
+  return null;
 }
 
 function isValidBundleCode(code) {
@@ -183,9 +181,13 @@ export const initializePayment = async (req, res) => {
 
     const reference = `MBH-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
 
-    let email = emailRaw && String(emailRaw).trim();
+    const email = emailRaw && String(emailRaw).trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      email = `customer+${reference.replace(/[^a-zA-Z0-9]/g, '')}@mysterybundlehub.com`;
+      return res.status(400).json({
+        success: false,
+        status: 'error',
+        message: 'A valid email address is required for payment'
+      });
     }
 
     const publicBase = getPublicBaseUrl();
@@ -236,6 +238,9 @@ export const initializePayment = async (req, res) => {
         currency: 'GHS',
         reference,
         callback_url,
+        customer: {
+          phone: phoneNorm
+        },
         metadata: {
           phone: phoneNorm,
           bundle: bundleCode,

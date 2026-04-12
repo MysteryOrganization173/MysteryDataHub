@@ -108,6 +108,9 @@
     <p class="text-gray-300 mb-6 leading-relaxed">
       Thank you for your purchase! Your data bundle is being processed and will be delivered to your phone within minutes.
     </p>
+    <p class="text-amber-300 text-sm mb-4 leading-relaxed">
+      If you completed payment but haven't received data, please wait a few minutes or contact support.
+    </p>
     <p id="deliveryNote" class="text-amber-400 text-sm mb-6 hidden"></p>
     
     <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6">
@@ -148,8 +151,8 @@
     <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center shake-animation">
       <i class="ri-error-warning-line text-red-500 text-4xl"></i>
     </div>
-    <h1 class="text-3xl font-black mb-4 text-red-400">Verification Failed</h1>
-    <p id="errorMessage" class="text-gray-300 mb-6">An error occurred during verification.</p>
+    <h1 class="text-3xl font-black mb-4 text-red-400">Payment Not Confirmed Yet</h1>
+    <p id="errorMessage" class="text-gray-300 mb-6">We could not confirm your payment yet. If you already paid, please retry in a moment.</p>
     <div class="flex gap-3">
       <button onclick="retryVerification()" class="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 py-3 rounded-xl font-bold text-white hover:scale-105 transition-transform btn-enhanced">
         <i class="ri-refresh-line mr-2"></i>Retry
@@ -184,7 +187,7 @@
       document.getElementById('loadingRef').textContent = paymentRef || 'N/A';
 
       if (!paymentRef) {
-        showError("No payment reference found in URL!");
+        showError("We could not find your payment reference. Please retry from the checkout page or contact support.");
       } else {
         // Start verification
         verifyPayment(paymentRef);
@@ -273,7 +276,7 @@
           }
         } else {
           console.warn('⚠️ Payment verification failed:', data);
-          showErrorState("Payment verification failed. Please contact support.");
+          showErrorState("We could not confirm your payment yet. If you already approved the MoMo charge, tap Retry in a moment.");
         }
       } catch (error) {
         console.error("❌ Verification error:", error);
@@ -282,11 +285,11 @@
         const rawMessage = String(error?.message || '').trim();
         let errorMessage = rawMessage;
         if (/network|fetch/i.test(rawMessage)) {
-          errorMessage = "Unable to verify payment. Please check your internet connection.";
+          errorMessage = "We could not check your payment right now. Please check your internet connection and retry.";
         } else if (/\b5\d{2}\b/.test(rawMessage) || /server/i.test(rawMessage)) {
-          errorMessage = "Server error. Please try again in a moment.";
+          errorMessage = "Our server could not confirm your payment yet. Please retry in a moment.";
         } else if (!errorMessage) {
-          errorMessage = "Unable to verify payment. Please contact support.";
+          errorMessage = "We could not confirm your payment yet. Please retry shortly or contact support.";
         }
         
         showErrorState(errorMessage);
@@ -329,7 +332,7 @@
 
     function retryVerification() {
       if (retryCount >= MAX_RETRIES) {
-        showErrorState("Maximum retry attempts reached. Please contact support.");
+        showErrorState("We still could not confirm your payment. If you already paid, please contact support with your reference.");
         return;
       }
       
@@ -337,7 +340,7 @@
       if (paymentRef) {
         verifyPayment(paymentRef);
       } else {
-        showErrorState("No payment reference available to retry.");
+        showErrorState("No payment reference is available to retry. Please start a new payment or contact support.");
       }
     }
 
