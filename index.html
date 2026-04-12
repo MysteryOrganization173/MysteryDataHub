@@ -262,13 +262,21 @@
         
         .section-hidden { display: none !important; }
         .section-active { display: block !important; }
-        [id$="-section"] { scroll-margin-top: calc(var(--header-offset) + 0.75rem); }
+        #bundles-section { margin-top: 20px; }
         .is-hidden { display: none !important; }
         
         .network-btn { 
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important; 
             border: 2px solid transparent !important;
             box-shadow: 0 10px 24px rgba(8, 15, 28, 0.18);
+        }
+
+        .network-button {
+            position: relative;
+        }
+
+        .network-button::after {
+            display: none;
         }
         
         .network-btn.active { 
@@ -956,7 +964,6 @@
             contain: layout paint style;
         }
         .bundle-network-group {
-            scroll-margin-top: calc(var(--header-offset) + 0.75rem);
             transition: opacity 0.25s ease, transform 0.25s ease;
         }
         .bundle-network-group.is-hidden {
@@ -1022,7 +1029,11 @@
             .promo-banner { padding: 0.55rem 0.8rem; }
             .promo-banner-inner { gap: 0.45rem; }
             .promo-banner i { font-size: 0.82rem; }
-            .small-muted { font-size: 0.83rem !important; }
+            .small-muted {
+                font-size: 0.8rem !important;
+                color: #d1d5db !important;
+            }
+            body.light-mode .small-muted { color: #374151 !important; }
             .discount-tag {
                 top: -0.55rem;
                 right: 0.65rem;
@@ -1035,15 +1046,89 @@
                 padding: 1rem !important;
                 border-radius: 1rem !important;
             }
+            .network-buttons {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 8px;
+                align-items: stretch;
+            }
             .mobile-hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .mobile-hero-stats > :first-child { grid-column: 1 / -1; }
-            .network-btn,
-            .network-filter-btn {
+            .network-button {
                 width: 100%;
+                min-height: 44px;
+                padding: 8px !important;
+                border-radius: 8px !important;
                 justify-content: center;
-                font-size: 0.95rem;
-                padding: 0.85rem 1rem !important;
-                min-height: 3.2rem;
+                text-align: center;
+                font-size: 12px !important;
+                line-height: 1.1;
+            }
+            .network-button-content {
+                display: none !important;
+            }
+            .network-button::after {
+                content: attr(data-mobile-label);
+                display: block;
+                font-size: 0.72rem;
+                font-weight: 700;
+                letter-spacing: 0.01em;
+                white-space: nowrap;
+            }
+            .bundles-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 10px !important;
+                padding: 10px 0 !important;
+            }
+            #bundles-section .max-w-7xl {
+                padding: 12px !important;
+            }
+            #bundles-section .border-2.border-hubGreen {
+                padding: 0.85rem !important;
+                margin-bottom: 0.9rem !important;
+            }
+            #allBundles > * + * {
+                margin-top: 0.75rem !important;
+            }
+            .network-section-card {
+                padding: 0.85rem !important;
+            }
+            .network-section-card h3 {
+                font-size: 1rem !important;
+            }
+            .network-section-card p,
+            .network-section-card .small-muted {
+                font-size: 0.74rem !important;
+            }
+            .bundle-card {
+                padding: 10px !important;
+                border-radius: 10px !important;
+                min-height: auto;
+                margin-bottom: 5px;
+            }
+            .bundle-card .w-12.h-12 {
+                width: 2rem !important;
+                height: 2rem !important;
+                border-radius: 0.6rem !important;
+            }
+            .bundle-card .text-2xl {
+                font-size: 1.1rem !important;
+                line-height: 1.1;
+                font-weight: 700 !important;
+            }
+            .bundle-card h3 {
+                font-size: 0.88rem !important;
+                line-height: 1.2;
+                margin-bottom: 0.2rem !important;
+            }
+            .bundle-card p,
+            .bundle-card .text-sm,
+            .bundle-card .text-xs {
+                font-size: 0.72rem !important;
+            }
+            .bundle-card .mb-4 {
+                margin-bottom: 0.55rem !important;
             }
             .cs-inline-bars {
                 height: 20px;
@@ -1078,6 +1163,9 @@
                 right: 0.3rem;
                 font-size: 0.72rem;
             }
+            .bundles-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
             #home-section .max-w-7xl,
             #bundles-section .max-w-7xl,
             #testimonials-section .max-w-7xl,
@@ -1105,11 +1193,7 @@
             .trust-indicator,
             .social-proof-badge { width: 100%; }
             .featured-plans-grid,
-            #allBundles { gap: 1rem !important; }
-            .bundle-card { padding: 1rem !important; }
-            .bundle-card h3 { font-size: 1.05rem !important; }
-            .bundle-card .text-2xl { font-size: 1.5rem !important; }
-            .bundle-network-group { scroll-margin-top: calc(var(--header-offset) + 0.6rem); }
+            #allBundles { gap: 0.75rem !important; }
             .flash-badge,
             .express-badge,
             .speed-badge,
@@ -1127,6 +1211,12 @@
             .whatsapp-strip .text-2xl { font-size: 1.2rem !important; }
             .section-title { margin-bottom: 0.6rem !important; }
             .mobile-menu { padding: 1rem !important; }
+        }
+
+        @media (min-width: 600px) and (max-width: 768px) {
+            .bundles-container {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
         }
     </style>
 </head>
@@ -1440,22 +1530,22 @@
                         <i class="ri-wifi-line text-hubGreen"></i>
                         Choose Your Network
                     </h2>
-                    <div class="flex flex-wrap gap-4 mb-8 justify-center">
-                        <button class="network-btn btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('all', event)" data-network="all">
-                            <i class="ri-wifi-line mr-2"></i>All Networks
+                    <div class="flex flex-wrap gap-4 mb-8 justify-center network-buttons">
+                        <button class="network-btn network-button btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" 
+                                onclick="handleFeaturedNetworkClick('all', event)" data-network="all" data-mobile-label="All">
+                            <span class="network-button-content"><i class="ri-wifi-line mr-2"></i>All Networks</span>
                         </button>
-                        <button class="network-btn btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('mtn', event)" data-network="mtn">
-                            <i class="ri-fire-fill mr-2"></i>MTN Express (5-45min)
+                        <button class="network-btn network-button btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                onclick="handleFeaturedNetworkClick('mtn', event)" data-network="mtn" data-mobile-label="MTN">
+                            <span class="network-button-content"><i class="ri-fire-fill mr-2"></i>MTN Express (5-45min)</span>
                         </button>
-                        <button class="network-btn btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('airteltigo', event)" data-network="airteltigo">
-                            <i class="ri-flashlight-fill mr-2"></i>AirtelTigo <span class="flash-badge">INSTANT</span>
+                        <button class="network-btn network-button btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                onclick="handleFeaturedNetworkClick('airteltigo', event)" data-network="airteltigo" data-mobile-label="AT">
+                            <span class="network-button-content"><i class="ri-flashlight-fill mr-2"></i>AirtelTigo <span class="flash-badge">INSTANT</span></span>
                         </button>
-                        <button class="network-btn btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('telecel', event)" data-network="telecel">
-                            <i class="ri-signal-wifi-3-fill mr-2"></i>Telecel Express (5-45min)
+                        <button class="network-btn network-button btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                onclick="handleFeaturedNetworkClick('telecel', event)" data-network="telecel" data-mobile-label="Telecel">
+                            <span class="network-button-content"><i class="ri-signal-wifi-3-fill mr-2"></i>Telecel Express (5-45min)</span>
                         </button>
                     </div>
                     <p class="text-center small-muted mt-4 bg-black/30 p-4 rounded-xl">
@@ -1477,7 +1567,7 @@
                         </button>
                     </div>
 
-                    <div id="products" class="featured-plans-grid mt-6">
+                    <div id="products" class="featured-plans-grid bundles-container mt-6">
                         <!-- Product cards injected by JS -->
                     </div>
                 </section>
@@ -1821,18 +1911,18 @@
                 </div>
 
                 <!-- Network Filter -->
-                <div class="flex flex-wrap gap-4 mb-12 justify-center">
-                    <button class="network-filter-btn btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" onclick="handleBundleNetworkClick('all', event)">
-                        All Networks
+                <div class="flex flex-wrap gap-4 mb-12 justify-center network-buttons">
+                    <button class="network-filter-btn network-button btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" onclick="handleBundleNetworkClick('all', event)" data-network="all" data-mobile-label="All">
+                        <span class="network-button-content">All Networks</span>
                     </button>
-                    <button class="network-filter-btn btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('mtn', event)">
-                        MTN Express (5-45min)
+                    <button class="network-filter-btn network-button btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('mtn', event)" data-network="mtn" data-mobile-label="MTN">
+                        <span class="network-button-content">MTN Express (5-45min)</span>
                     </button>
-                    <button class="network-filter-btn btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('airteltigo', event)">
-                        AirtelTigo <span class="flash-badge">INSTANT</span> / BigTime
+                    <button class="network-filter-btn network-button btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('airteltigo', event)" data-network="airteltigo" data-mobile-label="AT">
+                        <span class="network-button-content">AirtelTigo <span class="flash-badge">INSTANT</span> / BigTime</span>
                     </button>
-                    <button class="network-filter-btn btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('telecel', event)">
-                        Telecel Express (5-45min)
+                    <button class="network-filter-btn network-button btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('telecel', event)" data-network="telecel" data-mobile-label="Telecel">
+                        <span class="network-button-content">Telecel Express (5-45min)</span>
                     </button>
                 </div>
 
@@ -2338,7 +2428,6 @@
             products: [],
             currentNetworkFilter: 'all',
             bundlesLoaded: false,
-            pendingScrollFrame: null,
             userData: {
                 totalSpent: 0,
                 referrals: 0,
@@ -2510,7 +2599,8 @@
             }
 
             if (scroll) {
-                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const y = Math.max(targetSection.getBoundingClientRect().top + window.pageYOffset - 80, 0);
+                window.scrollTo({ top: y, behavior: 'smooth' });
             }
 
             appState.currentSection = sectionName;
@@ -2745,7 +2835,7 @@
             `;
 
             const grid = document.createElement('div');
-            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5';
+            grid.className = 'bundles-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5';
             bundleData[network].forEach(bundle => {
                 grid.appendChild(createBundleCard(network, bundle));
             });
@@ -2811,69 +2901,68 @@
         // Filter functions
         function setActiveFilterButton(selector, trigger) {
             document.querySelectorAll(selector).forEach(btn => btn.classList.remove('active'));
-            const button = trigger?.currentTarget || trigger?.target;
+            const button = trigger?.currentTarget || trigger?.target || trigger;
             if (button?.classList) {
                 button.classList.add('active');
             }
         }
 
-        function queueSmoothScroll(target) {
-            if (!target) return;
-            if (appState.pendingScrollFrame) {
-                window.cancelAnimationFrame(appState.pendingScrollFrame);
+        function syncNetworkFilterButtons(network, sourceSelector, trigger) {
+            const counterpartSelector = sourceSelector === '.network-btn' ? '.network-filter-btn' : '.network-btn';
+            setActiveFilterButton(sourceSelector, trigger);
+            document.querySelectorAll(counterpartSelector).forEach(btn => btn.classList.remove('active'));
+            const linkedButton = document.querySelector(`${counterpartSelector}[data-network="${network}"]`);
+            if (linkedButton) {
+                linkedButton.classList.add('active');
+            }
+        }
+
+        function scrollToBundles(network = null) {
+            const section = document.getElementById("bundles-section");
+            if (!section) return;
+
+            ensureAllBundlesLoaded();
+
+            if (network) {
+                filterBundles(network);
+                filterAllBundles(network);
             }
 
-            appState.pendingScrollFrame = window.requestAnimationFrame(() => {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                appState.pendingScrollFrame = null;
+            const y = Math.max(section.getBoundingClientRect().top + window.pageYOffset - 80, 0);
+            console.log("scroll triggered");
+            window.scrollTo({
+                top: y,
+                behavior: "smooth"
             });
         }
 
-        function scrollToBundleNetwork(network) {
-            const target = network === 'all'
-                ? document.getElementById('bundles-section')
-                : document.getElementById(`bundle-group-${network}`);
-            queueSmoothScroll(target);
-        }
-
-        function filterBundles(network, trigger) {
+        function filterBundles(network) {
             const products = document.querySelectorAll('#products > div');
             products.forEach(product => {
                 const matches = network === 'all' || product.getAttribute('data-network') === network;
                 product.classList.toggle('is-hidden', !matches);
             });
-            setActiveFilterButton('.network-btn', trigger);
             appState.currentNetworkFilter = network;
         }
 
-        function filterAllBundles(network, trigger, shouldScroll = true) {
+        function filterAllBundles(network) {
             const sections = document.querySelectorAll('#allBundles .bundle-network-group');
             sections.forEach(section => {
                 const matches = network === 'all' || section.getAttribute('data-network-group') === network;
                 section.classList.toggle('is-hidden', !matches);
             });
-            setActiveFilterButton('.network-filter-btn', trigger);
             appState.currentNetworkFilter = network;
-            if (shouldScroll) {
-                scrollToBundleNetwork(network);
-            }
         }
 
         function handleBundleNetworkClick(network, trigger) {
-            filterAllBundles(network, trigger, true);
+            syncNetworkFilterButtons(network, '.network-filter-btn', trigger);
+            scrollToBundles(network);
         }
 
         function handleFeaturedNetworkClick(network, trigger) {
-            filterBundles(network, trigger);
             switchSection('bundles', { scroll: false });
-            filterAllBundles(network, null, false);
-            if (network !== 'all') {
-                const matchingFilter = document.querySelector(`.network-filter-btn[onclick*="'${network}'"]`);
-                matchingFilter?.classList.add('active');
-            } else {
-                document.querySelector('.network-filter-btn')?.classList.add('active');
-            }
-            scrollToBundleNetwork(network);
+            syncNetworkFilterButtons(network, '.network-btn', trigger);
+            scrollToBundles(network);
         }
 
         // Modal functions

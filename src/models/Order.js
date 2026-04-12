@@ -20,6 +20,12 @@ const orderSchema = new mongoose.Schema({
   paymentStatus: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending' },
   deliveryStatus: { type: String, enum: ['pending', 'processing', 'delivered', 'failed'], default: 'pending' },
   deliveryTime: Number, // minutes taken
+  providerOrderId: { type: String, index: true, sparse: true },
+  providerStatus: String,
+  fulfillmentRequestedAt: Date,
+  fulfillmentAcceptedAt: Date,
+  lastProviderSyncAt: Date,
+  lastProviderPayload: mongoose.Schema.Types.Mixed,
   paystackResponse: Object,
   createdAt: { type: Date, default: Date.now },
   updatedAt: Date
