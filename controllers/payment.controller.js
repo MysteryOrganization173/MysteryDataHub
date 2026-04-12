@@ -4,7 +4,31 @@ import { Order } from '../models/Order.js';
 import { Bundle } from '../models/Bundle.js';
 import { fulfillOrder } from '../services/fulfillment.service.js';
 
-const paystackBase = () => process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co';
+const paystackBase = () => String(process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co').trim();
+
+function paymentLog(level, stage, message, meta = {}) {
+  const payload = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
+  const text = `[payment.${stage}] ${message}${payload}`;
+  if (level === 'error') return console.error(text);
+  if (level === 'warn') return console.warn(text);
+  return console.info(text);
+}
+
+function getPaystackSecretKey() {
+  return process.env.PAYSTACK_SECRET_KEY?.trim() || '';
+}
+
+function requirePaystackSecretKey(stage) {
+  const key = getPaystackSecretKey();
+  if (!key) {
+    paymentLog('error', stage, 'missing paystack secret key', {
+      keyPresent: false,
+      nodeEnv: process.env.NODE_ENV || 'development'
+    });
+    throw new Error('Paystack secret key is missing in environment variables');
+  }
+  return key;
+}
 
 function normalizeGhanaPhone(input) {
   if (input === undefined || input === null) return null;
@@ -84,12 +108,13 @@ function getPaystackErrorMessage(error) {
 }
 
 export function verifyPaystackWebhookSignature(rawBodyBuffer, signature) {
-  if (!signature || !process.env.PAYSTACK_SECRET_KEY || !Buffer.isBuffer(rawBodyBuffer)) {
+  const secretKey = getPaystackSecretKey();
+  if (!signature || !secretKey || !Buffer.isBuffer(rawBodyBuffer)) {
     return false;
   }
 
   const hash = crypto
-    .createHmac('sha512', process.env.PAYSTACK_SECRET_KEY)
+    .createHmac('sha512', secretKey)
     .update(rawBodyBuffer)
     .digest('hex');
 
@@ -115,13 +140,7 @@ export const initializePayment = async (req, res) => {
   const requestId = crypto.randomBytes(4).toString('hex');
 
   try {
-    if (!process.env.PAYSTACK_SECRET_KEY) {
-      return res.status(503).json({
-        success: false,
-        status: 'error',
-        message: 'PAYSTACK_SECRET_KEY is not configured'
-      });
-    }
+    const paystackSecretKey = requirePaystackSecretKey('initialize');
 
     const { phone, bundle, email: emailRaw } = req.body || {};
 
@@ -235,7 +254,7 @@ export const initializePayment = async (req, res) => {
         payload,
         {
           headers: {
-            Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+            Authorization: `Bearer ${paystackSecretKey}`,
             'Content-Type': 'application/json'
           },
           timeout: 30000
@@ -244,6 +263,14 @@ export const initializePayment = async (req, res) => {
 
       console.log(`[${requestId}] Paystack response`, JSON.stringify(paystackRes.data, null, 2));
     } catch (e) {
+      paymentLog('error', 'initialize', 'paystack initialize request failed', {
+        keyPresent: Boolean(paystackSecretKey),
+        keyLength: paystackSecretKey.length,
+        nodeEnv: process.env.NODE_ENV || 'development',
+        paystackStatus: e.response?.status,
+        paystackMessage: e.response?.data?.message,
+        error: e.message
+      });
       console.error(`[${requestId}] Paystack initialize error`, {
         message: e.message,
         status: e.response?.status,
@@ -284,7 +311,17 @@ export const initializePayment = async (req, res) => {
       }
     });
   } catch (error) {
+    if (error.message === 'Paystack secret key is missing in environment variables') {
+      return res.status(503).json({
+        success: false,
+        status: 'error',
+        message: error.message
+      });
+    }
     console.error(`[${requestId}] initializePayment unhandled error`, {
+      keyPresent: Boolean(getPaystackSecretKey()),
+      keyLength: getPaystackSecretKey().length,
+      nodeEnv: process.env.NODE_ENV || 'development',
       message: error.message,
       status: error.response?.status,
       data: error.response?.data
@@ -300,13 +337,7 @@ export const initializePayment = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
-    if (!process.env.PAYSTACK_SECRET_KEY) {
-      return res.status(503).json({
-        success: false,
-        status: 'error',
-        message: 'PAYSTACK_SECRET_KEY is not configured'
-      });
-    }
+    const paystackSecretKey = requirePaystackSecretKey('verify');
 
     const { reference } = req.params;
 
@@ -322,7 +353,7 @@ export const verifyPayment = async (req, res) => {
       `${paystackBase()}/transaction/verify/${encodeURIComponent(reference)}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+          Authorization: `Bearer ${paystackSecretKey}`
         },
         timeout: 30000
       }
@@ -426,6 +457,7 @@ export const verifyPayment = async (req, res) => {
 
 export const webhook = async (req, res) => {
   try {
+    const paystackSecretKey = requirePaystackSecretKey('webhook');
     const signature = req.headers['x-paystack-signature'];
 
     if (!verifyPaystackWebhookSignature(req.rawBody, signature)) {
@@ -445,15 +477,11 @@ export const webhook = async (req, res) => {
       return res.sendStatus(200);
     }
 
-    if (!process.env.PAYSTACK_SECRET_KEY) {
-      return res.sendStatus(503);
-    }
-
     const paystackRes = await axios.get(
       `${paystackBase()}/transaction/verify/${encodeURIComponent(reference)}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
+          Authorization: `Bearer ${paystackSecretKey}`
         },
         timeout: 30000
       }
@@ -480,6 +508,9 @@ export const webhook = async (req, res) => {
 
     return res.sendStatus(200);
   } catch (e) {
+    if (e.message === 'Paystack secret key is missing in environment variables') {
+      return res.sendStatus(503);
+    }
     console.error('webhook:', e);
     return res.sendStatus(500);
   }
