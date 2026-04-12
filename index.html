@@ -279,7 +279,8 @@
             display: none;
         }
         
-        .network-btn.active { 
+        .network-btn.active,
+        .network-filter-btn.active { 
             transform: scale(1.03) !important; 
             border-color: currentColor !important;
         }
@@ -1218,6 +1219,782 @@
                 grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
             }
         }
+
+        .promo-copy-mobile,
+        .hero-copy-mobile,
+        .buy-mobile-only,
+        .network-selector-note .mobile-note {
+            display: none;
+        }
+
+        .bundle-card-shell {
+            display: grid;
+            gap: 0.72rem;
+        }
+
+        .bundle-card-topline,
+        .bundle-card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.65rem;
+        }
+
+        .bundle-network-chip,
+        .bundle-speed-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 1.5rem;
+            padding: 0.22rem 0.56rem;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        .bundle-network-chip {
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(6, 10, 20, 0.3);
+            color: #f8fafc;
+        }
+
+        .bundle-network-chip.mtn {
+            color: #ffcc00;
+            border-color: rgba(255, 204, 0, 0.22);
+            background: rgba(255, 204, 0, 0.1);
+        }
+
+        .bundle-network-chip.airteltigo {
+            color: #ffd5d5;
+            border-color: rgba(230, 0, 0, 0.24);
+            background: rgba(230, 0, 0, 0.14);
+        }
+
+        .bundle-network-chip.telecel {
+            color: #dbeafe;
+            border-color: rgba(37, 99, 235, 0.28);
+            background: rgba(37, 99, 235, 0.16);
+        }
+
+        .bundle-speed-pill {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(15, 23, 42, 0.82);
+            color: #e2e8f0;
+        }
+
+        .bundle-speed-instant {
+            color: #c4b5fd;
+            border-color: rgba(167, 139, 250, 0.24);
+            background: rgba(76, 29, 149, 0.34);
+        }
+
+        .bundle-speed-express {
+            color: #fde68a;
+            border-color: rgba(251, 191, 36, 0.24);
+            background: rgba(120, 53, 15, 0.34);
+        }
+
+        .bundle-speed-standard {
+            color: #cbd5e1;
+            border-color: rgba(148, 163, 184, 0.2);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .bundle-price-stack {
+            display: grid;
+            gap: 0.16rem;
+        }
+
+        .bundle-old-price {
+            font-size: 0.74rem;
+            color: rgba(226, 232, 240, 0.68);
+            text-decoration: line-through;
+        }
+
+        .bundle-price {
+            font-size: clamp(1.65rem, 3vw, 2.1rem);
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+        }
+
+        .bundle-save-text {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #86efac;
+        }
+
+        .bundle-card-title {
+            font-size: 1.05rem;
+            line-height: 1.15;
+            font-weight: 800;
+            color: #f8fafc;
+            margin: 0;
+        }
+
+        .bundle-card-subtitle {
+            font-size: 0.84rem;
+            line-height: 1.35;
+            color: rgba(241, 245, 249, 0.84);
+            margin: 0;
+        }
+
+        .bundle-card-rate {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: rgba(241, 245, 249, 0.82);
+            white-space: nowrap;
+        }
+
+        .bundle-card-note {
+            font-size: 0.76rem;
+            line-height: 1.35;
+            color: rgba(241, 245, 249, 0.8);
+            margin: 0;
+        }
+
+        .bundle-card .best-value-pill {
+            margin-top: -0.1rem;
+            align-self: start;
+        }
+
+        .buy-modal-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 0.5rem;
+            padding: 0.24rem 0.6rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff9aa5;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .buy-section-head {
+            display: grid;
+            gap: 0.24rem;
+        }
+
+        .buy-step-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #00e07a;
+        }
+
+        .buy-step-title {
+            font-size: 1rem;
+            line-height: 1.2;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .buy-step-help {
+            font-size: 0.8rem;
+            line-height: 1.35;
+            color: rgba(230, 238, 246, 0.74);
+        }
+
+        .buy-network-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .buy-network-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 2.8rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 0.95rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.55);
+            color: #f8fafc;
+            font-size: 0.88rem;
+            font-weight: 700;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .buy-network-chip.is-active {
+            transform: translateY(-1px);
+        }
+
+        .buy-network-chip.is-active[data-buy-network="mtn"] {
+            border-color: rgba(255, 204, 0, 0.4);
+            background: rgba(255, 204, 0, 0.12);
+            color: #fff4bf;
+        }
+
+        .buy-network-chip.is-active[data-buy-network="airteltigo"] {
+            border-color: rgba(230, 0, 0, 0.42);
+            background: rgba(230, 0, 0, 0.16);
+            color: #ffe1e1;
+        }
+
+        .buy-network-chip.is-active[data-buy-network="telecel"] {
+            border-color: rgba(37, 99, 235, 0.45);
+            background: rgba(37, 99, 235, 0.18);
+            color: #dbeafe;
+        }
+
+        .buy-flow-stepper {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+
+        .buy-flow-step {
+            display: grid;
+            justify-items: center;
+            gap: 0.24rem;
+            padding: 0.5rem 0.35rem;
+            border-radius: 0.9rem;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(15, 23, 42, 0.36);
+            text-align: center;
+            transition: border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .buy-flow-step span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.45rem;
+            height: 1.45rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .buy-flow-step strong {
+            font-size: 0.64rem;
+            font-weight: 700;
+            color: rgba(230, 238, 246, 0.72);
+        }
+
+        .buy-flow-step.is-active {
+            border-color: rgba(0, 224, 122, 0.38);
+            background: rgba(0, 224, 122, 0.08);
+        }
+
+        .buy-flow-step.is-active span,
+        .buy-flow-step.is-complete span {
+            background: #00e07a;
+            color: #041017;
+        }
+
+        .buy-flow-step.is-active strong,
+        .buy-flow-step.is-complete strong {
+            color: #f8fafc;
+        }
+
+        .buy-summary-card {
+            display: grid;
+            gap: 0.65rem;
+            padding: 0.95rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 23, 42, 0.52);
+        }
+
+        .buy-summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.8rem;
+            font-size: 0.84rem;
+            color: rgba(230, 238, 246, 0.76);
+        }
+
+        .buy-summary-row strong {
+            color: #f8fafc;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .buy-flow-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.2rem;
+        }
+
+        .buy-flow-actions .ghost-btn,
+        .buy-flow-actions .primary-btn {
+            flex: 1 1 0;
+            min-height: 2.85rem;
+            border-radius: 0.95rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .buy-flow-actions .ghost-btn {
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(15, 23, 42, 0.5);
+            color: #e2e8f0;
+        }
+
+        .buy-flow-actions .primary-btn[disabled] {
+            opacity: 0.55;
+            cursor: not-allowed;
+            filter: saturate(0.8);
+        }
+
+        body.light-mode .bundle-network-chip,
+        body.light-mode .bundle-speed-pill,
+        body.light-mode .buy-network-chip,
+        body.light-mode .buy-flow-step,
+        body.light-mode .buy-summary-card {
+            background: rgba(255, 255, 255, 0.86);
+            color: #0f172a;
+            border-color: rgba(100, 116, 139, 0.18);
+        }
+
+        body.light-mode .bundle-card-title {
+            color: #0f172a;
+        }
+
+        body.light-mode .bundle-card-subtitle,
+        body.light-mode .bundle-card-rate,
+        body.light-mode .bundle-card-note,
+        body.light-mode .buy-step-help,
+        body.light-mode .buy-summary-row {
+            color: #475569;
+        }
+
+        body.light-mode .bundle-network-chip.mtn {
+            color: #854d0e;
+            background: rgba(255, 204, 0, 0.18);
+            border-color: rgba(255, 204, 0, 0.32);
+        }
+
+        body.light-mode .bundle-network-chip.airteltigo {
+            color: #991b1b;
+            background: rgba(230, 0, 0, 0.12);
+            border-color: rgba(230, 0, 0, 0.24);
+        }
+
+        body.light-mode .bundle-network-chip.telecel {
+            color: #1d4ed8;
+            background: rgba(37, 99, 235, 0.12);
+            border-color: rgba(37, 99, 235, 0.22);
+        }
+
+        body.light-mode .buy-network-chip.is-active[data-buy-network="mtn"] {
+            background: rgba(255, 204, 0, 0.22);
+            color: #713f12;
+        }
+
+        body.light-mode .buy-network-chip.is-active[data-buy-network="airteltigo"] {
+            background: rgba(230, 0, 0, 0.12);
+            color: #991b1b;
+        }
+
+        body.light-mode .buy-network-chip.is-active[data-buy-network="telecel"] {
+            background: rgba(37, 99, 235, 0.12);
+            color: #1d4ed8;
+        }
+
+        body.light-mode .buy-flow-step strong,
+        body.light-mode .buy-summary-row strong,
+        body.light-mode .buy-step-title {
+            color: #0f172a;
+        }
+
+        @media (max-width: 768px) {
+            .promo-banner {
+                max-height: 3rem;
+                overflow: hidden;
+                transition: max-height 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
+            }
+
+            body.mobile-top-compact .promo-banner {
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                opacity: 0;
+                border: 0;
+            }
+
+            .promo-copy-desktop {
+                display: none;
+            }
+
+            .promo-copy-mobile {
+                display: inline;
+            }
+
+            .top-nav {
+                padding-top: 0.85rem !important;
+                padding-bottom: 0.85rem !important;
+                transition: padding 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            body.mobile-top-compact .top-nav {
+                padding-top: 0.52rem !important;
+                padding-bottom: 0.52rem !important;
+            }
+
+            body.mobile-top-compact .logo-home .small-muted,
+            body.mobile-top-compact .buy-now-pill .btn-flare {
+                display: none !important;
+            }
+
+            body.mobile-top-compact .logo-home .w-12.h-12 {
+                width: 2.35rem !important;
+                height: 2.35rem !important;
+            }
+
+            body.mobile-top-compact .buy-now-pill {
+                padding-right: 0.95rem !important;
+            }
+
+            #home-section .max-w-7xl {
+                padding-top: 0.9rem !important;
+                padding-bottom: 1.1rem !important;
+            }
+
+            #networkStatusBanner {
+                padding: 0.78rem 0.9rem !important;
+                margin-bottom: 0.9rem !important;
+            }
+
+            .hero-copy-desktop {
+                display: none;
+            }
+
+            .hero-copy-mobile {
+                display: grid;
+                gap: 0.5rem;
+            }
+
+            .hero-copy-mobile p {
+                font-size: 0.95rem;
+                line-height: 1.45;
+                color: #f8fafc;
+                margin: 0;
+            }
+
+            .hero-mobile-details {
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 0.85rem;
+                background: rgba(15, 23, 42, 0.4);
+                padding: 0.55rem 0.7rem;
+            }
+
+            .hero-mobile-details summary {
+                cursor: pointer;
+                list-style: none;
+                font-size: 0.76rem;
+                font-weight: 700;
+                color: #cbd5e1;
+            }
+
+            .hero-mobile-details summary::-webkit-details-marker {
+                display: none;
+            }
+
+            .hero-mobile-details p {
+                margin-top: 0.5rem;
+                font-size: 0.74rem;
+                line-height: 1.4;
+                color: #dbe4ef;
+            }
+
+            .hero-support-stack {
+                padding-top: 0.2rem !important;
+            }
+
+            .hero-support-stack > p,
+            .hero-support-stack .whatsapp-channel-card {
+                display: none !important;
+            }
+
+            .hero-support-stack > .flex {
+                gap: 0.45rem !important;
+            }
+
+            .hero-support-stack .trust-indicator {
+                flex: 1 1 calc(50% - 0.45rem);
+                min-width: 0;
+                padding: 0.55rem 0.65rem;
+            }
+
+            .hero-spotlight-card {
+                padding: 1rem !important;
+                border-radius: 1rem !important;
+            }
+
+            .hero-spotlight-card .discount-tag {
+                right: 0.45rem;
+                transform: translate(0, -26%) rotate(-4deg);
+            }
+
+            .hero-spotlight-progress {
+                display: none;
+            }
+
+            .network-buttons {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+
+            .network-btn,
+            .network-filter-btn {
+                box-shadow: none !important;
+                border-width: 1px !important;
+            }
+
+            .network-btn.active,
+            .network-filter-btn.active {
+                transform: none !important;
+            }
+
+            .network-button {
+                min-height: 2.3rem;
+                padding: 0.35rem 0.4rem !important;
+                border-radius: 999px !important;
+                font-size: 0.7rem !important;
+            }
+
+            .network-button::after {
+                font-size: 0.68rem;
+            }
+
+            .network-selector-note {
+                padding: 0.78rem 0.9rem !important;
+                text-align: left !important;
+                font-size: 0.78rem !important;
+            }
+
+            .network-selector-note .desktop-note {
+                display: none;
+            }
+
+            .network-selector-note .mobile-note {
+                display: inline;
+            }
+
+            .featured-plans-grid,
+            .bundles-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 0.78rem !important;
+            }
+
+            .bundle-card {
+                padding: 0.88rem !important;
+                border-radius: 1rem !important;
+                min-height: 0;
+                box-shadow: 0 14px 26px rgba(6, 14, 24, 0.16);
+            }
+
+            .bundle-card.badged-card {
+                padding-top: 1.85rem !important;
+            }
+
+            .bundle-card > .discount-tag {
+                right: 0.42rem;
+                max-width: calc(100% - 0.9rem);
+                padding: 0.18rem 0.42rem;
+                font-size: 0.54rem;
+                border-radius: 0.4rem;
+                transform: translate(0, -32%) rotate(-4deg);
+            }
+
+            .bundle-card-shell {
+                gap: 0.5rem;
+            }
+
+            .bundle-network-chip,
+            .bundle-speed-pill {
+                min-height: 1.28rem;
+                padding: 0.16rem 0.44rem;
+                font-size: 0.56rem;
+            }
+
+            .bundle-price {
+                font-size: 1.22rem;
+            }
+
+            .bundle-old-price {
+                font-size: 0.63rem;
+            }
+
+            .bundle-save-text {
+                font-size: 0.58rem;
+            }
+
+            .bundle-card-title {
+                font-size: 0.84rem;
+                line-height: 1.18;
+            }
+
+            .bundle-card-subtitle {
+                font-size: 0.68rem;
+            }
+
+            .bundle-card-rate {
+                font-size: 0.62rem;
+            }
+
+            .bundle-card-note {
+                font-size: 0.66rem;
+                line-height: 1.25;
+                display: -webkit-box;
+                line-clamp: 2;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .bundle-card .network-value-pill,
+            .bundle-card .best-value-pill {
+                min-height: 1.15rem;
+                padding: 0.14rem 0.42rem !important;
+                font-size: 0.56rem !important;
+                border-radius: 0.42rem !important;
+            }
+
+            .bundle-buy-btn {
+                min-height: 2.18rem;
+                padding: 0.55rem 0.72rem;
+                border-radius: 0.78rem;
+                font-size: 0.72rem !important;
+                box-shadow: none;
+            }
+
+            .bundle-buy-btn i {
+                display: none;
+            }
+
+            #buyModal {
+                align-items: flex-end;
+                padding: 0 !important;
+            }
+
+            #buyModal .modal-backdrop {
+                background: rgba(2, 6, 23, 0.62);
+            }
+
+            #buyModal .premium-modal {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)) !important;
+                border-radius: 1.25rem 1.25rem 0 0 !important;
+                max-height: min(92vh, 760px);
+                box-shadow: 0 -18px 54px rgba(3, 10, 19, 0.42);
+            }
+
+            .buy-sheet-handle {
+                display: block;
+                width: 3rem;
+                height: 0.3rem;
+                border-radius: 999px;
+                background: rgba(148, 163, 184, 0.45);
+                margin: 0 auto 0.8rem;
+            }
+
+            .buy-sheet-close {
+                position: absolute;
+                top: 0.85rem;
+                right: 0.8rem;
+                width: 2.2rem;
+                height: 2.2rem;
+                border-radius: 999px;
+                border: 1px solid rgba(148, 163, 184, 0.2);
+                background: rgba(15, 23, 42, 0.56);
+                color: #e2e8f0;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .buy-modal-kicker {
+                margin-bottom: 0.4rem;
+            }
+
+            .buy-flow-panel[data-buy-step] {
+                display: none;
+            }
+
+            .buy-flow-panel.is-active {
+                display: grid;
+                gap: 0.85rem;
+            }
+
+            .buy-desktop-only {
+                display: none !important;
+            }
+
+            .buy-mobile-only {
+                display: block;
+            }
+
+            .buy-network-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.5rem;
+            }
+
+            .buy-network-chip {
+                min-height: 2.35rem;
+                padding: 0.55rem 0.45rem;
+                border-radius: 999px;
+                font-size: 0.72rem;
+            }
+
+            .buy-step-title {
+                font-size: 0.96rem;
+            }
+
+            .buy-step-help {
+                font-size: 0.74rem;
+            }
+
+            .buy-summary-card {
+                padding: 0.85rem;
+                gap: 0.55rem;
+            }
+
+            .buy-summary-row {
+                font-size: 0.76rem;
+            }
+
+            .buy-flow-actions {
+                margin-top: 0.25rem;
+            }
+
+            .buy-flow-actions .ghost-btn,
+            .buy-flow-actions .primary-btn {
+                min-height: 2.7rem;
+                font-size: 0.84rem;
+            }
+
+            .premium-note,
+            .buy-delivery-note {
+                font-size: 0.76rem !important;
+                line-height: 1.4;
+            }
+
+            #buyStatus {
+                text-align: left !important;
+                font-size: 0.78rem !important;
+            }
+        }
+
+        @media (min-width: 600px) and (max-width: 768px) {
+            .featured-plans-grid,
+            .bundles-container {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -1225,7 +2002,8 @@
     <div class="promo-banner bg-gradient-to-r from-hubGreen to-neonPurple text-black text-center font-bold">
         <div class="promo-banner-inner">
             <i class="ri-flashlight-fill animate-bounce"></i>
-            <span>FLASH SALE: Get 20% OFF on your first purchase.</span>
+            <span class="promo-copy-desktop">FLASH SALE: Get 20% OFF on your first purchase.</span>
+            <span class="promo-copy-mobile">20% OFF first order</span>
             <span class="promo-code-pill">WELCOME20</span>
             <i class="ri-flashlight-fill animate-bounce"></i>
         </div>
@@ -1398,11 +2176,18 @@
                             <span class="block">Ghana's Fastest</span>
                             <span class="block gradient-text">Data Bundle Delivery</span>
                         </h1>
-                        <p class="text-lg text-slate-300 max-w-xl">
+                        <p class="text-lg text-slate-300 max-w-xl hero-copy-desktop">
                             ⚡ Get <strong class="accent">Express</strong> mobile data from all networks.
                             <span class="font-semibold accent">AirtelTigo delivers instantly</span>, 
                             while <span class="font-semibold mtn-color">MTN Express</span> & <span class="font-semibold telecel-color">Telecel Express</span> arrive in <strong class="text-white">5-45 minutes</strong> — the fastest in Ghana!
                         </p>
+                        <div class="hero-copy-mobile">
+                            <p>Fast mobile data for MTN, AirtelTigo, and Telecel with a cleaner mobile checkout.</p>
+                            <details class="hero-mobile-details">
+                                <summary>Delivery details</summary>
+                                <p>AirtelTigo is instant. MTN and Telecel typically arrive within 5-45 minutes.</p>
+                            </details>
+                        </div>
 
                         <!-- Guarantee Badges -->
                         <div class="flex flex-wrap gap-4">
@@ -1456,7 +2241,7 @@
                         </div>
 
                         <!-- Trust Indicators -->
-                        <div class="pt-4 space-y-4">
+                        <div class="pt-4 space-y-4 hero-support-stack">
                             <p class="text-sm small-muted mb-2">Trusted by students, businesses & streamers across Ghana:</p>
                             <div class="flex flex-wrap gap-3">
                                 <div class="trust-indicator">
@@ -1488,7 +2273,7 @@
                     </div>
 
                     <!-- HERO RIGHT (Flash Deal) - FIXED DISCOUNT TAG -->
-                    <div class="glass rounded-xl p-6 neon-border card-hover smooth-transition float-animation relative bundle-card" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D');}">
+                    <div class="glass rounded-xl p-6 neon-border card-hover smooth-transition float-animation relative bundle-card badged-card hero-spotlight-card" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D');}">
                         <div class="discount-tag">20% OFF</div>
                         <div class="bundle-card-inner">
                             <div class="flex justify-between items-start">
@@ -1505,13 +2290,13 @@
                             </div>
 
                             <div class="mt-4">
-                                <button onclick="quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D')" class="w-full btn-green py-3 rounded-full font-semibold btn-enhanced smooth-transition touch-target">
+                                <button onclick="quickBuy('airteltigo', '5GB', 23.99, 'AT_5GB_60D')" class="bundle-buy-btn w-full btn-green py-3 rounded-full font-semibold btn-enhanced smooth-transition touch-target">
                                     <i class="ri-zap-line mr-2"></i>Flash Buy • ₵23.99 (Save 20%)
                                 </button>
                             </div>
 
                             <!-- Progress Bar -->
-                            <div class="mt-6">
+                            <div class="mt-6 hero-spotlight-progress">
                                 <div class="flex justify-between text-sm mb-1">
                                     <span>Limited stock:</span>
                                     <span>12/50 sold</span>
@@ -1531,27 +2316,27 @@
                         Choose Your Network
                     </h2>
                     <div class="flex flex-wrap gap-4 mb-8 justify-center network-buttons">
-                        <button class="network-btn network-button btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('all', event)" data-network="all" data-mobile-label="All">
+                        <button type="button" class="network-btn network-button btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" 
+                                data-network="all" data-mobile-label="All">
                             <span class="network-button-content"><i class="ri-wifi-line mr-2"></i>All Networks</span>
                         </button>
-                        <button class="network-btn network-button btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('mtn', event)" data-network="mtn" data-mobile-label="MTN">
+                        <button type="button" class="network-btn network-button btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                data-network="mtn" data-mobile-label="MTN">
                             <span class="network-button-content"><i class="ri-fire-fill mr-2"></i>MTN Express (5-45min)</span>
                         </button>
-                        <button class="network-btn network-button btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('airteltigo', event)" data-network="airteltigo" data-mobile-label="AT">
+                        <button type="button" class="network-btn network-button btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                data-network="airteltigo" data-mobile-label="AT">
                             <span class="network-button-content"><i class="ri-flashlight-fill mr-2"></i>AirtelTigo <span class="flash-badge">INSTANT</span></span>
                         </button>
-                        <button class="network-btn network-button btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
-                                onclick="handleFeaturedNetworkClick('telecel', event)" data-network="telecel" data-mobile-label="Telecel">
+                        <button type="button" class="network-btn network-button btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" 
+                                data-network="telecel" data-mobile-label="Telecel">
                             <span class="network-button-content"><i class="ri-signal-wifi-3-fill mr-2"></i>Telecel Express (5-45min)</span>
                         </button>
                     </div>
-                    <p class="text-center small-muted mt-4 bg-black/30 p-4 rounded-xl">
+                    <p class="text-center small-muted mt-4 bg-black/30 p-4 rounded-xl network-selector-note">
                         <i class="ri-information-line mr-2 text-hubGreen"></i>
-                        ⚡ <strong>AirtelTigo iShare bundles deliver instantly.</strong> 
-                        <strong class="mtn-color">MTN Express</strong> & <strong class="telecel-color">Telecel Express</strong> bundles arrive in just <strong class="text-white">5-45 minutes</strong> — fastest delivery in Ghana!
+                        <span class="desktop-note">⚡ <strong>AirtelTigo iShare bundles deliver instantly.</strong> <strong class="mtn-color">MTN Express</strong> & <strong class="telecel-color">Telecel Express</strong> bundles arrive in just <strong class="text-white">5-45 minutes</strong> — fastest delivery in Ghana!</span>
+                        <span class="mobile-note">AT is instant. MTN and Telecel usually land within 5-45 minutes.</span>
                     </p>
                 </section>
 
@@ -1912,16 +2697,16 @@
 
                 <!-- Network Filter -->
                 <div class="flex flex-wrap gap-4 mb-12 justify-center network-buttons">
-                    <button class="network-filter-btn network-button btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" onclick="handleBundleNetworkClick('all', event)" data-network="all" data-mobile-label="All">
+                    <button type="button" class="network-filter-btn network-button btn-green px-6 py-3 rounded-full font-bold active smooth-transition touch-target" data-network="all" data-mobile-label="All">
                         <span class="network-button-content">All Networks</span>
                     </button>
-                    <button class="network-filter-btn network-button btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('mtn', event)" data-network="mtn" data-mobile-label="MTN">
+                    <button type="button" class="network-filter-btn network-button btn-mtn px-6 py-3 rounded-full font-bold smooth-transition touch-target" data-network="mtn" data-mobile-label="MTN">
                         <span class="network-button-content">MTN Express (5-45min)</span>
                     </button>
-                    <button class="network-filter-btn network-button btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('airteltigo', event)" data-network="airteltigo" data-mobile-label="AT">
+                    <button type="button" class="network-filter-btn network-button btn-airtel px-6 py-3 rounded-full font-bold smooth-transition touch-target" data-network="airteltigo" data-mobile-label="AT">
                         <span class="network-button-content">AirtelTigo <span class="flash-badge">INSTANT</span> / BigTime</span>
                     </button>
-                    <button class="network-filter-btn network-button btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" onclick="handleBundleNetworkClick('telecel', event)" data-network="telecel" data-mobile-label="Telecel">
+                    <button type="button" class="network-filter-btn network-button btn-telecel px-6 py-3 rounded-full font-bold smooth-transition touch-target" data-network="telecel" data-mobile-label="Telecel">
                         <span class="network-button-content">Telecel Express (5-45min)</span>
                     </button>
                 </div>
@@ -2191,15 +2976,22 @@
     <!-- BUY MODAL (scrollable) -->
     <div id="buyModal" class="fixed inset-0 hidden items-center justify-center z-50 p-4" aria-hidden="true">
         <div class="absolute inset-0 modal-backdrop bg-black/70 backdrop-blur-sm"></div>
-        <div class="premium-modal relative z-10 w-full max-w-lg p-6 glass rounded-xl neon-border smooth-transition modal-scrollable">
-            <h3 class="font-bold text-xl flex items-center gap-2">
-                <i class="ri-shopping-bag-line text-hubGreen"></i>
-                Buy Data Bundle
-            </h3>
-            <p class="small-muted mt-1">Choose your network, confirm your details, and continue to secure Paystack checkout.</p>
+        <div class="premium-modal buy-sheet relative z-10 w-full max-w-lg p-6 glass rounded-xl neon-border smooth-transition modal-scrollable">
+            <div class="buy-sheet-handle buy-mobile-only" aria-hidden="true"></div>
+            <button type="button" class="buy-sheet-close buy-mobile-only" onclick="closeBuyModal()" aria-label="Close checkout">
+                <i class="ri-close-line"></i>
+            </button>
 
-            <!-- Discount Banner -->
-            <div class="mt-4 bg-gradient-to-r from-discountRed/20 to-pink-500/20 p-3 rounded-lg border border-discountRed/30">
+            <div class="buy-modal-header">
+                <div class="buy-modal-kicker">20% OFF first order</div>
+                <h3 class="font-bold text-xl flex items-center gap-2">
+                    <i class="ri-shopping-bag-line text-hubGreen"></i>
+                    Buy Data Bundle
+                </h3>
+                <p class="small-muted mt-1 buy-modal-copy">Fast secure checkout in four short steps.</p>
+            </div>
+
+            <div class="buy-desktop-only mt-4 bg-gradient-to-r from-discountRed/20 to-pink-500/20 p-3 rounded-lg border border-discountRed/30">
                 <div class="flex items-center gap-2">
                     <i class="ri-coupon-line text-discountRed"></i>
                     <span class="font-semibold">20% OFF for new customers!</span>
@@ -2207,62 +2999,104 @@
                 </div>
             </div>
 
+            <div class="buy-flow-stepper buy-mobile-only mt-4" aria-hidden="true">
+                <div class="buy-flow-step" data-step-indicator="1"><span>1</span><strong>Network</strong></div>
+                <div class="buy-flow-step" data-step-indicator="2"><span>2</span><strong>Bundle</strong></div>
+                <div class="buy-flow-step" data-step-indicator="3"><span>3</span><strong>Contact</strong></div>
+                <div class="buy-flow-step" data-step-indicator="4"><span>4</span><strong>Pay</strong></div>
+            </div>
+
             <div class="modal-stack mt-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Network</label>
-                    <div class="select-wrap">
-                        <select id="opSelect" class="premium-select w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
-                            <option value="mtn">MTN Express (5-45min delivery)</option>
-                            <option value="airteltigo">AirtelTigo (Instant delivery)</option>
-                            <option value="telecel">Telecel Express (5-45min delivery)</option>
-                        </select>
-                        <i class="ri-arrow-down-s-line select-chevron"></i>
+                <section class="buy-flow-panel" data-buy-step="1">
+                    <div class="buy-section-head">
+                        <span class="buy-step-label buy-mobile-only">Step 1</span>
+                        <h4 class="buy-step-title">Choose network</h4>
+                        <p class="buy-step-help">Pick the network you want to top up.</p>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Bundle Plan</label>
-                    <div class="select-wrap">
-                        <select id="planSelect" class="premium-select w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
-                            <!-- Plans will be populated dynamically -->
-                        </select>
-                        <i class="ri-arrow-down-s-line select-chevron"></i>
+                    <div class="buy-network-grid buy-mobile-only">
+                        <button type="button" class="buy-network-chip" data-buy-network="mtn">MTN</button>
+                        <button type="button" class="buy-network-chip" data-buy-network="airteltigo">AT</button>
+                        <button type="button" class="buy-network-chip" data-buy-network="telecel">Telecel</button>
                     </div>
-                </div>
+                    <div class="buy-desktop-only">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Network</label>
+                        <div class="select-wrap">
+                            <select id="opSelect" class="premium-select w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
+                                <option value="mtn">MTN Express (5-45min delivery)</option>
+                                <option value="airteltigo">AirtelTigo (Instant delivery)</option>
+                                <option value="telecel">Telecel Express (5-45min delivery)</option>
+                            </select>
+                            <i class="ri-arrow-down-s-line select-chevron"></i>
+                        </div>
+                    </div>
+                </section>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Phone Number</label>
-                    <input id="phoneInput" type="tel" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="e.g., 0550123456 or +233550123456" />
-                </div>
+                <section class="buy-flow-panel" data-buy-step="2">
+                    <div class="buy-section-head">
+                        <span class="buy-step-label buy-mobile-only">Step 2</span>
+                        <h4 class="buy-step-title">Choose bundle</h4>
+                        <p class="buy-step-help">Select the plan that fits your budget.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Bundle</label>
+                        <div class="select-wrap">
+                            <select id="planSelect" class="premium-select w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white focus:border-hubGreen transition-colors appearance-none">
+                                <!-- Plans will be populated dynamically -->
+                            </select>
+                            <i class="ri-arrow-down-s-line select-chevron"></i>
+                        </div>
+                    </div>
+                </section>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                    <input id="emailInput" type="email" required class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="your@email.com" />
-                </div>
+                <section class="buy-flow-panel" data-buy-step="3">
+                    <div class="buy-section-head">
+                        <span class="buy-step-label buy-mobile-only">Step 3</span>
+                        <h4 class="buy-step-title">Add contact</h4>
+                        <p class="buy-step-help">We only need your phone and email.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Phone</label>
+                        <input id="phoneInput" type="tel" class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="0550123456 or +233550123456" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                        <input id="emailInput" type="email" required class="w-full p-3 rounded-lg bg-black/20 border border-white/10 text-white placeholder-gray-400 focus:border-hubGreen transition-colors" placeholder="your@email.com" />
+                    </div>
+                </section>
 
-                <div class="premium-note rounded-lg p-3 text-sm text-amber-200">
-                    After clicking pay, check your phone for a MoMo prompt. If not received, dial *170# and approve the transaction manually.
-                </div>
-
-                <div class="rounded-lg border border-white/10 bg-white/5 p-3 text-sm small-muted">
-                    <div>Delivery usually takes 5-45 minutes.</div>
-                    <div>If delayed, please wait a few minutes or contact support.</div>
-                </div>
-
-                <div class="flex gap-3 mt-4 flex-col sm:flex-row">
-                    <button id="confirmBuy" type="button" onclick="onPayNowClicked(event)" class="btn-green px-5 py-3 rounded-lg font-bold flex-1 hover:scale-105 transition-transform btn-enhanced touch-target">
-                        <i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF
-                    </button>
-                    <button onclick="closeBuyModal()" class="px-5 py-3 rounded-lg border border-white/6 glass text-gray-400 hover:bg-white/5 transition-colors flex-1 touch-target">Cancel</button>
-                </div>
+                <section class="buy-flow-panel" data-buy-step="4">
+                    <div class="buy-section-head">
+                        <span class="buy-step-label buy-mobile-only">Step 4</span>
+                        <h4 class="buy-step-title">Confirm and pay</h4>
+                        <p class="buy-step-help">Check your details before Paystack opens.</p>
+                    </div>
+                    <div id="buySummaryCard" class="buy-summary-card"></div>
+                    <div class="premium-note rounded-lg p-3 text-sm text-amber-200">
+                        Paystack will open next. Approve the MoMo prompt on your phone.
+                    </div>
+                    <div class="buy-delivery-note rounded-lg border border-white/10 bg-white/5 p-3 text-sm small-muted">
+                        Most deliveries arrive within 5-45 minutes.
+                    </div>
+                </section>
 
                 <div id="buyStatus" class="mt-3 text-center text-sm"></div>
                 <button id="retryPaymentBtn" type="button" onclick="onPayNowClicked(event)" class="mt-3 hidden w-full rounded-lg border border-hubGreen/30 bg-hubGreen/10 px-4 py-3 text-sm font-semibold text-hubGreen transition-colors hover:bg-hubGreen/20">
                     <i class="ri-refresh-line mr-2"></i>Retry Payment
                 </button>
-                
-                <!-- Trust Indicators -->
-                <div class="grid grid-cols-3 gap-2 mt-4">
+
+                <div class="buy-flow-actions buy-mobile-only">
+                    <button id="buyStepBack" type="button" class="ghost-btn touch-target" onclick="goToPreviousBuyStep()">Close</button>
+                    <button id="buyStepNext" type="button" class="primary-btn btn-green btn-enhanced touch-target" onclick="goToNextBuyStep()">Continue</button>
+                </div>
+
+                <div class="flex gap-3 mt-4 flex-col sm:flex-row buy-desktop-only">
+                    <button id="confirmBuy" type="button" onclick="onPayNowClicked(event)" class="btn-green px-5 py-3 rounded-lg font-bold flex-1 hover:scale-105 transition-transform btn-enhanced touch-target">
+                        <i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF
+                    </button>
+                    <button type="button" onclick="closeBuyModal()" class="px-5 py-3 rounded-lg border border-white/6 glass text-gray-400 hover:bg-white/5 transition-colors flex-1 touch-target">Cancel</button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 mt-4 buy-desktop-only">
                     <div class="text-center p-2 bg-white/5 rounded">
                         <i class="ri-shield-check-line text-green-400"></i>
                         <div class="text-xs mt-1">Secure</div>
@@ -2427,6 +3261,8 @@
             agents: [],
             products: [],
             currentNetworkFilter: 'all',
+            buyFlowStep: 1,
+            mobileHeaderCompact: false,
             bundlesLoaded: false,
             userData: {
                 totalSpent: 0,
@@ -2456,10 +3292,15 @@
             }, 30000);
             setViewportHeight();
             updateStickyHeaderOffset();
+            syncMobileHeaderState();
+            syncBuyFlowUI();
             window.addEventListener('resize', () => {
                 setViewportHeight();
                 updateStickyHeaderOffset();
+                syncMobileHeaderState();
+                syncBuyFlowUI();
             });
+            window.addEventListener('scroll', syncMobileHeaderState, { passive: true });
             // Poll network status every 45 seconds
             setInterval(fetchNetworkStatus, 45000);
             fetchNetworkStatus();
@@ -2504,6 +3345,15 @@
             document.documentElement.style.setProperty('--header-offset', `${offset}px`);
         }
 
+        function syncMobileHeaderState() {
+            const shouldCompact = window.innerWidth <= 768 && window.scrollY > 56;
+            if (appState.mobileHeaderCompact === shouldCompact) return;
+
+            appState.mobileHeaderCompact = shouldCompact;
+            document.body.classList.toggle('mobile-top-compact', shouldCompact);
+            updateStickyHeaderOffset();
+        }
+
         function syncBodyScrollLock() {
             const isMenuOpen = document.getElementById('mobileMenu')?.classList.contains('open');
             const isModalOpen = !document.getElementById('buyModal')?.classList.contains('hidden');
@@ -2534,14 +3384,27 @@
             if (opSelect) opSelect.addEventListener('change', updatePlanOptions);
             else console.warn('[UI] #opSelect not found');
 
+            const planSelect = document.getElementById('planSelect');
+            if (planSelect) {
+                planSelect.addEventListener('change', () => {
+                    clearBuyStatus();
+                    syncBuyFlowUI();
+                });
+            } else {
+                console.warn('[UI] #planSelect not found');
+            }
+
+            setupNetworkButtonHandlers();
+            setupBuyFlowHandlers();
+
             const buyModal = document.getElementById('buyModal');
             if (!buyModal) {
                 console.warn('[UI] #buyModal not found');
-                return;
+            } else {
+                buyModal.addEventListener('click', function(e) {
+                    if (e.target === this) closeBuyModal();
+                });
             }
-            buyModal.addEventListener('click', function(e) {
-                if (e.target === this) closeBuyModal();
-            });
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     var cs = document.getElementById('agentComingSoonModal');
@@ -2553,15 +3416,74 @@
                     closeMobileMenu();
                 }
             });
-            document.getElementById('phoneInput').addEventListener('input', function(e) {
-                let value = String(e.target.value || '').replace(/[^\d+]/g, '');
-                if (value.includes('+')) {
-                    value = value[0] === '+' ? `+${value.slice(1).replace(/\+/g, '')}` : value.replace(/\+/g, '');
-                }
-                const maxLength = value.startsWith('+') ? 13 : 12;
-                e.target.value = value.slice(0, maxLength);
-            });
+            const phoneInput = document.getElementById('phoneInput');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = String(e.target.value || '').replace(/[^\d+]/g, '');
+                    if (value.includes('+')) {
+                        value = value[0] === '+' ? `+${value.slice(1).replace(/\+/g, '')}` : value.replace(/\+/g, '');
+                    }
+                    const maxLength = value.startsWith('+') ? 13 : 12;
+                    e.target.value = value.slice(0, maxLength);
+                    syncBuyFlowUI();
+                });
+            } else {
+                console.warn('[UI] #phoneInput not found');
+            }
+
+            const emailInput = document.getElementById('emailInput');
+            if (emailInput) {
+                emailInput.addEventListener('input', () => {
+                    syncBuyFlowUI();
+                });
+            } else {
+                console.warn('[UI] #emailInput not found');
+            }
             document.addEventListener('touchstart', function() {}, {passive: true});
+        }
+
+        function setupNetworkButtonHandlers() {
+            document.querySelectorAll('.network-button').forEach(btn => {
+                if (btn.dataset.networkHandlerBound === 'true') {
+                    return;
+                }
+
+                btn.dataset.networkHandlerBound = 'true';
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    const network = btn.dataset.network;
+                    if (!network) return;
+
+                    const sourceSelector = btn.classList.contains('network-btn') ? '.network-btn' : '.network-filter-btn';
+                    syncNetworkFilterButtons(network, sourceSelector, btn);
+                    scrollToBundles(network);
+                });
+            });
+        }
+
+        function setupBuyFlowHandlers() {
+            document.querySelectorAll('[data-buy-network]').forEach(btn => {
+                if (btn.dataset.buyFlowBound === 'true') {
+                    return;
+                }
+
+                btn.dataset.buyFlowBound = 'true';
+                btn.addEventListener('click', () => {
+                    const opSelect = document.getElementById('opSelect');
+                    if (!opSelect) return;
+
+                    opSelect.value = btn.dataset.buyNetwork;
+                    updatePlanOptions();
+                    clearBuyStatus();
+                    if (isMobileBuyFlow()) {
+                        setBuyFlowStep(2);
+                    } else {
+                        syncBuyFlowUI();
+                    }
+                });
+            });
         }
 
         function openMobileMenu() {
@@ -2673,20 +3595,33 @@
             return Number.isFinite(amount) ? amount : 0;
         }
 
-        function getBundleValueMeta(bundle) {
+        function getBundleValueMeta(bundle, network) {
             const sizeGb = parseBundleSizeGb(bundle.size);
             const pricePerGb = sizeGb > 0 ? (bundle.price / sizeGb) : bundle.price;
+            const networkBundles = Array.isArray(bundleData[network]) ? bundleData[network] : [bundle];
+            const priceRanks = networkBundles
+                .map(item => {
+                    const itemSizeGb = parseBundleSizeGb(item.size);
+                    return {
+                        code: item.code,
+                        pricePerGb: itemSizeGb > 0 ? (item.price / itemSizeGb) : item.price
+                    };
+                })
+                .sort((left, right) => left.pricePerGb - right.pricePerGb);
+            const rankIndex = priceRanks.findIndex(item => item.code === bundle.code);
+            const bestPricePerGb = priceRanks[0]?.pricePerGb || pricePerGb;
+            const isBestValue = rankIndex > -1 && (rankIndex <= 1 || pricePerGb <= bestPricePerGb * 1.04);
 
             if (sizeGb <= 2) {
-                return { label: 'Entry Deal', note: 'Affordable starter option', tone: 'value-entry', pricePerGb };
+                return { label: 'ENTRY', note: 'Starter bundle for quick top-ups', tone: 'value-entry', pricePerGb, highlight: false };
             }
-            if (sizeGb <= 5) {
-                return { label: 'Better Value', note: 'Lower cost per GB for steady use', tone: 'value-better', pricePerGb };
+            if (isBestValue) {
+                return { label: 'BEST VALUE', note: 'Lowest cost per GB on this network right now', tone: 'value-bulk', pricePerGb, highlight: true };
             }
             if (sizeGb <= 10) {
-                return { label: 'Smart Deal', note: 'Optimized value for regular buyers', tone: 'value-smart', pricePerGb };
+                return { label: 'TRUST PICK', note: 'Balanced spend for regular everyday use', tone: 'value-smart', pricePerGb, highlight: false };
             }
-            return { label: 'Bulk Saver', note: 'Best per-GB value for heavy usage', tone: 'value-bulk', pricePerGb };
+            return { label: 'BULK SAVE', note: 'Lower per-GB pricing as bundle size grows', tone: 'value-bulk', pricePerGb, highlight: false };
         }
 
         // Featured Products generation
@@ -2695,17 +3630,17 @@
             let id = 1;
             const featuredBundles = [
                 { network: 'mtn', bundleIndex: 0, discount: 'ENTRY' },
-                { network: 'airteltigo', bundleIndex: 4, discount: 'BETTER VALUE' },
-                { network: 'telecel', bundleIndex: 4, discount: 'SMART DEAL' },
+                { network: 'airteltigo', bundleIndex: 4, discount: 'BEST VALUE' },
+                { network: 'telecel', bundleIndex: 4, discount: 'TRUST PICK' },
                 { network: 'mtn', bundleIndex: 9, discount: 'BULK SAVE' },
-                { network: 'airteltigo', bundleIndex: 12, discount: 'PRO VALUE' },
+                { network: 'airteltigo', bundleIndex: 12, discount: 'BULK SAVE' },
                 { network: 'telecel', bundleIndex: 0, discount: 'TRUST PICK' }
             ];
             featuredBundles.forEach(({network, bundleIndex, discount}) => {
                 if (bundleData[network] && bundleData[network][bundleIndex]) {
                     const bundle = bundleData[network][bundleIndex];
-                    const valueMeta = getBundleValueMeta(bundle);
-                    const oldPrice = ['BETTER VALUE', 'SMART DEAL', 'BULK SAVE'].includes(discount)
+                    const valueMeta = getBundleValueMeta(bundle, network);
+                    const oldPrice = ['BEST VALUE', 'TRUST PICK', 'BULK SAVE'].includes(discount)
                         ? (bundle.price * 1.16).toFixed(2)
                         : null;
                     products.push({
@@ -2726,11 +3661,63 @@
                         valueLabel: valueMeta.label,
                         valueTone: valueMeta.tone,
                         valueNote: valueMeta.note,
-                        pricePerGb: valueMeta.pricePerGb
+                        pricePerGb: valueMeta.pricePerGb,
+                        valueHighlight: valueMeta.highlight
                     });
                 }
             });
             return products;
+        }
+
+        function getNetworkChipLabel(network) {
+            const labels = { mtn: 'MTN', airteltigo: 'AT', telecel: 'Telecel' };
+            return labels[network] || getNetworkDisplayName(network);
+        }
+
+        function getBundleSpeedMeta(bundleLike) {
+            if (bundleLike.instant) return { text: 'Instant', className: 'bundle-speed-pill bundle-speed-instant' };
+            if (bundleLike.express) return { text: 'Express', className: 'bundle-speed-pill bundle-speed-express' };
+            if (bundleLike.bigTime) return { text: 'Standard', className: 'bundle-speed-pill bundle-speed-standard' };
+            return { text: bundleLike.delivery || '5-45min', className: 'bundle-speed-pill bundle-speed-standard' };
+        }
+
+        function renderBundleCardMarkup(config) {
+            const amount = Number(config.price);
+            const oldPriceNumber = Number.parseFloat(config.oldPrice);
+            const hasOldPrice = Number.isFinite(oldPriceNumber) && oldPriceNumber > amount;
+            const speedMeta = getBundleSpeedMeta(config);
+            const saveAmount = hasOldPrice ? (oldPriceNumber - amount).toFixed(2) : '';
+
+            return `
+                ${config.discount ? `<div class="discount-tag">${config.discount}</div>` : ''}
+                <div class="bundle-card-inner">
+                    <div class="bundle-card-shell">
+                        <div class="bundle-card-topline">
+                            <span class="bundle-network-chip ${config.network}">${getNetworkChipLabel(config.network)}</span>
+                            <span class="${speedMeta.className}">${speedMeta.text}</span>
+                        </div>
+                        <div class="bundle-price-stack">
+                            ${hasOldPrice ? `<div class="bundle-old-price">₵${oldPriceNumber.toFixed(2)}</div>` : ''}
+                            <div class="bundle-price ${getNetworkColorClass(config.network)}">₵${amount.toFixed(2)}</div>
+                            ${hasOldPrice ? `<div class="bundle-save-text">Save ₵${saveAmount}</div>` : ''}
+                        </div>
+                        <h3 class="bundle-card-title">${getNetworkDisplayName(config.network)} ${config.size}</h3>
+                        <p class="bundle-card-subtitle">${config.validity}</p>
+                        <div class="bundle-card-meta">
+                            <span class="network-value-pill ${config.valueTone}">
+                                <i class="ri-price-tag-3-line"></i>${config.valueLabel}
+                            </span>
+                            <span class="bundle-card-rate">₵${Number(config.pricePerGb).toFixed(2)}/GB</span>
+                        </div>
+                        ${config.valueHighlight ? '<div class="best-value-pill"><i class="ri-award-line"></i>Best Value</div>' : ''}
+                        <p class="bundle-card-note">${config.valueNote}</p>
+                        <button onclick="event.stopPropagation(); quickBuy('${config.network}', '${config.size}', ${amount}, '${config.code}')"
+                                class="bundle-buy-btn w-full ${getNetworkButtonClass(config.network)} py-2.5 rounded-lg text-[0.95rem] font-semibold btn-enhanced smooth-transition hover:scale-[1.02] transition-transform touch-target">
+                            <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${amount.toFixed(2)}
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
         function loadFeaturedProducts() {
@@ -2739,53 +3726,26 @@
             container.innerHTML = featuredProducts.map(product => {
                 const networkClass = getNetworkClass(product.network);
                 const borderClass = getNetworkBorderClass(product.network);
-                const isBigTime = product.bigTime || false;
-                const isInstant = product.instant || false;
-                const isExpress = product.express || false;
                 return `
-                    <div class="glass rounded-xl p-5 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative" data-network="${product.network}" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}');}">
-                        ${product.discount ? '<div class="discount-tag">' + product.discount + '</div>' : ''}
-                        <div class="bundle-card-inner">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center ${isBigTime ? 'pulse-slow' : ''}">
-                                    <i class="ri-wifi-line ${getNetworkColorClass(product.network)} text-xl"></i>
-                                </div>
-                                <div class="text-right">
-                                    ${product.oldPrice ? `
-                                        <div class="text-sm line-through text-gray-400">₵${product.oldPrice}</div>
-                                        <div class="text-2xl font-bold ${getNetworkColorClass(product.network)}">₵${product.price}</div>
-                                        <div class="text-xs text-green-400 font-semibold">Save ₵${(product.oldPrice - product.price).toFixed(2)}</div>
-                                    ` : `
-                                        <div class="text-2xl font-bold ${getNetworkColorClass(product.network)}">₵${product.price}</div>
-                                        <div class="text-xs small-muted">${product.data_amount}</div>
-                                    `}
-                                    ${isBigTime ? '<div class="text-xs text-yellow-400 font-semibold mt-1">🔥 BigTime</div>' : ''}
-                                    ${isInstant ? '<div class="flash-badge text-xs mt-1">⚡ INSTANT</div>' : 
-                                      isExpress ? '<div class="express-badge text-xs mt-1">✈️ EXPRESS 5-45min</div>' :
-                                      `<div class="speed-badge text-xs mt-1">${product.delivery || '5-45min'}</div>`}
-                                </div>
-                            </div>
-                            <h3 class="text-xl font-bold mb-2">${getNetworkDisplayName(product.network)} ${product.data_amount}</h3>
-                            <p class="small-muted text-sm mb-3">${product.validity} • High speed internet</p>
-                            <div class="flex items-center justify-between gap-3 mb-4">
-                                <span class="network-value-pill ${product.valueTone}">
-                                    <i class="ri-price-tag-3-line"></i>${product.valueLabel}
-                                </span>
-                                <span class="text-xs small-muted">~ ₵${product.pricePerGb.toFixed(2)}/GB</span>
-                            </div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
-                                    <i class="ri-time-line mr-1"></i>${product.validity}
-                                </span>
-                                <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
-                                    <i class="ri-zap-line mr-1"></i>${isInstant ? 'Instant' : (isExpress ? 'Express 5-45min' : product.delivery)}
-                                </span>
-                            </div>
-                            <button onclick="quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" 
-                                    class="bundle-buy-btn w-full ${getNetworkButtonClass(product.network)} py-2.5 rounded-lg text-[0.95rem] font-semibold btn-enhanced smooth-transition hover:scale-[1.02] transition-transform touch-target">
-                                <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${product.price}
-                            </button>
-                        </div>
+                    <div class="glass rounded-xl p-5 ${borderClass} ${networkClass} bundle-card card-hover smooth-transition relative ${product.discount ? 'badged-card' : ''} ${product.valueHighlight ? 'best-value-card' : ''}" data-network="${product.network}" role="button" tabindex="0" onclick="if(event.target.closest('button')) return; quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}')" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${product.network}', '${product.data_amount}', ${product.price}, '${product.code}');}">
+                        ${renderBundleCardMarkup({
+                            network: product.network,
+                            size: product.data_amount,
+                            validity: product.validity,
+                            price: product.price,
+                            oldPrice: product.oldPrice,
+                            code: product.code,
+                            pricePerGb: product.pricePerGb,
+                            valueLabel: product.valueLabel,
+                            valueTone: product.valueTone,
+                            valueNote: product.valueNote,
+                            valueHighlight: product.valueHighlight,
+                            instant: product.instant,
+                            bigTime: product.bigTime,
+                            express: product.express,
+                            delivery: product.delivery,
+                            discount: product.discount
+                        })}
                     </div>
                 `;
             }).join('');
@@ -2847,54 +3807,31 @@
             const card = document.createElement('div');
             const networkClass = getNetworkClass(network);
             const borderClass = getNetworkBorderClass(network);
-            const isBigTime = bundle.bigTime || false;
-            const isInstant = bundle.instant || false;
-            const isExpress = bundle.express || false;
-            const deliveryTime = bundle.delivery || '5-45min';
-            const valueMeta = getBundleValueMeta(bundle);
-            card.className = `glass rounded-xl p-5 bundle-card card-hover smooth-transition ${borderClass} ${networkClass} relative`;
+            const valueMeta = getBundleValueMeta(bundle, network);
+            card.className = `glass rounded-xl p-5 bundle-card card-hover smooth-transition ${borderClass} ${networkClass} ${valueMeta.highlight ? 'best-value-card' : ''} relative`;
             card.setAttribute('data-network', network);
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
             card.setAttribute('onclick', `if(event.target.closest('button')) return; quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}')`);
             card.setAttribute('onkeydown', `if((event.key==='Enter'||event.key===' ')&&!event.target.closest('button')){event.preventDefault(); quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}');}`);
-            card.innerHTML = `
-                <div class="bundle-card-inner">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center ${isBigTime ? 'pulse-slow' : ''}">
-                            <i class="ri-wifi-line ${getNetworkColorClass(network)} text-xl"></i>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-bold ${getNetworkColorClass(network)}">₵${bundle.price.toFixed(2)}</div>
-                            <div class="text-xs small-muted">${bundle.size}</div>
-                            ${isBigTime ? '<div class="text-xs text-yellow-400 font-semibold mt-1">🔥 BigTime</div>' : ''}
-                            ${isInstant ? '<div class="flash-badge text-xs mt-1">⚡ INSTANT</div>' : 
-                              isExpress ? '<div class="express-badge text-xs mt-1">✈️ EXPRESS 5-45min</div>' :
-                              `<div class="speed-badge text-xs mt-1">${deliveryTime}</div>`}
-                        </div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">${getNetworkDisplayName(network)} ${bundle.size}</h3>
-                    <p class="small-muted text-sm mb-3">${bundle.validity} • High speed internet</p>
-                    <div class="flex items-center justify-between gap-3 mb-4">
-                        <span class="network-value-pill ${valueMeta.tone}">
-                            <i class="ri-price-tag-3-line"></i>${valueMeta.label}
-                        </span>
-                        <span class="text-xs small-muted">~ ₵${valueMeta.pricePerGb.toFixed(2)}/GB</span>
-                    </div>
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
-                            <i class="ri-time-line mr-1"></i>${bundle.validity}
-                        </span>
-                        <span class="text-sm bg-black/30 px-2 py-1 rounded small-muted">
-                            <i class="ri-zap-line mr-1"></i>${isInstant ? 'Instant' : (isExpress ? 'Express 5-45min' : deliveryTime)}
-                        </span>
-                    </div>
-                    <button onclick="quickBuy('${network}', '${bundle.size}', ${bundle.price}, '${bundle.code}')"
-                            class="bundle-buy-btn w-full ${getNetworkButtonClass(network)} py-2.5 rounded-lg text-[0.95rem] font-semibold btn-enhanced smooth-transition hover:scale-[1.02] transition-transform touch-target">
-                        <i class="ri-shopping-cart-line mr-2"></i>Buy Now • ₵${bundle.price.toFixed(2)}
-                    </button>
-                </div>
-            `;
+            card.innerHTML = renderBundleCardMarkup({
+                network,
+                size: bundle.size,
+                validity: bundle.validity,
+                price: bundle.price,
+                oldPrice: null,
+                code: bundle.code,
+                pricePerGb: valueMeta.pricePerGb,
+                valueLabel: valueMeta.label,
+                valueTone: valueMeta.tone,
+                valueNote: valueMeta.note,
+                valueHighlight: valueMeta.highlight,
+                instant: bundle.instant,
+                bigTime: bundle.bigTime,
+                express: bundle.express,
+                delivery: bundle.delivery || '5-45min',
+                discount: null
+            });
             return card;
         }
 
@@ -2918,22 +3855,31 @@
         }
 
         function scrollToBundles(network = null) {
-            const section = document.getElementById("bundles-section");
-            if (!section) return;
+            try {
+                const section = document.getElementById("bundles-section");
+                if (!section) return;
 
-            ensureAllBundlesLoaded();
+                if (section.classList.contains('section-hidden')) {
+                    switchSection('bundles', { scroll: false });
+                } else {
+                    ensureAllBundlesLoaded();
+                }
 
-            if (network) {
-                filterBundles(network);
-                filterAllBundles(network);
+                const y = section.getBoundingClientRect().top + window.scrollY - 80;
+
+                window.scrollTo({
+                    top: y,
+                    behavior: "smooth"
+                });
+
+                if (network) {
+                    safeFilter(network);
+                }
+
+                console.log("Scroll executed:", network);
+            } catch (err) {
+                console.error("Scroll error:", err);
             }
-
-            const y = Math.max(section.getBoundingClientRect().top + window.pageYOffset - 80, 0);
-            console.log("scroll triggered");
-            window.scrollTo({
-                top: y,
-                behavior: "smooth"
-            });
         }
 
         function filterBundles(network) {
@@ -2954,15 +3900,171 @@
             appState.currentNetworkFilter = network;
         }
 
-        function handleBundleNetworkClick(network, trigger) {
-            syncNetworkFilterButtons(network, '.network-filter-btn', trigger);
-            scrollToBundles(network);
+        function safeFilter(network) {
+            try {
+                filterBundles(network);
+                filterAllBundles(network);
+            } catch (err) {
+                console.error("Filter failed:", err);
+            }
         }
 
-        function handleFeaturedNetworkClick(network, trigger) {
-            switchSection('bundles', { scroll: false });
-            syncNetworkFilterButtons(network, '.network-btn', trigger);
-            scrollToBundles(network);
+        function isMobileBuyFlow() {
+            return window.innerWidth <= 768;
+        }
+
+        function clearBuyStatus() {
+            const statusEl = document.getElementById('buyStatus');
+            if (!statusEl) return;
+            statusEl.textContent = '';
+            statusEl.className = 'mt-3 text-center text-sm';
+        }
+
+        function getSelectedPlanOption() {
+            const planSelect = document.getElementById('planSelect');
+            if (!planSelect || planSelect.selectedIndex < 0) return null;
+            return planSelect.options[planSelect.selectedIndex] || null;
+        }
+
+        function getSelectedBundleRecord() {
+            const opSelect = document.getElementById('opSelect');
+            const selectedOption = getSelectedPlanOption();
+            const network = opSelect?.value;
+            const code = selectedOption?.getAttribute('data-code');
+            if (!network || !code || !bundleData[network]) return null;
+            return bundleData[network].find(bundle => bundle.code === code) || null;
+        }
+
+        function syncBuyNetworkChips() {
+            const network = document.getElementById('opSelect')?.value;
+            document.querySelectorAll('[data-buy-network]').forEach(btn => {
+                btn.classList.toggle('is-active', btn.dataset.buyNetwork === network);
+            });
+        }
+
+        function renderBuySummaryCard() {
+            const summaryCard = document.getElementById('buySummaryCard');
+            if (!summaryCard) return;
+
+            const opSelect = document.getElementById('opSelect');
+            const bundle = getSelectedBundleRecord();
+            const phone = document.getElementById('phoneInput')?.value.trim() || 'Add phone number';
+            const email = document.getElementById('emailInput')?.value.trim() || 'Add email address';
+            const deliveryLabel = bundle
+                ? (bundle.instant ? 'Instant delivery' : bundle.bigTime ? 'Standard delivery' : 'Express 5-45min')
+                : 'Choose a bundle';
+
+            summaryCard.innerHTML = `
+                <div class="buy-summary-row">
+                    <span>Network</span>
+                    <strong>${opSelect ? getNetworkDisplayName(opSelect.value) : 'Choose network'}</strong>
+                </div>
+                <div class="buy-summary-row">
+                    <span>Bundle</span>
+                    <strong>${bundle ? `${bundle.size} • ${bundle.validity}` : 'Choose bundle'}</strong>
+                </div>
+                <div class="buy-summary-row">
+                    <span>Speed</span>
+                    <strong>${deliveryLabel}</strong>
+                </div>
+                <div class="buy-summary-row">
+                    <span>Phone</span>
+                    <strong>${phone}</strong>
+                </div>
+                <div class="buy-summary-row">
+                    <span>Email</span>
+                    <strong>${email}</strong>
+                </div>
+                <div class="buy-summary-row">
+                    <span>Total</span>
+                    <strong>${bundle ? `₵${bundle.price.toFixed(2)}` : '--'}</strong>
+                </div>
+            `;
+        }
+
+        function canAdvanceBuyStep(step) {
+            if (step === 1) {
+                return Boolean(document.getElementById('opSelect')?.value);
+            }
+            if (step === 2) {
+                const option = getSelectedPlanOption();
+                return Boolean(option && option.getAttribute('data-code'));
+            }
+            if (step === 3) {
+                const phone = document.getElementById('phoneInput')?.value.trim() || '';
+                const email = document.getElementById('emailInput')?.value.trim() || '';
+                return validatePhoneNumber(phone) && validateEmail(email);
+            }
+            return true;
+        }
+
+        function setBuyFlowStep(step) {
+            appState.buyFlowStep = Math.min(4, Math.max(1, step));
+            const modalContent = document.querySelector('#buyModal .modal-scrollable');
+            if (modalContent && isMobileBuyFlow()) {
+                modalContent.scrollTop = 0;
+            }
+            syncBuyFlowUI();
+        }
+
+        function syncBuyFlowUI() {
+            syncBuyNetworkChips();
+            renderBuySummaryCard();
+
+            document.querySelectorAll('[data-step-indicator]').forEach(stepEl => {
+                const stepNumber = Number(stepEl.getAttribute('data-step-indicator'));
+                stepEl.classList.toggle('is-active', stepNumber === appState.buyFlowStep);
+                stepEl.classList.toggle('is-complete', stepNumber < appState.buyFlowStep);
+            });
+
+            if (isMobileBuyFlow()) {
+                document.querySelectorAll('[data-buy-step]').forEach(panel => {
+                    panel.classList.toggle('is-active', Number(panel.getAttribute('data-buy-step')) === appState.buyFlowStep);
+                });
+            }
+
+            const backButton = document.getElementById('buyStepBack');
+            if (backButton) {
+                backButton.textContent = appState.buyFlowStep === 1 ? 'Close' : 'Back';
+            }
+
+            const nextButton = document.getElementById('buyStepNext');
+            if (nextButton) {
+                nextButton.innerHTML = appState.buyFlowStep === 4
+                    ? '<i class="ri-lock-line mr-2"></i>Continue to Paystack'
+                    : 'Continue';
+                nextButton.disabled = appState.buyFlowStep === 3 && !canAdvanceBuyStep(3);
+            }
+        }
+
+        function goToNextBuyStep() {
+            if (appState.buyFlowStep === 4) {
+                onPayNowClicked();
+                return;
+            }
+
+            if (!canAdvanceBuyStep(appState.buyFlowStep)) {
+                if (appState.buyFlowStep === 2) {
+                    showStatus('Choose a bundle to continue.', 'error');
+                } else if (appState.buyFlowStep === 3) {
+                    showStatus('Enter a valid phone and email to continue.', 'error');
+                } else {
+                    showStatus('Choose a network to continue.', 'error');
+                }
+                return;
+            }
+
+            clearBuyStatus();
+            setBuyFlowStep(appState.buyFlowStep + 1);
+        }
+
+        function goToPreviousBuyStep() {
+            clearBuyStatus();
+            if (appState.buyFlowStep === 1) {
+                closeBuyModal();
+                return;
+            }
+            setBuyFlowStep(appState.buyFlowStep - 1);
         }
 
         // Modal functions
@@ -2989,10 +4091,17 @@
             modal.classList.add('flex');
             modal.setAttribute('aria-hidden', 'false');
             syncBodyScrollLock();
-            document.getElementById('buyStatus').textContent = '';
+            clearBuyStatus();
             toggleRetryButton(false);
-            document.getElementById('confirmBuy').disabled = false;
-            document.getElementById('confirmBuy').innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+            const confirmBuyBtn = document.getElementById('confirmBuy');
+            if (confirmBuyBtn) {
+                confirmBuyBtn.disabled = false;
+                confirmBuyBtn.innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+            }
+            const initialStep = isMobileBuyFlow()
+                ? (code ? 3 : network ? 2 : 1)
+                : 1;
+            setBuyFlowStep(initialStep);
         }
 
         function closeBuyModal() {
@@ -3001,8 +4110,10 @@
             modal.classList.remove('flex');
             modal.setAttribute('aria-hidden', 'true');
             syncBodyScrollLock();
-            document.getElementById('buyStatus').textContent = '';
+            clearBuyStatus();
             toggleRetryButton(false);
+            appState.buyFlowStep = 1;
+            syncBuyFlowUI();
         }
 
         function quickBuy(network, size, price, code) {
@@ -3017,26 +4128,32 @@
             if (bundleData[network]) {
                 bundleData[network].forEach(bundle => {
                     const option = document.createElement('option');
-                    const valueMeta = getBundleValueMeta(bundle);
+                    const valueMeta = getBundleValueMeta(bundle, network);
                     option.value = bundle.price;
+                    const isCompactLabel = isMobileBuyFlow();
                     let deliveryText = '';
                     if (bundle.instant) {
-                        deliveryText = ' • ⚡ INSTANT Delivery';
+                        deliveryText = isCompactLabel ? 'Instant' : '⚡ Instant';
                     } else if (bundle.bigTime) {
-                        deliveryText = ' • No expiry (Standard)';
+                        deliveryText = isCompactLabel ? 'No expiry' : 'No expiry (Standard)';
                     } else if (bundle.express) {
-                        deliveryText = ' • ✈️ Express 5-45min';
+                        deliveryText = isCompactLabel ? 'Express' : '✈️ Express 5-45min';
                     } else {
-                        deliveryText = ' • 5-45min Delivery';
+                        deliveryText = isCompactLabel ? '5-45min' : '5-45min delivery';
                     }
-                    option.textContent = `${bundle.size} - ${bundle.validity}${deliveryText} • ${valueMeta.label} — ₵${bundle.price.toFixed(2)}`;
+                    option.textContent = isCompactLabel
+                        ? `${bundle.size} • ${deliveryText} • ₵${bundle.price.toFixed(2)}`
+                        : `${bundle.size} - ${bundle.validity} • ${deliveryText} • ${valueMeta.label} — ₵${bundle.price.toFixed(2)}`;
                     option.setAttribute('data-code', bundle.code);
                     if (bundle.bigTime) {
-                        option.textContent = `${bundle.size} - BigTime (No expiry) • ${valueMeta.label} — ₵${bundle.price.toFixed(2)}`;
+                        option.textContent = isCompactLabel
+                            ? `${bundle.size} • No expiry • ₵${bundle.price.toFixed(2)}`
+                            : `${bundle.size} - BigTime (No expiry) • ${valueMeta.label} — ₵${bundle.price.toFixed(2)}`;
                     }
                     planSelect.appendChild(option);
                 });
             }
+            syncBuyFlowUI();
         }
 
         async function onPayNowClicked(event) {
@@ -3077,13 +4194,17 @@
         }
 
         async function confirmPurchase(phone, email, operator, planText, productCode, amount) {
-            const payBtn = document.getElementById('confirmBuy');
+            const checkoutButtons = ['confirmBuy', 'buyStepNext']
+                .map(id => document.getElementById(id))
+                .filter(Boolean);
             let redirecting = false;
             try {
                 showLoading();
                 toggleRetryButton(false);
-                payBtn.disabled = true;
-                payBtn.innerHTML = '<i class="ri-loader-4-line mr-2 animate-spin"></i>Initializing payment...';
+                checkoutButtons.forEach(button => {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="ri-loader-4-line mr-2 animate-spin"></i>Initializing payment...';
+                });
                 showStatus('Initializing secure payment...', 'info');
                 console.log('[Payment] Sending initialize request', {
                     baseUrl: BASE_URL,
@@ -3140,8 +4261,12 @@
             } finally {
                 hideLoading();
                 if (!redirecting) {
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+                    const confirmBuyBtn = document.getElementById('confirmBuy');
+                    if (confirmBuyBtn) {
+                        confirmBuyBtn.disabled = false;
+                        confirmBuyBtn.innerHTML = '<i class="ri-lock-line mr-2"></i>Pay Now - 20% OFF';
+                    }
+                    syncBuyFlowUI();
                 }
             }
         }
@@ -3258,6 +4383,8 @@
         window.openBuyModal = openBuyModal;
         window.closeBuyModal = closeBuyModal;
         window.quickBuy = quickBuy;
+        window.goToNextBuyStep = goToNextBuyStep;
+        window.goToPreviousBuyStep = goToPreviousBuyStep;
         window.filterBundles = filterBundles;
         window.filterAllBundles = filterAllBundles;
         window.registerAsAgent = registerAsAgent;
