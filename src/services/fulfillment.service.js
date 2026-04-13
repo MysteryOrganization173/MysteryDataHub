@@ -215,9 +215,18 @@ export const fulfillOrder = async (order) => {
   }
 
   try {
-    const { offerSlug, volume } = getOfferSlugAndVolume(locked.bundleCode);
+    const fallbackMapping = getOfferSlugAndVolume(locked.bundleCode);
+    const offerSlug = String(locked.offerSlug || fallbackMapping.offerSlug || '').trim();
+    const volume = Number(locked.catalogVolume || fallbackMapping.volume);
     if (!offerSlug) {
       console.error(`[SuccessBizHub] No mapping for bundle: ${locked.bundleCode}`);
+      locked.deliveryStatus = 'failed';
+      locked.status = 'failed';
+      await locked.save();
+      return;
+    }
+    if (!Number.isFinite(volume) || volume <= 0) {
+      console.error(`[SuccessBizHub] Invalid volume for bundle: ${locked.bundleCode}`);
       locked.deliveryStatus = 'failed';
       locked.status = 'failed';
       await locked.save();

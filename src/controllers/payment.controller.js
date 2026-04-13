@@ -1,8 +1,8 @@
 import crypto from 'crypto';
 import axios from 'axios';
 import { Order } from '../models/Order.js';
-import { Bundle } from '../models/Bundle.js';
 import { fulfillOrder } from '../services/fulfillment.service.js';
+import { resolveCatalogSelection, resolveLegacyBundleSelection } from '../services/catalog.service.js';
 
 const paystackBase = () => String(process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co').trim();
 
@@ -42,6 +42,21 @@ function isValidBundleCode(code) {
   if (!code || typeof code !== 'string') return false;
   const c = code.trim();
   return c.length >= 4 && c.length <= 64 && /^[A-Za-z0-9_]+$/.test(c);
+}
+
+function normalizeCatalogNetwork(value) {
+  const network = String(value || '').trim().toLowerCase();
+  return ['mtn', 'airteltigo', 'telecel'].includes(network) ? network : null;
+}
+
+function normalizeCatalogTier(value) {
+  const tier = String(value || '').trim().toLowerCase();
+  return ['express', 'beneficiary'].includes(tier) ? tier : null;
+}
+
+function normalizeCatalogVolume(value) {
+  const volume = Number(value);
+  return Number.isFinite(volume) && volume > 0 ? volume : null;
 }
 
 function isValidReferenceParam(ref) {
@@ -153,7 +168,14 @@ export const initializePayment = async (req, res) => {
     console.log('[payment.controller] initializePayment invoked');
     const paystackSecretKey = requirePaystackSecretKey('initialize');
 
-    const { phone, bundle, email: emailRaw } = req.body || {};
+    const {
+      phone,
+      bundle,
+      email: emailRaw,
+      network: networkRaw,
+      tier: tierRaw,
+      volume: volumeRaw
+    } = req.body || {};
     const phoneNorm = normalizeGhanaPhone(phone);
     if (!phoneNorm) {
       return res.status(400).json({
@@ -163,25 +185,53 @@ export const initializePayment = async (req, res) => {
       });
     }
 
-    if (!isValidBundleCode(bundle)) {
-      return res.status(400).json({
-        success: false,
-        status: 'error',
-        message: 'Invalid or missing bundle code'
+    const normalizedNetwork = normalizeCatalogNetwork(networkRaw);
+    const normalizedTier = normalizeCatalogTier(tierRaw);
+    const normalizedVolume = normalizeCatalogVolume(volumeRaw);
+
+    let catalogSelection = null;
+    if (normalizedNetwork || normalizedTier || normalizedVolume) {
+      if (!normalizedNetwork || !normalizedTier || !normalizedVolume) {
+        return res.status(400).json({
+          success: false,
+          status: 'error',
+          message: 'network, tier, and volume are required together'
+        });
+      }
+
+      catalogSelection = await resolveCatalogSelection({
+        network: normalizedNetwork,
+        tier: normalizedTier,
+        volume: normalizedVolume
       });
+
+      if (!catalogSelection) {
+        return res.status(404).json({
+          success: false,
+          status: 'error',
+          message: 'Selected network, tier, and volume are not available'
+        });
+      }
+    } else {
+      if (!isValidBundleCode(bundle)) {
+        return res.status(400).json({
+          success: false,
+          status: 'error',
+          message: 'Invalid or missing bundle selection'
+        });
+      }
+
+      catalogSelection = await resolveLegacyBundleSelection(String(bundle).trim());
+      if (!catalogSelection) {
+        return res.status(404).json({
+          success: false,
+          status: 'error',
+          message: 'Bundle not available'
+        });
+      }
     }
 
-    const bundleCode = String(bundle).trim();
-    const bundleDoc = await Bundle.findOne({ code: bundleCode, active: true });
-    if (!bundleDoc) {
-      return res.status(404).json({
-        success: false,
-        status: 'error',
-        message: 'Bundle not available'
-      });
-    }
-
-    const amountGHS = bundleDoc.defaultAgentPrice;
+    const amountGHS = catalogSelection.price;
     const reference = `MBH-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
 
     const email = emailRaw && String(emailRaw).trim();
@@ -215,9 +265,13 @@ export const initializePayment = async (req, res) => {
       reference,
       customerPhone: phoneNorm,
       customerEmail: email,
-      network: bundleDoc.operator,
-      bundleCode,
-      bundleName: `${bundleDoc.size} ${bundleDoc.validity}`,
+      network: catalogSelection.network,
+      catalogTier: catalogSelection.tier,
+      catalogVolume: catalogSelection.volume,
+      offerSlug: catalogSelection.offerSlug,
+      deliveryLabel: catalogSelection.deliveryLabel,
+      bundleCode: catalogSelection.bundleCode,
+      bundleName: `${catalogSelection.networkLabel} ${catalogSelection.tierLabel} ${catalogSelection.sizeLabel}`,
       amount: amountGHS,
       status: 'pending',
       paymentStatus: 'pending',
@@ -239,11 +293,22 @@ export const initializePayment = async (req, res) => {
           },
           metadata: {
             phone: phoneNorm,
-            bundle: bundleCode,
-            network: bundleDoc.operator,
+            bundle: catalogSelection.bundleCode,
+            network: catalogSelection.network,
+            tier: catalogSelection.tier,
+            volume: catalogSelection.volume,
             custom_fields: [
               { display_name: 'Phone', variable_name: 'phone', value: phoneNorm },
-              { display_name: 'Bundle', variable_name: 'bundle', value: bundleCode }
+              {
+                display_name: 'Bundle',
+                variable_name: 'bundle',
+                value: `${catalogSelection.networkLabel} ${catalogSelection.tierLabel} ${catalogSelection.sizeLabel}`
+              },
+              {
+                display_name: 'Tier',
+                variable_name: 'tier',
+                value: catalogSelection.tierLabel
+              }
             ]
           }
         },
