@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { connectDB } from './config/database.js';
 import agentRoutes from './routes/agent.routes.js';
 import orderRoutes from './routes/order.routes.js';
@@ -30,6 +32,9 @@ async function bootstrap() {
   }
 
   const app = express();
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const frontendDir = path.join(__dirname, '..', '..', 'Frontend');
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -76,6 +81,11 @@ async function bootstrap() {
   app.use((req, res, next) => {
     if (req.originalUrl.includes('/api/payment/webhook')) return next();
     return limiter(req, res, next);
+  });
+
+  app.use(express.static(frontendDir));
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(frontendDir, 'index.html'));
   });
 
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
