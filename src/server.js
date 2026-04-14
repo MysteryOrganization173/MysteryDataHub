@@ -5,8 +5,6 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { connectDB } from './config/database.js';
 import agentRoutes from './routes/agent.routes.js';
 import orderRoutes from './routes/order.routes.js';
@@ -21,27 +19,6 @@ import { getNetworkStatusSetting, getWithdrawalConfig } from './services/agent-p
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function resolveFrontendDir() {
-  const possiblePaths = [
-    path.join(process.cwd(), 'Frontend'),
-    path.join(__dirname, '../../Frontend'),
-    process.cwd()
-  ];
-
-  for (const p of possiblePaths) {
-    if (fs.existsSync(path.join(p, 'index.html'))) {
-      console.log('Serving frontend from:', p);
-      return p;
-    }
-  }
-
-  console.error('❌ Frontend not found. Checked:', possiblePaths);
-  return process.cwd();
-}
-
 async function bootstrap() {
   validateRuntimeConfig();
   const dbConnected = await connectDB();
@@ -54,7 +31,7 @@ async function bootstrap() {
   }
 
   const app = express();
-  const frontendPath = resolveFrontendDir();
+  const frontendPath = process.cwd();
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -113,8 +90,13 @@ async function bootstrap() {
   app.use('/api/orders', orderRoutes);
   app.use('/api/payment', paymentRoutes);
 
+  console.log('Serving frontend from:', frontendPath);
   app.use(express.static(frontendPath));
   app.get('/', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 
