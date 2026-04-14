@@ -21,18 +21,25 @@ import { getNetworkStatusSetting, getWithdrawalConfig } from './services/agent-p
 
 dotenv.config();
 
-function resolveFrontendDir(serverDirname) {
-  const candidates = [
-    path.join(serverDirname, '..', '..', 'Frontend'),
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function resolveFrontendDir() {
+  const possiblePaths = [
     path.join(process.cwd(), 'Frontend'),
-    path.join(process.cwd(), '..', 'Frontend')
+    path.join(__dirname, '../../Frontend'),
+    process.cwd()
   ];
-  for (const dir of candidates) {
-    if (fs.existsSync(path.join(dir, 'index.html'))) {
-      return dir;
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(path.join(p, 'index.html'))) {
+      console.log('Serving frontend from:', p);
+      return p;
     }
   }
-  return candidates[0];
+
+  console.error('❌ Frontend not found. Checked:', possiblePaths);
+  return process.cwd();
 }
 
 async function bootstrap() {
@@ -47,14 +54,7 @@ async function bootstrap() {
   }
 
   const app = express();
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const frontendDir = resolveFrontendDir(__dirname);
-  if (!fs.existsSync(path.join(frontendDir, 'index.html'))) {
-    console.error('Frontend not found; expected index.html under:', frontendDir);
-  } else {
-    console.log('Serving frontend from:', frontendDir);
-  }
+  const frontendPath = resolveFrontendDir();
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -113,9 +113,9 @@ async function bootstrap() {
   app.use('/api/orders', orderRoutes);
   app.use('/api/payment', paymentRoutes);
 
-  app.use(express.static(frontendDir));
+  app.use(express.static(frontendPath));
   app.get('/', (req, res) => {
-    res.sendFile(path.join(frontendDir, 'index.html'));
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
 
   app.use(errorHandler);
