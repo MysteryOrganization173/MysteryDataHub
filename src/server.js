@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { connectDB } from './config/database.js';
 import agentRoutes from './routes/agent.routes.js';
@@ -20,6 +21,20 @@ import { getNetworkStatusSetting, getWithdrawalConfig } from './services/agent-p
 
 dotenv.config();
 
+function resolveFrontendDir(serverDirname) {
+  const candidates = [
+    path.join(serverDirname, '..', '..', 'Frontend'),
+    path.join(process.cwd(), 'Frontend'),
+    path.join(process.cwd(), '..', 'Frontend')
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, 'index.html'))) {
+      return dir;
+    }
+  }
+  return candidates[0];
+}
+
 async function bootstrap() {
   validateRuntimeConfig();
   const dbConnected = await connectDB();
@@ -34,7 +49,12 @@ async function bootstrap() {
   const app = express();
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const frontendDir = path.join(__dirname, '..', '..', 'Frontend');
+  const frontendDir = resolveFrontendDir(__dirname);
+  if (!fs.existsSync(path.join(frontendDir, 'index.html'))) {
+    console.error('Frontend not found; expected index.html under:', frontendDir);
+  } else {
+    console.log('Serving frontend from:', frontendDir);
+  }
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -83,11 +103,6 @@ async function bootstrap() {
     return limiter(req, res, next);
   });
 
-  app.use(express.static(frontendDir));
-  app.get('/', (req, res) => {
-    res.sendFile(path.join(frontendDir, 'index.html'));
-  });
-
   app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
   app.use('/api/auth', authRoutes);
@@ -97,6 +112,11 @@ async function bootstrap() {
   app.use('/api/catalog', catalogRoutes);
   app.use('/api/orders', orderRoutes);
   app.use('/api/payment', paymentRoutes);
+
+  app.use(express.static(frontendDir));
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(frontendDir, 'index.html'));
+  });
 
   app.use(errorHandler);
 
