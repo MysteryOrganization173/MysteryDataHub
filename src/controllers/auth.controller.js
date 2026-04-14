@@ -1,84 +1,98 @@
-import { User } from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import { User } from '../models/User.js';
+import { createAgentRegistrationAndPayment, serializeAgent } from '../services/agent-onboarding.service.js';
+import { normalizePhone } from '../utils/agent.utils.js';
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
-};
+function generateToken(id, role = 'agent') {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+}
 
-const DEFAULT_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@mysterybundlehub.com').toLowerCase();
-const AGENT_REGISTRATION_FEE_GHS = 75;
-
-// Agent registration stays pending until the onboarding fee is confirmed.
-export const registerAgent = async (req, res) => {
+export const registerAgent = async (req, res, next) => {
   try {
-    const { fullName, email, phone, password, storeName, location, momoNumber, referralCode } = req.body;
+    const { agent, payment, authorizationUrl, storeLink } = await createAgentRegistrationAndPayment(req.body || {});
 
-    const existing = await User.findOne({ $or: [{ email }, { phone }] });
-    if (existing) return res.status(400).json({ success: false, message: 'User already exists' });
-
-    // Generate unique referral code
-    let refCode = crypto.randomBytes(4).toString('hex').toUpperCase();
-    while (await User.findOne({ referralCode: refCode })) {
-      refCode = crypto.randomBytes(4).toString('hex').toUpperCase();
-    }
-
-    const agent = await User.create({
-      fullName, email, phone, password, storeName, location, momoNumber,
-      referralCode: refCode,
-      role: 'agent',
-      referredBy: referralCode ? (await User.findOne({ referralCode }))?._id : null,
-      isActive: false
-    });
-
-    // In real implementation, you'd create a Paystack payment link and send to user.
-    // For now, we'll return a token and a flag that payment is required.
-    const token = generateToken(agent._id);
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: `Registration successful. Please pay ₵${AGENT_REGISTRATION_FEE_GHS} to activate your account.`,
-      data: { agent, token, requiresPayment: true }
+      message: 'Registration started. Complete the one-time ₵75 payment to activate your agent account.',
+      data: {
+        agent: serializeAgent(agent),
+        payment: {
+          reference: payment.reference,
+          amount: payment.amount,
+          status: payment.status
+        },
+        authorizationUrl,
+        storeLink,
+        requiresPayment: true
+      }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return next(error);
   }
 };
 
-// Agent Login
-export const loginAgent = async (req, res) => {
+export const loginAgent = async (req, res, next) => {
   try {
-    const { phone, password } = req.body;
+    const phone = normalizePhone(req.body?.phone);
+    const password = String(req.body?.password || '');
+    if (!phone || !password) {
+      return res.status(400).json({ success: false, message: 'Phone number and password are required' });
+    }
+
     const user = await User.findOne({ phone, role: 'agent' });
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false, message: 'Invalid phone number or password' });
     }
-    if (!user.isActive) {
-      return res.status(403).json({ success: false, message: 'Account not activated. Please pay the registration fee.' });
+
+    if (user.agentStatus !== 'active' || !user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Your agent account is not active yet. Complete the onboarding payment to continue.',
+        data: {
+          agentStatus: user.agentStatus
+        }
+      });
     }
+
     user.lastLogin = new Date();
     await user.save();
-    const token = generateToken(user._id);
-    res.json({ success: true, data: { agent: user, token } });
+
+    return res.json({
+      success: true,
+      message: 'Login successful',
+      data: {
+        token: generateToken(user._id, user.role),
+        agent: serializeAgent(user)
+      }
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return next(error);
   }
 };
 
-// Admin Login
-export const loginAdmin = async (req, res) => {
+export const loginAdmin = async (req, res, next) => {
   try {
-    const email = req.body.email?.trim().toLowerCase();
-    const { password } = req.body;
-    if (email !== DEFAULT_ADMIN_EMAIL) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    const email = String(req.body?.email || '').trim().toLowerCase();
+    const password = String(req.body?.password || '');
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
+
     const adminUser = await User.findOne({ email, role: 'admin' });
     if (!adminUser || !(await adminUser.comparePassword(password))) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
-    const token = generateToken(adminUser._id);
-    res.json({ success: true, token });
+    if (!adminUser.isActive) {
+      return res.status(403).json({ success: false, message: 'Your admin account is not active right now.' });
+    }
+
+    return res.json({
+      success: true,
+      data: {
+        token: generateToken(adminUser._id, adminUser.role)
+      }
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return next(error);
   }
 };

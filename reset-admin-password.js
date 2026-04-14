@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { User } from './src/models/User.js';
+import { DEFAULT_ADMIN_EMAIL } from './src/config/admin.constants.js';
 
 dotenv.config();
 
-const DEFAULT_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@mysterybundlehub.com').toLowerCase();
 const nextPassword = process.env.ADMIN_NEW_PASSWORD || process.argv[2];
 
 const resetAdminPassword = async () => {

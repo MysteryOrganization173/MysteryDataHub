@@ -1,151 +1,196 @@
 import { Bundle } from '../models/Bundle.js';
+import {
+  normalizeNetworkKey,
+  normalizeTierKey,
+  parseVolumeGb,
+  roundMoney,
+  safeNumber,
+  toPsychologicalPrice
+} from '../utils/agent.utils.js';
 
-const NETWORK_META = {
+export const NETWORK_META = {
   mtn: { key: 'mtn', label: 'MTN' },
   airteltigo: { key: 'airteltigo', label: 'AirtelTigo' },
   telecel: { key: 'telecel', label: 'Telecel' }
 };
 
-const TIER_META = {
+export const TIER_META = {
+  budget: {
+    key: 'budget',
+    label: 'Budget',
+    description: 'Lower-price MTN bundles built from the backend floor.'
+  },
   express: {
     key: 'express',
     label: 'Express',
-    description: 'Premium speed with faster delivery labels where supported.'
+    description: 'Higher-priority MTN bundles with faster delivery positioning.'
   },
-  beneficiary: {
-    key: 'beneficiary',
-    label: 'Beneficiary',
-    description: 'Budget-friendly pricing built from backend-only validated products.'
+  instant: {
+    key: 'instant',
+    label: 'Instant',
+    description: 'AirtelTigo iShare bundles for fast top-ups.'
+  },
+  standard: {
+    key: 'standard',
+    label: 'Standard',
+    description: 'Standard bundles where the network supports them.'
   }
 };
 
-const PROVIDER_OFFER_MATRIX = {
-  mtn: {
-    express: {
-      offerSlug: 'mtn_express_bundle',
-      deliveryLabel: '5-45min',
-      allowedVolumes: [1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40]
-    },
-    beneficiary: {
+const NETWORK_OFFER_CONFIG = {
+  mtn: [
+    {
+      key: 'budget',
       offerSlug: 'master_beneficiary_bundle',
       deliveryLabel: '5-45min',
-      allowedVolumes: [1, 2, 3, 4, 5, 6, 8, 10, 15, 20, 25, 30, 40]
+      preferredEnding: 0.49,
+      eligibility: (bundle) => !bundle.isBigTime
+    },
+    {
+      key: 'express',
+      offerSlug: 'mtn_express_bundle',
+      deliveryLabel: '5-45min',
+      preferredEnding: 0.99,
+      eligibility: (bundle) => !bundle.isBigTime
     }
-  },
-  airteltigo: {
-    express: {
+  ],
+  airteltigo: [
+    {
+      key: 'instant',
       offerSlug: 'ishare_data_bundle',
       deliveryLabel: 'Instant',
-      allowedVolumes: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30]
+      preferredEnding: 0.49,
+      eligibility: (bundle) => Boolean(bundle.isInstant)
+    },
+    {
+      key: 'standard',
+      offerSlug: 'bigtime_data_bundle',
+      deliveryLabel: 'Non-expiry',
+      preferredEnding: 0.79,
+      eligibility: (bundle) => Boolean(bundle.isBigTime)
     }
-  },
-  telecel: {
-    express: {
+  ],
+  telecel: [
+    {
+      key: 'standard',
       offerSlug: 'telecel_expiry_bundle',
-      deliveryLabel: '5-45min',
-      allowedVolumes: [10, 15, 20, 25, 30, 40, 50, 100]
+      deliveryLabel: 'Expiry',
+      preferredEnding: 0.79,
+      eligibility: (bundle) => bundle.active !== false
     }
-  }
+  ]
 };
 
 function isBundleStoreReady() {
   return Bundle?.db?.readyState === 1;
 }
 
-function roundMoney(value) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount) || amount <= 0) return null;
-  return Math.round(amount * 100) / 100;
-}
-
-function parseVolumeGb(size) {
-  const amount = Number.parseFloat(String(size || '').replace(/[^\d.]/g, ''));
-  return Number.isFinite(amount) ? amount : null;
-}
-
-function normalizeNetwork(value) {
-  const network = String(value || '').trim().toLowerCase();
-  return NETWORK_META[network] ? network : null;
-}
-
-function normalizeTier(value) {
-  const tier = String(value || '').trim().toLowerCase();
-  return TIER_META[tier] ? tier : null;
-}
-
 function normalizeVolume(value) {
   const amount = Number(value);
-  return Number.isFinite(amount) && amount > 0 ? amount : null;
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
 }
 
-function isBundleEligibleForTier(bundle, network, tier) {
-  if (!bundle || bundle.operator !== network || bundle.active === false) {
-    return false;
-  }
-
-  if (network === 'airteltigo') {
-    if (tier !== 'express') return false;
-    return Boolean(bundle.isInstant);
-  }
-
-  if (tier === 'beneficiary' && network !== 'mtn') {
-    return false;
-  }
-
-  return !bundle.isBigTime;
+function getWholesaleCost(bundle) {
+  return roundMoney(bundle.wholesalePrice || bundle.basePrice || bundle.defaultAgentPrice || 0);
 }
 
-function getTierPrice(bundle, tier) {
-  if (tier === 'express') {
-    return roundMoney(bundle.defaultAgentPrice);
+function getLegacyPublicPrice(bundle, tierKey) {
+  if (tierKey === 'budget') {
+    return roundMoney(bundle.wholesalePrice || bundle.basePrice || 0);
+  }
+  if (tierKey === 'instant') {
+    return roundMoney(bundle.defaultAgentPrice || bundle.basePrice || bundle.wholesalePrice || 0);
+  }
+  if (tierKey === 'standard' && bundle.operator === 'airteltigo') {
+    return roundMoney(bundle.basePrice || bundle.defaultAgentPrice || bundle.wholesalePrice || 0);
+  }
+  return roundMoney(bundle.defaultAgentPrice || bundle.basePrice || bundle.wholesalePrice || 0);
+}
+
+function getFloorBuffer(cost, tierKey) {
+  if (cost <= 0) return 0.49;
+
+  const percentBuffer = {
+    budget: 0.035,
+    express: 0.06,
+    instant: 0.04,
+    standard: 0.05
+  }[tierKey] || 0.05;
+
+  let absoluteBuffer = cost < 5 ? 0.29 : cost < 10 ? 0.49 : cost < 20 ? 0.79 : 0.99;
+
+  if (tierKey === 'express') {
+    absoluteBuffer = Math.max(absoluteBuffer, 0.99);
+  }
+  if (tierKey === 'standard' && cost >= 40) {
+    absoluteBuffer = Math.max(absoluteBuffer, 1.49);
   }
 
-  if (tier === 'beneficiary') {
-    const beneficiaryPrice = roundMoney(bundle.wholesalePrice ?? bundle.basePrice);
-    const expressPrice = roundMoney(bundle.defaultAgentPrice);
-    if (!beneficiaryPrice) return null;
-    if (expressPrice && beneficiaryPrice >= expressPrice) return null;
-    return beneficiaryPrice;
-  }
+  return roundMoney(Math.max(cost * percentBuffer, absoluteBuffer));
+}
 
-  return null;
+function getSuggestedRetailPrice(floorPrice, preferredEnding) {
+  const base = roundMoney(floorPrice + (preferredEnding === 0.99 ? 0.99 : preferredEnding === 0.79 ? 0.79 : 0.49));
+  return toPsychologicalPrice(base, preferredEnding);
 }
 
 function getDeliveryLabel(bundle, offerConfig) {
-  const label = String(bundle?.deliveryTime || '').trim();
-  return label || offerConfig.deliveryLabel;
+  const delivery = String(bundle?.deliveryTime || '').trim();
+  if (offerConfig.key === 'instant') return 'Instant';
+  if (offerConfig.key === 'standard' && bundle.operator === 'airteltigo') return 'Non-expiry';
+  if (offerConfig.key === 'standard' && bundle.operator === 'telecel') return 'Expiry';
+  return delivery || offerConfig.deliveryLabel;
 }
 
-function buildCatalogItem(bundle, network, tier) {
-  const offerConfig = PROVIDER_OFFER_MATRIX[network]?.[tier];
-  if (!offerConfig || !isBundleEligibleForTier(bundle, network, tier)) {
+function buildCatalogItem(bundle, network, offerConfig) {
+  if (!bundle || bundle.operator !== network || bundle.active === false) {
+    return null;
+  }
+  if (!offerConfig.eligibility(bundle)) {
     return null;
   }
 
   const volume = parseVolumeGb(bundle.size);
-  if (!volume || !offerConfig.allowedVolumes.includes(volume)) {
+  if (!volume) {
     return null;
   }
 
-  const price = getTierPrice(bundle, tier);
-  if (!price) {
+  const wholesaleCost = getWholesaleCost(bundle);
+  if (!wholesaleCost) {
     return null;
   }
+
+  const floorPrice = roundMoney(wholesaleCost + getFloorBuffer(wholesaleCost, offerConfig.key));
+  const suggestedRetailPrice = getSuggestedRetailPrice(floorPrice, offerConfig.preferredEnding);
+  const publicPrice = roundMoney(Math.max(getLegacyPublicPrice(bundle, offerConfig.key), floorPrice));
+
+  if (!publicPrice || !suggestedRetailPrice) {
+    return null;
+  }
+
+  const tierMeta = TIER_META[offerConfig.key];
+  const networkMeta = NETWORK_META[network];
 
   return {
     network,
-    networkLabel: NETWORK_META[network].label,
-    tier,
-    tierLabel: TIER_META[tier].label,
-    tierDescription: TIER_META[tier].description,
+    networkLabel: networkMeta.label,
+    tier: offerConfig.key,
+    tierLabel: tierMeta.label,
+    tierDescription: tierMeta.description,
     volume,
     sizeLabel: `${volume}GB`,
-    price,
+    validityLabel: bundle.validity,
+    price: publicPrice,
+    publicPrice,
+    wholesaleCost,
+    floorPrice,
+    suggestedRetailPrice,
     currency: 'GHS',
     deliveryLabel: getDeliveryLabel(bundle, offerConfig),
     offerSlug: offerConfig.offerSlug,
     bundleCode: bundle.code,
-    productKey: `${network}:${tier}:${volume}`
+    bundleName: bundle.name,
+    productKey: `${network}:${offerConfig.key}:${volume}`
   };
 }
 
@@ -156,6 +201,7 @@ function sortCatalogItems(left, right) {
 function toPublicItem(item) {
   return {
     productKey: item.productKey,
+    bundleCode: item.bundleCode,
     network: item.network,
     networkLabel: item.networkLabel,
     tier: item.tier,
@@ -163,34 +209,37 @@ function toPublicItem(item) {
     tierDescription: item.tierDescription,
     volume: item.volume,
     sizeLabel: item.sizeLabel,
-    price: item.price,
+    validityLabel: item.validityLabel,
+    price: item.publicPrice,
     currency: item.currency,
     deliveryLabel: item.deliveryLabel
   };
 }
 
-async function buildInternalCatalog() {
-  let bundles = [];
-  if (isBundleStoreReady()) {
-    try {
-      bundles = await Bundle.find({ active: true }).lean();
-    } catch (error) {
-      console.error('[catalog.service] failed to load bundles:', error.message);
-      bundles = [];
-    }
+async function loadActiveBundles() {
+  if (!isBundleStoreReady()) {
+    return [];
   }
-  const networks = [];
-  const flatItems = [];
 
-  Object.keys(NETWORK_META).forEach((network) => {
+  try {
+    return await Bundle.find({ active: true }).lean();
+  } catch (error) {
+    console.error('[catalog.service] failed to load bundles:', error.message);
+    return [];
+  }
+}
+
+async function buildInternalCatalog() {
+  const bundles = await loadActiveBundles();
+  const networks = [];
+  const flatMap = new Map();
+
+  Object.entries(NETWORK_OFFER_CONFIG).forEach(([network, offerConfigs]) => {
     const tierEntries = [];
 
-    Object.keys(TIER_META).forEach((tier) => {
-      const providerTier = PROVIDER_OFFER_MATRIX[network]?.[tier];
-      if (!providerTier) return;
-
+    offerConfigs.forEach((offerConfig) => {
       const items = bundles
-        .map((bundle) => buildCatalogItem(bundle, network, tier))
+        .map((bundle) => buildCatalogItem(bundle, network, offerConfig))
         .filter(Boolean)
         .sort(sortCatalogItems);
 
@@ -198,14 +247,19 @@ async function buildInternalCatalog() {
         return;
       }
 
-      tierEntries.push({
-        key: tier,
-        label: TIER_META[tier].label,
-        description: TIER_META[tier].description,
-        bundles: items.map(toPublicItem)
+      items.forEach((item) => {
+        const current = flatMap.get(item.productKey);
+        if (!current || current.publicPrice > item.publicPrice) {
+          flatMap.set(item.productKey, item);
+        }
       });
 
-      flatItems.push(...items);
+      tierEntries.push({
+        key: offerConfig.key,
+        label: TIER_META[offerConfig.key].label,
+        description: TIER_META[offerConfig.key].description,
+        bundles: items.map(toPublicItem)
+      });
     });
 
     if (!tierEntries.length) {
@@ -217,6 +271,16 @@ async function buildInternalCatalog() {
       label: NETWORK_META[network].label,
       tiers: tierEntries
     });
+  });
+
+  const internalItems = Array.from(flatMap.values()).sort((left, right) => {
+    if (left.network !== right.network) {
+      return left.network.localeCompare(right.network);
+    }
+    if (left.tier !== right.tier) {
+      return left.tier.localeCompare(right.tier);
+    }
+    return left.volume - right.volume;
   });
 
   const availableTierKeys = Object.keys(TIER_META).filter((tier) =>
@@ -234,7 +298,7 @@ async function buildInternalCatalog() {
       }))
     },
     networks,
-    internalItems: flatItems
+    internalItems
   };
 }
 
@@ -247,9 +311,14 @@ export async function getCatalogResponse() {
   };
 }
 
+export async function getInternalCatalogItems() {
+  const catalog = await buildInternalCatalog();
+  return catalog.internalItems;
+}
+
 export async function resolveCatalogSelection({ network, tier, volume }) {
-  const normalizedNetwork = normalizeNetwork(network);
-  const normalizedTier = normalizeTier(tier);
+  const normalizedNetwork = normalizeNetworkKey(network);
+  const normalizedTier = normalizeTierKey(tier);
   const normalizedVolume = normalizeVolume(volume);
 
   if (!normalizedNetwork || !normalizedTier || !normalizedVolume) {
@@ -267,14 +336,25 @@ export async function resolveCatalogSelection({ network, tier, volume }) {
   );
 }
 
+export async function resolveProductKeySelection(productKey) {
+  const normalizedKey = String(productKey || '').trim().toLowerCase();
+  if (!normalizedKey) {
+    return null;
+  }
+
+  const catalog = await buildInternalCatalog();
+  return catalog.internalItems.find((item) => item.productKey === normalizedKey) || null;
+}
+
 export async function resolveLegacyBundleSelection(bundleCode) {
-  if (!isBundleStoreReady()) {
+  const code = String(bundleCode || '').trim();
+  if (!code || !isBundleStoreReady()) {
     return null;
   }
 
   let bundle = null;
   try {
-    bundle = await Bundle.findOne({ code: bundleCode, active: true }).lean();
+    bundle = await Bundle.findOne({ code, active: true }).lean();
   } catch (error) {
     console.error('[catalog.service] failed to resolve legacy bundle:', error.message);
     return null;
@@ -284,10 +364,38 @@ export async function resolveLegacyBundleSelection(bundleCode) {
     return null;
   }
 
-  const network = normalizeNetwork(bundle.operator);
-  if (!network) {
-    return null;
-  }
+  const network = normalizeNetworkKey(bundle.operator);
+  const offerConfigs = NETWORK_OFFER_CONFIG[network] || [];
+  const defaultConfig =
+    offerConfigs.find((config) => config.key === 'express') ||
+    offerConfigs.find((config) => config.eligibility(bundle)) ||
+    offerConfigs[0];
 
-  return buildCatalogItem(bundle, network, 'express');
+  return defaultConfig ? buildCatalogItem(bundle, network, defaultConfig) : null;
+}
+
+export function getTierMeta(tierKey) {
+  return TIER_META[normalizeTierKey(tierKey)] || null;
+}
+
+export function getNetworkMeta(networkKey) {
+  return NETWORK_META[normalizeNetworkKey(networkKey)] || null;
+}
+
+export function getCatalogSnapshotPricing(item) {
+  if (!item) return null;
+  const wholesaleCost = roundMoney(item.wholesaleCost);
+  const floorPrice = roundMoney(item.floorPrice);
+  const suggestedRetailPrice = roundMoney(item.suggestedRetailPrice);
+  const publicPrice = roundMoney(item.publicPrice ?? item.price);
+
+  return {
+    wholesaleCost,
+    floorPrice,
+    suggestedRetailPrice,
+    publicPrice,
+    minProfit: roundMoney(Math.max(floorPrice - wholesaleCost, 0)),
+    recommendedProfit: roundMoney(Math.max(suggestedRetailPrice - wholesaleCost, 0)),
+    currentPublicProfit: roundMoney(Math.max(publicPrice - wholesaleCost, 0))
+  };
 }

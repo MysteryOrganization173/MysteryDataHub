@@ -1,38 +1,63 @@
-export const createOrder = async (req, res) => {
+import { Order } from '../models/Order.js';
+import { syncOrderProviderStatus } from '../services/fulfillment.service.js';
+import { roundMoney } from '../utils/agent.utils.js';
+
+function serializeOrder(orderInput) {
+  const order = orderInput?.toObject ? orderInput.toObject() : orderInput;
+  return {
+    orderId: order.orderId,
+    reference: order.reference,
+    customerPhone: order.customerPhone,
+    customerEmail: order.customerEmail || '',
+    network: order.network,
+    tier: order.catalogTier,
+    tierLabel: order.tierLabel || order.catalogTier,
+    bundleCode: order.bundleCode,
+    bundleName: order.bundleName,
+    amount: roundMoney(order.amount || 0),
+    paymentStatus: order.paymentStatus,
+    deliveryStatus: order.deliveryStatus,
+    status: order.status,
+    createdAt: order.createdAt
+  };
+}
+
+export const getOrderStatus = async (req, res) => {
   try {
-    const { phone, bundle } = req.body;
-
-    if (phone === undefined || phone === null || String(phone).trim() === '') {
+    const lookup = String(req.params.lookup || '').trim();
+    if (!lookup) {
       return res.status(400).json({
         success: false,
         status: 'error',
-        message: 'Phone is required'
+        message: 'Order reference is required'
       });
     }
 
-    if (bundle === undefined || bundle === null || String(bundle).trim() === '') {
-      return res.status(400).json({
+    let order = await Order.findOne({
+      $or: [{ orderId: lookup }, { reference: lookup }]
+    });
+
+    if (!order) {
+      return res.status(404).json({
         success: false,
         status: 'error',
-        message: 'Bundle is required'
+        message: 'Order not found'
       });
     }
 
-    const payload = { phone: String(phone).trim(), bundle: String(bundle).trim() };
-    console.log('[POST /api/orders/create]', payload);
+    order = await syncOrderProviderStatus(order, { force: true, source: 'track-order' });
 
-    return res.status(200).json({
+    return res.json({
       success: true,
       status: 'success',
-      message: 'Order received. We will process your bundle shortly.',
-      data: payload
+      order: serializeOrder(order)
     });
   } catch (err) {
-    console.error('[POST /api/orders/create]', err);
+    console.error('[GET /api/orders/:lookup]', err);
     return res.status(500).json({
       success: false,
       status: 'error',
-      message: 'Could not create order'
+      message: 'Could not fetch order status'
     });
   }
 };

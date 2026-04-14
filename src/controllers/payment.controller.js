@@ -1,8 +1,21 @@
 import crypto from 'crypto';
 import axios from 'axios';
+import { AgentOnboardingPayment } from '../models/AgentOnboardingPayment.js';
 import { Order } from '../models/Order.js';
 import { fulfillOrder } from '../services/fulfillment.service.js';
-import { resolveCatalogSelection, resolveLegacyBundleSelection } from '../services/catalog.service.js';
+import {
+  resolveCatalogSelection,
+  resolveLegacyBundleSelection,
+  resolveProductKeySelection
+} from '../services/catalog.service.js';
+import { recordAgentOrderPendingEarnings } from '../services/agent-accounting.service.js';
+import { resolveStorefrontSelection } from '../services/agent-pricing.service.js';
+import { finalizeAgentOnboardingPayment } from '../services/agent-onboarding.service.js';
+import {
+  normalizeTierKey,
+  roundMoney,
+  sanitizeText
+} from '../utils/agent.utils.js';
 
 const paystackBase = () => String(process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co').trim();
 
@@ -50,8 +63,8 @@ function normalizeCatalogNetwork(value) {
 }
 
 function normalizeCatalogTier(value) {
-  const tier = String(value || '').trim().toLowerCase();
-  return ['express', 'beneficiary'].includes(tier) ? tier : null;
+  const tier = normalizeTierKey(value);
+  return tier || null;
 }
 
 function normalizeCatalogVolume(value) {
@@ -171,6 +184,9 @@ export const initializePayment = async (req, res) => {
     const {
       phone,
       bundle,
+      productKey: productKeyRaw,
+      storeSlug: storeSlugRaw,
+      agentStoreSlug,
       email: emailRaw,
       network: networkRaw,
       tier: tierRaw,
@@ -188,9 +204,27 @@ export const initializePayment = async (req, res) => {
     const normalizedNetwork = normalizeCatalogNetwork(networkRaw);
     const normalizedTier = normalizeCatalogTier(tierRaw);
     const normalizedVolume = normalizeCatalogVolume(volumeRaw);
+    const storeSlug = sanitizeText(storeSlugRaw || agentStoreSlug, 120).toLowerCase();
+    const productKey = String(productKeyRaw || '').trim().toLowerCase() || (String(bundle || '').includes(':') ? String(bundle || '').trim().toLowerCase() : '');
 
     let catalogSelection = null;
-    if (normalizedNetwork || normalizedTier || normalizedVolume) {
+    if (storeSlug) {
+      catalogSelection = await resolveStorefrontSelection({
+        storeSlug,
+        productKey,
+        network: normalizedNetwork,
+        tier: normalizedTier,
+        volume: normalizedVolume
+      });
+
+      if (!catalogSelection) {
+        return res.status(404).json({
+          success: false,
+          status: 'error',
+          message: 'This agent store does not have the selected bundle enabled'
+        });
+      }
+    } else if (normalizedNetwork || normalizedTier || normalizedVolume) {
       if (!normalizedNetwork || !normalizedTier || !normalizedVolume) {
         return res.status(400).json({
           success: false,
@@ -212,6 +246,15 @@ export const initializePayment = async (req, res) => {
           message: 'Selected network, tier, and volume are not available'
         });
       }
+    } else if (productKey) {
+      catalogSelection = await resolveProductKeySelection(productKey);
+      if (!catalogSelection) {
+        return res.status(404).json({
+          success: false,
+          status: 'error',
+          message: 'Selected bundle is not available'
+        });
+      }
     } else {
       if (!isValidBundleCode(bundle)) {
         return res.status(400).json({
@@ -231,8 +274,11 @@ export const initializePayment = async (req, res) => {
       }
     }
 
-    const amountGHS = catalogSelection.price;
+    const amountGHS = roundMoney(catalogSelection.price);
     const reference = `MBH-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+    const wholesaleCost = roundMoney(catalogSelection.wholesaleCost || 0);
+    const sellingPrice = roundMoney(catalogSelection.price || 0);
+    const agentProfit = catalogSelection.agentId ? roundMoney(Math.max(sellingPrice - wholesaleCost, 0)) : 0;
 
     const email = emailRaw && String(emailRaw).trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -267,12 +313,21 @@ export const initializePayment = async (req, res) => {
       customerEmail: email,
       network: catalogSelection.network,
       catalogTier: catalogSelection.tier,
+      tierLabel: catalogSelection.tierLabel,
       catalogVolume: catalogSelection.volume,
+      productKey: catalogSelection.productKey,
       offerSlug: catalogSelection.offerSlug,
       deliveryLabel: catalogSelection.deliveryLabel,
       bundleCode: catalogSelection.bundleCode,
       bundleName: `${catalogSelection.networkLabel} ${catalogSelection.tierLabel} ${catalogSelection.sizeLabel}`,
       amount: amountGHS,
+      sellingPrice,
+      wholesaleCost,
+      floorPrice: roundMoney(catalogSelection.floorPrice || 0),
+      agentProfit,
+      agentId: catalogSelection.agentId || undefined,
+      agentStoreSlug: catalogSelection.agentStoreSlug || storeSlug || undefined,
+      profitStatus: catalogSelection.agentId ? 'unrecorded' : 'none',
       status: 'pending',
       paymentStatus: 'pending',
       deliveryStatus: 'pending'
@@ -292,11 +347,13 @@ export const initializePayment = async (req, res) => {
             phone: phoneNorm
           },
           metadata: {
+            flow: catalogSelection.agentId ? 'agent_store_order' : 'customer_order',
             phone: phoneNorm,
             bundle: catalogSelection.bundleCode,
             network: catalogSelection.network,
             tier: catalogSelection.tier,
             volume: catalogSelection.volume,
+            storeSlug: catalogSelection.agentStoreSlug || storeSlug || '',
             custom_fields: [
               { display_name: 'Phone', variable_name: 'phone', value: phoneNorm },
               {
@@ -397,6 +454,44 @@ export const verifyPayment = async (req, res) => {
 
     const existingOrder = await Order.findOne({ reference });
     if (!existingOrder) {
+      const onboardingPayment = await AgentOnboardingPayment.findOne({ reference });
+      if (onboardingPayment) {
+        const onboardingVerification = await axios.get(
+          `${paystackBase()}/transaction/verify/${encodeURIComponent(reference)}`,
+          { headers: { Authorization: `Bearer ${paystackSecretKey}` } }
+        );
+        const onboardingPayload = onboardingVerification.data;
+        const payment = onboardingPayload?.data;
+        if (!onboardingPayload?.status || payment?.status !== 'success') {
+          return res.status(402).json({
+            success: false,
+            status: 'error',
+            message: payment?.gateway_response || onboardingPayload?.message || 'Payment not successful'
+          });
+        }
+
+        const onboardingResult = await finalizeAgentOnboardingPayment(reference, payment);
+        if (!onboardingResult) {
+          return res.status(402).json({
+            success: false,
+            status: 'error',
+            message: 'Agent onboarding payment is not confirmed yet'
+          });
+        }
+
+        return res.json({
+          status: 'success',
+          success: true,
+          message: 'Agent onboarding payment verified',
+          data: payment,
+          onboarding: {
+            reference: onboardingResult.payment.reference,
+            status: onboardingResult.payment.status,
+            agentId: onboardingResult.agent?._id
+          }
+        });
+      }
+
       return res.status(404).json({
         success: false,
         status: 'error',
@@ -443,6 +538,7 @@ export const verifyPayment = async (req, res) => {
 
     if (order) {
       try {
+        await recordAgentOrderPendingEarnings(order);
         await fulfillOrder(order);
         fulfillmentNote = 'attempted';
       } catch (e) {
@@ -460,6 +556,7 @@ export const verifyPayment = async (req, res) => {
       }
       if (order.status === 'paid' && order.deliveryStatus === 'pending') {
         try {
+          await recordAgentOrderPendingEarnings(order);
           await fulfillOrder(order);
           fulfillmentNote = 'attempted';
         } catch (e) {
@@ -494,6 +591,9 @@ export const verifyPayment = async (req, res) => {
             customerPhone: fresh.customerPhone,
             network: fresh.network,
             amount: fresh.amount,
+            tier: fresh.catalogTier,
+            tierLabel: fresh.tierLabel,
+            profit: fresh.agentProfit,
             createdAt: fresh.createdAt
           }
         : undefined,
@@ -556,6 +656,11 @@ export const webhook = async (req, res) => {
 
     const existingOrder = await Order.findOne({ reference });
     if (!existingOrder) {
+      const onboardingPayment = await AgentOnboardingPayment.findOne({ reference });
+      if (onboardingPayment) {
+        await finalizeAgentOnboardingPayment(reference, payment);
+        return res.sendStatus(200);
+      }
       paymentLog('warn', 'webhook', 'order not found', { reference });
       return res.sendStatus(200);
     }
@@ -572,10 +677,12 @@ export const webhook = async (req, res) => {
 
     const order = await markOrderPaidFromPaystack(reference, payment);
     if (order) {
+      await recordAgentOrderPendingEarnings(order);
       fulfillOrder(order).catch((err) => console.error('webhook fulfill:', err));
     } else {
       const existing = await Order.findOne({ reference });
       if (existing?.status === 'paid' && existing.deliveryStatus === 'pending') {
+        await recordAgentOrderPendingEarnings(existing);
         fulfillOrder(existing).catch((err) => console.error('webhook fulfill (late):', err));
       }
     }

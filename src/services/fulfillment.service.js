@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Order } from '../models/Order.js';
+import { settleAgentOrderEarnings } from './agent-accounting.service.js';
 import { getOfferSlugAndVolume } from '../utils/offerSlugs.js';
 
 const DELIVERY_STATUS_SCORE = {
@@ -148,6 +149,7 @@ export async function applyProviderStatusUpdate(orderInput, providerPayload, sou
   }
 
   await order.save();
+  await settleAgentOrderEarnings(order._id);
   return order;
 }
 
@@ -223,6 +225,7 @@ export const fulfillOrder = async (order) => {
       locked.deliveryStatus = 'failed';
       locked.status = 'failed';
       await locked.save();
+      await settleAgentOrderEarnings(locked._id);
       return;
     }
     if (!Number.isFinite(volume) || volume <= 0) {
@@ -230,6 +233,7 @@ export const fulfillOrder = async (order) => {
       locked.deliveryStatus = 'failed';
       locked.status = 'failed';
       await locked.save();
+      await settleAgentOrderEarnings(locked._id);
       return;
     }
 
@@ -285,5 +289,6 @@ export const fulfillOrder = async (order) => {
     locked.deliveryStatus = 'failed';
     locked.status = 'failed';
     await locked.save();
+    await settleAgentOrderEarnings(locked._id);
   }
 };
