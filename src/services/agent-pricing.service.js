@@ -290,7 +290,7 @@ export async function updateAgentPricingRule(agentId, ruleId, payload = {}) {
   if (payload.customRetailPrice !== undefined) {
     const nextRetail = parsePositiveAmount(payload.customRetailPrice);
     if (nextRetail && nextRetail < rule.floorPrice) {
-      const error = new Error(`Retail price cannot be lower than the floor price of ₵${rule.floorPrice.toFixed(2)}`);
+      const error = new Error(`Retail price cannot be lower than ₵${rule.floorPrice.toFixed(2)}`);
       error.status = 400;
       throw error;
     }

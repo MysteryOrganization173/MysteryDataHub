@@ -3,10 +3,9 @@ import {
   normalizeNetworkKey,
   normalizeTierKey,
   parseVolumeGb,
-  roundMoney,
-  safeNumber,
-  toPsychologicalPrice
+  roundMoney
 } from '../utils/agent.utils.js';
+import { getFixedCatalogPrice } from '../config/fixed-pricing.js';
 
 export const NETWORK_META = {
   mtn: { key: 'mtn', label: 'MTN' },
@@ -18,12 +17,12 @@ export const TIER_META = {
   budget: {
     key: 'budget',
     label: 'Budget',
-    description: 'Lower-price MTN bundles built from the backend floor.'
+    description: 'Affordable MTN bundles at great rates.'
   },
   express: {
     key: 'express',
     label: 'Express',
-    description: 'Higher-priority MTN bundles with faster delivery positioning.'
+    description: 'Faster MTN bundles with priority delivery.'
   },
   instant: {
     key: 'instant',
@@ -94,45 +93,7 @@ function getWholesaleCost(bundle) {
   return roundMoney(bundle.wholesalePrice || bundle.basePrice || bundle.defaultAgentPrice || 0);
 }
 
-function getLegacyPublicPrice(bundle, tierKey) {
-  if (tierKey === 'budget') {
-    return roundMoney(bundle.wholesalePrice || bundle.basePrice || 0);
-  }
-  if (tierKey === 'instant') {
-    return roundMoney(bundle.defaultAgentPrice || bundle.basePrice || bundle.wholesalePrice || 0);
-  }
-  if (tierKey === 'standard' && bundle.operator === 'airteltigo') {
-    return roundMoney(bundle.basePrice || bundle.defaultAgentPrice || bundle.wholesalePrice || 0);
-  }
-  return roundMoney(bundle.defaultAgentPrice || bundle.basePrice || bundle.wholesalePrice || 0);
-}
-
-function getFloorBuffer(cost, tierKey) {
-  if (cost <= 0) return 0.49;
-
-  const percentBuffer = {
-    budget: 0.035,
-    express: 0.06,
-    instant: 0.04,
-    standard: 0.05
-  }[tierKey] || 0.05;
-
-  let absoluteBuffer = cost < 5 ? 0.29 : cost < 10 ? 0.49 : cost < 20 ? 0.79 : 0.99;
-
-  if (tierKey === 'express') {
-    absoluteBuffer = Math.max(absoluteBuffer, 0.99);
-  }
-  if (tierKey === 'standard' && cost >= 40) {
-    absoluteBuffer = Math.max(absoluteBuffer, 1.49);
-  }
-
-  return roundMoney(Math.max(cost * percentBuffer, absoluteBuffer));
-}
-
-function getSuggestedRetailPrice(floorPrice, preferredEnding) {
-  const base = roundMoney(floorPrice + (preferredEnding === 0.99 ? 0.99 : preferredEnding === 0.79 ? 0.79 : 0.49));
-  return toPsychologicalPrice(base, preferredEnding);
-}
+// Catalog pricing is sourced exclusively from FIXED_PRICING.
 
 function getDeliveryLabel(bundle, offerConfig) {
   const delivery = String(bundle?.deliveryTime || '').trim();
@@ -160,11 +121,13 @@ function buildCatalogItem(bundle, network, offerConfig) {
     return null;
   }
 
-  const floorPrice = roundMoney(wholesaleCost + getFloorBuffer(wholesaleCost, offerConfig.key));
-  const suggestedRetailPrice = getSuggestedRetailPrice(floorPrice, offerConfig.preferredEnding);
-  const publicPrice = roundMoney(Math.max(getLegacyPublicPrice(bundle, offerConfig.key), floorPrice));
+  const fixedPrice = getFixedCatalogPrice({
+    network,
+    tier: offerConfig.key,
+    volume
+  });
 
-  if (!publicPrice || !suggestedRetailPrice) {
+  if (!fixedPrice) {
     return null;
   }
 
@@ -180,11 +143,11 @@ function buildCatalogItem(bundle, network, offerConfig) {
     volume,
     sizeLabel: `${volume}GB`,
     validityLabel: bundle.validity,
-    price: publicPrice,
-    publicPrice,
+    price: fixedPrice,
+    publicPrice: fixedPrice,
     wholesaleCost,
-    floorPrice,
-    suggestedRetailPrice,
+    floorPrice: fixedPrice,
+    suggestedRetailPrice: fixedPrice,
     currency: 'GHS',
     deliveryLabel: getDeliveryLabel(bundle, offerConfig),
     offerSlug: offerConfig.offerSlug,

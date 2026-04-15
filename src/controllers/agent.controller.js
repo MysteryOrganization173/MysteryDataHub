@@ -429,7 +429,7 @@ export const resetPricing = async (req, res, next) => {
     const pricingView = await resetAgentPricing(req.user._id, productKeys);
     return res.json({
       success: true,
-      message: 'Pricing reset to backend suggestions',
+      message: 'Pricing reset to system pricing',
       data: pricingView
     });
   } catch (error) {

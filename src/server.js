@@ -31,12 +31,25 @@ async function bootstrap() {
   }
 
   const app = express();
-  const frontendPath = process.cwd();
+  const frontendPath = path.join(process.cwd(), 'Frontend');
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
   const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i;
+
+  function normalizeOriginForCompare(value) {
+    try {
+      const url = new URL(String(value || '').trim());
+      const host = url.host.toLowerCase();
+      const baseHost = host.startsWith('www.') ? host.slice(4) : host;
+      return `${url.protocol}//${baseHost}`;
+    } catch {
+      return String(value || '').trim().replace(/\/$/, '').toLowerCase();
+    }
+  }
+
+  const normalizedCorsOrigins = configuredCorsOrigins.map(normalizeOriginForCompare);
 
   const corsOptions = {
     origin(origin, callback) {
@@ -52,7 +65,9 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      return callback(null, configuredCorsOrigins.includes(origin));
+      const normalized = normalizeOriginForCompare(origin);
+      const allowed = normalizedCorsOrigins.includes(normalized);
+      return callback(null, allowed);
     },
     credentials: true
   };
