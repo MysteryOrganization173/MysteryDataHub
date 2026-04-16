@@ -5,7 +5,7 @@ import {
   parseVolumeGb,
   roundMoney
 } from '../utils/agent.utils.js';
-import { getFixedCatalogPrice } from '../config/fixed-pricing.js';
+import { computePricingForCatalogItem } from './pricing.service.js';
 
 export const NETWORK_META = {
   mtn: { key: 'mtn', label: 'MTN' },
@@ -89,12 +89,6 @@ function normalizeVolume(value) {
   return Number.isFinite(amount) && amount > 0 ? amount : 0;
 }
 
-function getWholesaleCost(bundle) {
-  return roundMoney(bundle.wholesalePrice || bundle.basePrice || bundle.defaultAgentPrice || 0);
-}
-
-// Catalog pricing is sourced exclusively from FIXED_PRICING.
-
 function getDeliveryLabel(bundle, offerConfig) {
   const delivery = String(bundle?.deliveryTime || '').trim();
   if (offerConfig.key === 'instant') return 'Instant';
@@ -103,7 +97,7 @@ function getDeliveryLabel(bundle, offerConfig) {
   return delivery || offerConfig.deliveryLabel;
 }
 
-function buildCatalogItem(bundle, network, offerConfig) {
+async function buildCatalogItem(bundle, network, offerConfig) {
   if (!bundle || bundle.operator !== network || bundle.active === false) {
     return null;
   }
@@ -116,23 +110,17 @@ function buildCatalogItem(bundle, network, offerConfig) {
     return null;
   }
 
-  const wholesaleCost = getWholesaleCost(bundle);
-  if (!wholesaleCost) {
-    return null;
-  }
-
-  const fixedPrice = getFixedCatalogPrice({
-    network,
-    tier: offerConfig.key,
-    volume
-  });
-
-  if (!fixedPrice) {
-    return null;
-  }
-
   const tierMeta = TIER_META[offerConfig.key];
   const networkMeta = NETWORK_META[network];
+  const pricing = await computePricingForCatalogItem({
+    network,
+    tier: offerConfig.key,
+    volumeGb: volume,
+    bundle
+  });
+  if (!pricing) {
+    return null;
+  }
 
   return {
     network,
@@ -143,11 +131,11 @@ function buildCatalogItem(bundle, network, offerConfig) {
     volume,
     sizeLabel: `${volume}GB`,
     validityLabel: bundle.validity,
-    price: fixedPrice,
-    publicPrice: fixedPrice,
-    wholesaleCost,
-    floorPrice: fixedPrice,
-    suggestedRetailPrice: fixedPrice,
+    price: pricing.price,
+    publicPrice: pricing.publicPrice,
+    wholesaleCost: pricing.wholesaleCost,
+    floorPrice: pricing.floorPrice,
+    suggestedRetailPrice: pricing.suggestedRetailPrice,
     currency: 'GHS',
     deliveryLabel: getDeliveryLabel(bundle, offerConfig),
     offerSlug: offerConfig.offerSlug,
@@ -197,18 +185,17 @@ async function buildInternalCatalog() {
   const networks = [];
   const flatMap = new Map();
 
-  Object.entries(NETWORK_OFFER_CONFIG).forEach(([network, offerConfigs]) => {
+  for (const [network, offerConfigs] of Object.entries(NETWORK_OFFER_CONFIG)) {
     const tierEntries = [];
 
-    offerConfigs.forEach((offerConfig) => {
-      const items = bundles
-        .map((bundle) => buildCatalogItem(bundle, network, offerConfig))
+    for (const offerConfig of offerConfigs) {
+      const items = (await Promise.all(
+        bundles.map((bundle) => buildCatalogItem(bundle, network, offerConfig))
+      ))
         .filter(Boolean)
         .sort(sortCatalogItems);
 
-      if (!items.length) {
-        return;
-      }
+      if (!items.length) continue;
 
       items.forEach((item) => {
         const current = flatMap.get(item.productKey);
@@ -223,18 +210,16 @@ async function buildInternalCatalog() {
         description: TIER_META[offerConfig.key].description,
         bundles: items.map(toPublicItem)
       });
-    });
-
-    if (!tierEntries.length) {
-      return;
     }
+
+    if (!tierEntries.length) continue;
 
     networks.push({
       key: network,
       label: NETWORK_META[network].label,
       tiers: tierEntries
     });
-  });
+  }
 
   const internalItems = Array.from(flatMap.values()).sort((left, right) => {
     if (left.network !== right.network) {
@@ -334,7 +319,7 @@ export async function resolveLegacyBundleSelection(bundleCode) {
     offerConfigs.find((config) => config.eligibility(bundle)) ||
     offerConfigs[0];
 
-  return defaultConfig ? buildCatalogItem(bundle, network, defaultConfig) : null;
+  return defaultConfig ? await buildCatalogItem(bundle, network, defaultConfig) : null;
 }
 
 export function getTierMeta(tierKey) {

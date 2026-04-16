@@ -7,6 +7,7 @@ import {
   getNetworkMeta,
   getTierMeta
 } from './catalog.service.js';
+import { computeAgentMinimumAllowedRetailPriceTotal } from './pricing.service.js';
 import {
   buildStoreLink,
   getFrontendBaseUrl,
@@ -289,10 +290,20 @@ export async function updateAgentPricingRule(agentId, ruleId, payload = {}) {
 
   if (payload.customRetailPrice !== undefined) {
     const nextRetail = parsePositiveAmount(payload.customRetailPrice);
-    if (nextRetail && nextRetail < rule.floorPrice) {
-      const error = new Error(`Retail price cannot be lower than ₵${rule.floorPrice.toFixed(2)}`);
+    if (nextRetail) {
+      // Enforce the real backend minimum price (cost + platform margin + MIN_AGENT_MARGIN).
+      const minAllowedRetailPrice = await computeAgentMinimumAllowedRetailPriceTotal({
+        network: rule.network,
+        tier: rule.tier,
+        volumeGb: rule.bundleSize,
+        bundleCode: rule.bundleCode
+      });
+
+      if (minAllowedRetailPrice && nextRetail < minAllowedRetailPrice) {
+        const error = new Error(`Retail price cannot be lower than ₵${minAllowedRetailPrice.toFixed(2)}`);
       error.status = 400;
       throw error;
+      }
     }
     rule.customRetailPrice = nextRetail || undefined;
   }

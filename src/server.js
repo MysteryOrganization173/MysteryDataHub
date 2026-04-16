@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { connectDB } from './config/database.js';
 import agentRoutes from './routes/agent.routes.js';
 import orderRoutes from './routes/order.routes.js';
@@ -20,6 +22,12 @@ import { getNetworkStatusSetting, getWithdrawalConfig } from './services/agent-p
 dotenv.config();
 
 async function bootstrap() {
+  const runningFile = fileURLToPath(import.meta.url);
+  console.log('[startup] Running server file:', runningFile);
+  console.log('[startup] Running from cwd:', process.cwd());
+  console.log('[startup] Node version:', process.version);
+  console.log('[startup] argv[1]:', process.argv[1]);
+
   validateRuntimeConfig();
   const dbConnected = await connectDB();
   if (dbConnected) {
@@ -31,7 +39,29 @@ async function bootstrap() {
   }
 
   const app = express();
-  const frontendPath = path.join(process.cwd(), 'Frontend');
+
+  function resolveFrontendDir() {
+    const candidates = [
+      path.resolve(process.cwd(), 'Frontend'),
+      path.resolve(process.cwd(), '..', 'Frontend'),
+      path.resolve(process.cwd(), '..', '..', 'Frontend')
+    ];
+
+    for (const candidate of candidates) {
+      const indexPath = path.join(candidate, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        return { frontendDir: candidate, indexPath };
+      }
+    }
+
+    // Last resort: still return a best-guess so logs show what was attempted.
+    return {
+      frontendDir: path.resolve(process.cwd(), 'Frontend'),
+      indexPath: path.resolve(process.cwd(), 'Frontend', 'index.html')
+    };
+  }
+
+  const { frontendDir: frontendPath, indexPath: frontendIndexPath } = resolveFrontendDir();
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -105,14 +135,16 @@ async function bootstrap() {
   app.use('/api/orders', orderRoutes);
   app.use('/api/payment', paymentRoutes);
 
-  console.log('Serving frontend from:', frontendPath);
+  console.log('[startup] Serving frontend from:', frontendPath);
+  console.log('[startup] Frontend index resolved to:', frontendIndexPath);
+  console.log('[startup] Frontend index exists:', fs.existsSync(frontendIndexPath));
   app.use(express.static(frontendPath));
   app.get('/', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    res.sendFile(frontendIndexPath);
   });
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(frontendPath, 'index.html'));
+    res.sendFile(frontendIndexPath);
   });
 
   app.use(errorHandler);
