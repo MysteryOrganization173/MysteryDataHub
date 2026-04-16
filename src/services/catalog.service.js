@@ -5,7 +5,11 @@ import {
   parseVolumeGb,
   roundMoney
 } from '../utils/agent.utils.js';
-import { computePricingForCatalogItem } from './pricing.service.js';
+import {
+  getAgentBasePriceTotal,
+  getAgentFloorPriceTotal,
+  getCustomerPriceTotal
+} from './pricing-calculator.service.js';
 
 export const NETWORK_META = {
   mtn: { key: 'mtn', label: 'MTN' },
@@ -89,6 +93,13 @@ function normalizeVolume(value) {
   return Number.isFinite(amount) && amount > 0 ? amount : 0;
 }
 
+function getTelecelProviderCost(bundle) {
+  // Telecel cost is bundle-based (not per-GB). We rely on the catalog/DB cost fields.
+  return roundMoney(bundle.wholesalePrice || bundle.basePrice || bundle.defaultAgentPrice || 0);
+}
+
+// Catalog pricing is sourced exclusively from FIXED_PRICING.
+
 function getDeliveryLabel(bundle, offerConfig) {
   const delivery = String(bundle?.deliveryTime || '').trim();
   if (offerConfig.key === 'instant') return 'Instant';
@@ -97,7 +108,7 @@ function getDeliveryLabel(bundle, offerConfig) {
   return delivery || offerConfig.deliveryLabel;
 }
 
-async function buildCatalogItem(bundle, network, offerConfig) {
+function buildCatalogItem(bundle, network, offerConfig) {
   if (!bundle || bundle.operator !== network || bundle.active === false) {
     return null;
   }
@@ -110,17 +121,35 @@ async function buildCatalogItem(bundle, network, offerConfig) {
     return null;
   }
 
-  const tierMeta = TIER_META[offerConfig.key];
-  const networkMeta = NETWORK_META[network];
-  const pricing = await computePricingForCatalogItem({
+  const telecelProviderCost = network === 'telecel' ? getTelecelProviderCost(bundle) : null;
+
+  const wholesaleCost = getAgentBasePriceTotal({
     network,
     tier: offerConfig.key,
     volumeGb: volume,
-    bundle
+    telecelProviderCost
   });
-  if (!pricing) {
-    return null;
-  }
+  if (!wholesaleCost) return null;
+
+  const floorPrice = getAgentFloorPriceTotal({
+    network,
+    tier: offerConfig.key,
+    volumeGb: volume,
+    telecelProviderCost
+  });
+  if (!floorPrice) return null;
+
+  const customerPrice = getCustomerPriceTotal({
+    network,
+    tier: offerConfig.key,
+    volumeGb: volume,
+    telecelProviderCost
+  });
+
+  if (!customerPrice) return null;
+
+  const tierMeta = TIER_META[offerConfig.key];
+  const networkMeta = NETWORK_META[network];
 
   return {
     network,
@@ -131,11 +160,11 @@ async function buildCatalogItem(bundle, network, offerConfig) {
     volume,
     sizeLabel: `${volume}GB`,
     validityLabel: bundle.validity,
-    price: pricing.price,
-    publicPrice: pricing.publicPrice,
-    wholesaleCost: pricing.wholesaleCost,
-    floorPrice: pricing.floorPrice,
-    suggestedRetailPrice: pricing.suggestedRetailPrice,
+    price: customerPrice,
+    publicPrice: customerPrice,
+    wholesaleCost,
+    floorPrice,
+    suggestedRetailPrice: roundMoney(Math.max(customerPrice, floorPrice)),
     currency: 'GHS',
     deliveryLabel: getDeliveryLabel(bundle, offerConfig),
     offerSlug: offerConfig.offerSlug,
@@ -185,17 +214,18 @@ async function buildInternalCatalog() {
   const networks = [];
   const flatMap = new Map();
 
-  for (const [network, offerConfigs] of Object.entries(NETWORK_OFFER_CONFIG)) {
+  Object.entries(NETWORK_OFFER_CONFIG).forEach(([network, offerConfigs]) => {
     const tierEntries = [];
 
-    for (const offerConfig of offerConfigs) {
-      const items = (await Promise.all(
-        bundles.map((bundle) => buildCatalogItem(bundle, network, offerConfig))
-      ))
+    offerConfigs.forEach((offerConfig) => {
+      const items = bundles
+        .map((bundle) => buildCatalogItem(bundle, network, offerConfig))
         .filter(Boolean)
         .sort(sortCatalogItems);
 
-      if (!items.length) continue;
+      if (!items.length) {
+        return;
+      }
 
       items.forEach((item) => {
         const current = flatMap.get(item.productKey);
@@ -210,16 +240,18 @@ async function buildInternalCatalog() {
         description: TIER_META[offerConfig.key].description,
         bundles: items.map(toPublicItem)
       });
-    }
+    });
 
-    if (!tierEntries.length) continue;
+    if (!tierEntries.length) {
+      return;
+    }
 
     networks.push({
       key: network,
       label: NETWORK_META[network].label,
       tiers: tierEntries
     });
-  }
+  });
 
   const internalItems = Array.from(flatMap.values()).sort((left, right) => {
     if (left.network !== right.network) {
@@ -319,7 +351,7 @@ export async function resolveLegacyBundleSelection(bundleCode) {
     offerConfigs.find((config) => config.eligibility(bundle)) ||
     offerConfigs[0];
 
-  return defaultConfig ? await buildCatalogItem(bundle, network, defaultConfig) : null;
+  return defaultConfig ? buildCatalogItem(bundle, network, defaultConfig) : null;
 }
 
 export function getTierMeta(tierKey) {

@@ -100,7 +100,8 @@ async function generateUniqueStoreSlug(seed) {
 }
 
 function buildOnboardingCallbackUrl() {
-  return `${getFrontendBaseUrl()}/payment-agent.html?flow=agent-onboarding`;
+  const baseUrl = getFrontendBaseUrl();
+  return `${baseUrl}/success.html?type=agent`;
 }
 
 export async function createAgentRegistrationAndPayment(input) {
@@ -193,6 +194,7 @@ export async function createAgentRegistrationAndPayment(input) {
   }
 
   try {
+    const callbackUrl = buildOnboardingCallbackUrl();
     const paystackResponse = await axios.post(
       `${getPaystackBaseUrl()}/transaction/initialize`,
       {
@@ -200,9 +202,10 @@ export async function createAgentRegistrationAndPayment(input) {
         amount: Math.round(AGENT_ONBOARDING_FEE_GHS * 100),
         currency: 'GHS',
         reference: payment.reference,
-        callback_url: buildOnboardingCallbackUrl(),
+        callback_url: callbackUrl,
         metadata: {
           flow: 'agent_onboarding',
+          type: 'agent',
           agentId: toIdString(agent._id),
           onboardingPaymentId: toIdString(payment._id),
           storeSlug,
@@ -222,16 +225,20 @@ export async function createAgentRegistrationAndPayment(input) {
       }
     );
 
-    const authorizationUrl = paystackResponse.data?.data?.authorization_url;
+    const authorizationUrl =
+      paystackResponse.data?.authorization_url ||
+      paystackResponse.data?.data?.authorization_url;
     if (!authorizationUrl) {
       throw new Error(paystackResponse.data?.message || 'Paystack did not return an authorization link');
     }
+
+    console.log('[payment initialized]', { reference: payment.reference, callback_url: callbackUrl });
 
     return {
       agent,
       payment,
       authorizationUrl,
-      callbackUrl: buildOnboardingCallbackUrl(),
+      callbackUrl,
       storeLink: buildStoreLink(getFrontendBaseUrl(), storeSlug)
     };
   } catch (error) {

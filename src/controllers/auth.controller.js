@@ -22,6 +22,7 @@ export const registerAgent = async (req, res, next) => {
           status: payment.status
         },
         authorizationUrl,
+        authorization_url: authorizationUrl,
         storeLink,
         requiresPayment: true
       }

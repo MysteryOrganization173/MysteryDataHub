@@ -443,7 +443,7 @@ export const verifyPayment = async (req, res) => {
   try {
     const paystackSecretKey = requirePaystackSecretKey('verify');
 
-    const { reference } = req.params;
+    const reference = String(req.query.reference || req.params.reference || '').trim();
     if (!isValidReferenceParam(reference)) {
       return res.status(400).json({
         success: false,
@@ -462,13 +462,20 @@ export const verifyPayment = async (req, res) => {
         );
         const onboardingPayload = onboardingVerification.data;
         const payment = onboardingPayload?.data;
-        if (!onboardingPayload?.status || payment?.status !== 'success') {
+        const metadataType = payment?.metadata?.type;
+
+        if (!onboardingPayload?.status || payment?.status !== 'success' || metadataType !== 'agent') {
           return res.status(402).json({
             success: false,
             status: 'error',
-            message: payment?.gateway_response || onboardingPayload?.message || 'Payment not successful'
+            message:
+              payment?.gateway_response ||
+              onboardingPayload?.message ||
+              (metadataType !== 'agent' ? 'Invalid payment metadata for agent activation' : 'Payment not successful')
           });
         }
+
+        console.log('[payment verified]', { reference, metadataType });
 
         const onboardingResult = await finalizeAgentOnboardingPayment(reference, payment);
         if (!onboardingResult) {
@@ -478,6 +485,8 @@ export const verifyPayment = async (req, res) => {
             message: 'Agent onboarding payment is not confirmed yet'
           });
         }
+
+        console.log('[agent activated]', { reference, agentId: onboardingResult?.agent?._id });
 
         return res.json({
           status: 'success',
