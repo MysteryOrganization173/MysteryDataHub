@@ -39,29 +39,8 @@ async function bootstrap() {
   }
 
   const app = express();
-
-  function resolveFrontendDir() {
-    const candidates = [
-      path.resolve(process.cwd(), 'Frontend'),
-      path.resolve(process.cwd(), '..', 'Frontend'),
-      path.resolve(process.cwd(), '..', '..', 'Frontend')
-    ];
-
-    for (const candidate of candidates) {
-      const indexPath = path.join(candidate, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        return { frontendDir: candidate, indexPath };
-      }
-    }
-
-    // Last resort: still return a best-guess so logs show what was attempted.
-    return {
-      frontendDir: path.resolve(process.cwd(), 'Frontend'),
-      indexPath: path.resolve(process.cwd(), 'Frontend', 'index.html')
-    };
-  }
-
-  const { frontendDir: frontendPath, indexPath: frontendIndexPath } = resolveFrontendDir();
+  const frontendPath = path.join(process.cwd(), 'public');
+  const frontendIndexPath = path.join(frontendPath, 'index.html');
   const configuredCorsOrigins = String(process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -135,9 +114,9 @@ async function bootstrap() {
   app.use('/api/orders', orderRoutes);
   app.use('/api/payment', paymentRoutes);
 
+  console.log('[startup] cwd:', process.cwd());
   console.log('[startup] Serving frontend from:', frontendPath);
-  console.log('[startup] Frontend index resolved to:', frontendIndexPath);
-  console.log('[startup] Frontend index exists:', fs.existsSync(frontendIndexPath));
+  console.log('[startup] Index exists:', fs.existsSync(frontendIndexPath));
   app.use(express.static(frontendPath));
   app.get('/', (req, res) => {
     res.sendFile(frontendIndexPath);
